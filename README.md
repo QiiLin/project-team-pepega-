@@ -6,7 +6,7 @@
 * Harrison Fok  
 * Qi Lin  
 ## Description of the web application  
-* This web application is used for in-browser video editing
+* This web application is used for in-browser video editing, and allows users to upload and download the edited video. Note: We are thinking about adding the idea of user account to this platform and allowing users to share their video with others.
 ## Description of the key features that will be completed by the Beta version
 * Video captioning
 * Splicing multiple videos together
@@ -32,9 +32,9 @@
   * https://github.com/gka/chroma.js/
   * https://github.com/ThreadsStyling/video-renderer
 ## Description of the top 5 technical challenges
-* Data structure design for the video edit package (store all the current editing and status of different source)  
-* We need to seamlessly integrate multiple JavaScript libraries together, since there isn’t one library that can handle all our video editing needs  
-* Since we are using JavaScript libraries for the “backend”, we would need a more complex front-end to reach the desired complexity of the web app  
-* Video editing takes a long time to compile normally. Depending on the JavaScript libraries that we use, our web app may have performance issues that we need to address.  
-* There are a lot of small features we need to add in terms of video editing, but due to having to test and integrate all of them we may have to scrap some features in our final implementation  
+* **Data Structure Design**: Data structure for the video edit package (store all the current edit action and status of different video/sound-track source) 
+* **Integration**:  We need to seamlessly integrate multiple JavaScript libraries together, since there isn’t one library that can handle all our video editing needs
+* **User Interface**: Since we are using JavaScript libraries for the “backend”, we would need a more complex front-end to simulate the desired video editing software.
+* **Optimizing Render/Editing Performance**: Video editing takes a long time to compile normally. Depending on the JavaScript libraries that we use, our web app may have performance issues that we need to address.
+* **Minimizing Response Time**: Since this is a very interactive web, we want to ensure a smooth user experience. We will need to use the idea of async and sync effectively to minimize the response time.   
 
