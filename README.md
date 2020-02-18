@@ -1,6 +1,6 @@
 # Team Pepega - Project Proposal
 ## Project Title  
-* Magic Video (tentative)
+* Magic Video
 ## Team Members  
 * Botao Martin Liang  
 * Harrison Fok  
@@ -20,12 +20,12 @@
 * Able to chroma key in videos
 * Able to add your voice into the video (via the user’s microphone)
 * Users can get help using from the “Get Help” section (search of words)
-## Description of the technology that you will use
+## Description of the technology that we will use
 * MongoDB
 * ExpressJS
 * ReactJS
 * NodeJS
-* Deploy on Heroku? 
+* Deploy on Heroku
 * The following are JavaScript libraries that we are considering using:
   * https://github.com/Kagami/ffmpeg.js
   * https://github.com/moviemasher/moviemasher.js
