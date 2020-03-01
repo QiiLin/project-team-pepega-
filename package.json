@@ -1,20 +1,17 @@
 {
   "name": "project-team-pepega",
   "version": "1.0.0",
-  "description": "in-browser video editing app",
+  "description": "In-browser video editing app",
   "main": "server.js",
   "scripts": {
-    "client-install": "npm install --prefix client",
     "start": "node server.js",
-    "server": "nodemon server.js",
-    "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "server": "nodemon server.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/UTSCC09/project-team-pepega.git"
   },
-  "author": "Botao Martin Liang, Harrison Fok, Qi Lin",
+  "author": "Martin Liang, Harrison Fok, Qi Lin",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/UTSCC09/project-team-pepega/issues"

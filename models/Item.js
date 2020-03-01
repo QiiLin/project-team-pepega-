@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// Create Schema
-const VideoSchema = new Schema({
+// Create schema
+const ItemSchema = new Schema({
   name: {
     type: String,
     required: true
@@ -13,4 +13,4 @@ const VideoSchema = new Schema({
   }
 });
 
-module.exports = Video = mongoose.model("Video", VideoSchema);
+module.exports = Item = mongoose.model("item", ItemSchema);
