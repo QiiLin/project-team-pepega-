@@ -6,12 +6,6 @@ import {
 } from "../actions/types";
 
 const initialState = {
-  //   items: [
-  //     { id: uuidv4(), name: "Eggs" },
-  //     { id: uuidv4(), name: "Milk" },
-  //     { id: uuidv4(), name: "Steak" },
-  //     { id: uuidv4(), name: "Candy" }
-  //   ]
   items: [],
   loading: false
 };

@@ -31,7 +31,6 @@ class ItemModal extends Component {
   onSubmit = e => {
     e.preventDefault();
     const newItem = {
-      //   id: uuidv4(),
       name: this.state.name
     };
     // Add video through add item action
