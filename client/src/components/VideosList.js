@@ -2,23 +2,32 @@ import React, { Component } from "react";
 import { Container, ListGroup, ListGroupItem, Button } from "reactstrap";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { v4 as uuidv4 } from "uuid";
+import { connect } from "react-redux";
+import { getItems } from "../actions/itemActions";
+import PropTypes from "prop-types";
 
 class VideosList extends Component {
-  state = {
-    items: [
-      { id: uuidv4(), name: "Eggs" },
-      { id: uuidv4(), name: "Milk" },
-      { id: uuidv4(), name: "Steak" },
-      { id: uuidv4(), name: "Water" }
-    ]
-  };
+  //   state = {
+  //     items: [
+  //       { id: uuidv4(), name: "Eggs" },
+  //       { id: uuidv4(), name: "Milk" },
+  //       { id: uuidv4(), name: "Steak" },
+  //       { id: uuidv4(), name: "Water" }
+  //     ]
+  //   };
+
+  // Run when making an api request (or calling an actions)
+  componentDidMount() {
+    this.props.getItems();
+  }
 
   onDeleteClick = id => {
     this.props.deleteItem(id);
   };
 
   render() {
-    const { items } = this.state;
+    // item represents the entire state object, items is the array inside the state
+    const { items } = this.props.item;
     return (
       <Container>
         <Button
@@ -64,4 +73,15 @@ class VideosList extends Component {
   }
 }
 
-export default VideosList;
+VideosList.propTypes = {
+  getItems: PropTypes.func.isRequired,
+  item: PropTypes.object.isRequired
+};
+
+// Mapping a redux state to a component property
+const mapStateToProps = state => ({
+  // item because we called it that in reducers/index.js (root reducer)
+  item: state.item
+});
+
+export default connect(mapStateToProps, { getItems })(VideosList);
