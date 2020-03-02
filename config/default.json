@@ -1,0 +1,4 @@
+{
+  "mongoURI": "mongodb+srv://harrison:harrison@magicvideocluster-ejxrg.mongodb.net/test?retryWrites=true&w=majority",
+  "jwtSecret": "mv_myJwtSecret"
+}
