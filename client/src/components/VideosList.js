@@ -6,6 +6,12 @@ import { getItems, deleteItem } from "../actions/itemActions";
 import PropTypes from "prop-types";
 
 class VideosList extends Component {
+  static propTypes = {
+    getItems: PropTypes.func.isRequired,
+    item: PropTypes.object.isRequired,
+    isAuthenticated: PropTypes.bool
+  };
+
   // Run when making an api request (or calling an actions)
   componentDidMount() {
     this.props.getItems();
@@ -25,14 +31,16 @@ class VideosList extends Component {
             {items.map(({ _id, name }) => (
               <CSSTransition key={_id} timeout={500} classNames="fade">
                 <ListGroupItem>
-                  <Button
-                    className="remove-btn"
-                    color="danger"
-                    size="sm"
-                    onClick={this.onDeleteClick.bind(this, _id)}
-                  >
-                    &times;
-                  </Button>
+                  {this.props.isAuthenticated ? (
+                    <Button
+                      className="remove-btn"
+                      color="danger"
+                      size="sm"
+                      onClick={this.onDeleteClick.bind(this, _id)}
+                    >
+                      &times;
+                    </Button>
+                  ) : null}
                   {name}
                 </ListGroupItem>
               </CSSTransition>
@@ -44,15 +52,11 @@ class VideosList extends Component {
   }
 }
 
-VideosList.propTypes = {
-  getItems: PropTypes.func.isRequired,
-  item: PropTypes.object.isRequired
-};
-
 // Mapping a redux state to a component property
 const mapStateToProps = state => ({
   // item because we called it that in reducers/index.js (root reducer)
-  item: state.item
+  item: state.item,
+  isAuthenticated: state.auth.isAuthenticated
 });
 
 export default connect(mapStateToProps, { getItems, deleteItem })(VideosList);
