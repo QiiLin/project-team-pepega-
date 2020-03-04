@@ -21,6 +21,7 @@ export const addItem = item => (dispatch, getState) => {
   //     type: ADD_ITEM,
   //     payload: item
   //   };
+  console.log("itemActions addItem item: ", item);
   axios
     // Attach token to request in the header
     .post("/api/items", item, tokenConfig(getState))
