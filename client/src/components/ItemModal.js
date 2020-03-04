@@ -7,7 +7,8 @@ import {
   Form,
   FormGroup,
   Label,
-  Input
+  Input,
+  Badge
 } from "reactstrap";
 import { connect } from "react-redux";
 import { addItem } from "../actions/itemActions";
@@ -30,8 +31,6 @@ class ItemModal extends Component {
   };
 
   onChange = e => {
-    console.log("[e.target.name]: ", [e.target.name]);
-    console.log("e.target.value: ", e.target.value);
     this.setState({ [e.target.name]: e.target.value });
   };
 
@@ -40,7 +39,6 @@ class ItemModal extends Component {
     const newItem = {
       name: this.state.name
     };
-    console.log("newItem: ", newItem);
     // Add video through add item action
     this.props.addItem(newItem);
     // Close modal
@@ -67,13 +65,18 @@ class ItemModal extends Component {
           <ModalBody>
             <Form onSubmit={this.onSubmit}>
               <FormGroup>
-                <Label for="item">Video File</Label>
+                <Label for="item">Video URL</Label>
+                <br />
+                Example:
+                <Badge>
+                  https://media.w3.org/2010/05/sintel/trailer_hd.mp4
+                </Badge>
                 <Input
                   type="text"
                   // this should match whatever that is in the state
                   name="name"
                   id="item"
-                  placeholder="Add a video file"
+                  placeholder="Add a video URL"
                   onChange={this.onChange}
                 />
                 <Button color="dark" style={{ marginTop: "2rem" }} block>
