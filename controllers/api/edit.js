@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../../middleware/auth");
 const fs = require('fs');
-const ffmpeg  = require('fluent-ffmpeg');
+const ffmpeg  = require('../../controllers/ff_path');
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
 // @access Private
@@ -10,7 +10,7 @@ router.post("/:id/caption", (req, res) => {
     // first build the content
     let result = "";
     req.body.data.forEach( function (curr, index) {
-        let temp = "" + index + "\n";
+        let temp = "" + (index + 1) + "\n";
         temp += curr.time + "\n";
         temp += curr.text + "\n";
         result += temp;
@@ -25,8 +25,11 @@ router.post("/:id/caption", (req, res) => {
         // ff.save(__dirname + '/../../temp/video/out.mp4');
         ffmpeg()
             .input(__dirname + '/../../temp/video/test.mp4')
-            .outputOptions([`-vf` + 'subtitles='+ __dirname + '/../../temp/subtitle/' + req.params.id + '_sub.srt' ])
-            .output(__dirname + '/../../temp/video/out.mp4').run();
+            .outputOptions(`-vf`,  'subtitles=/../../temp/subtitle/'+ 'sub.srt' )
+            .output(__dirname + '/../../temp/video/out.mp4')
+            .on("end",function () {
+                console.log('finished');
+            }).run();
         console.log('proceesed!');
         return res.status(200).end("we did it");
     });
