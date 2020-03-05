@@ -3,10 +3,34 @@ import { GET_ITEMS, ADD_ITEM, DELETE_ITEM, ITEMS_LOADING } from "./types";
 import { tokenConfig } from "./authActions";
 import { returnErrors } from "./errorActions";
 
+let isVideo = path => {
+  let arr = path.split(".");
+  let extension = arr.length > 0 ? arr[arr.length - 1] : "";
+  let videoExts = [
+    "webm",
+    "mpg",
+    "mp2",
+    "mpeg",
+    "mpe",
+    "mpv",
+    "ogg",
+    "mp4",
+    "m4p",
+    "m4v",
+    "avi",
+    "wmv",
+    "avi",
+    "wmv",
+    "mov",
+    "qt",
+    "flv",
+    "swf",
+    "avchd"
+  ];
+  return !videoExts.includes(extension) ? false : true;
+};
+
 export const getItems = () => dispatch => {
-  //   return {
-  //     type: GET_ITEMS
-  //   };
   dispatch(setItemsLoading());
   axios
     .get("/api/items")
@@ -17,31 +41,25 @@ export const getItems = () => dispatch => {
 };
 
 export const addItem = item => (dispatch, getState) => {
-  //   return {
-  //     type: ADD_ITEM,
-  //     payload: item
-  //   };
-  console.log("itemActions addItem item: ", item);
-  axios
-    // Attach token to request in the header
-    .post("/api/items", item, tokenConfig(getState))
-    .then(res =>
-      dispatch({
-        type: ADD_ITEM,
-        payload: res.data
-      })
-    )
-    .catch(err =>
-      dispatch(returnErrors(err.response.data, err.response.status))
-    );
+  // Only add the video if the user input is a video path
+  if (isVideo(item.name)) {
+    axios
+      // Attach token to request in the header
+      .post("/api/items", item, tokenConfig(getState))
+      .then(res =>
+        dispatch({
+          type: ADD_ITEM,
+          payload: res.data
+        })
+      )
+      .catch(err =>
+        dispatch(returnErrors(err.response.data, err.response.status))
+      );
+  }
 };
 
 // This returns to the reducer, and the reducer also needs to know the id when deleting an item, so we include a payload
 export const deleteItem = id => (dispatch, getState) => {
-  //   return {
-  //     type: DELETE_ITEM,
-  //     payload: id
-  //   };
   axios
     // Attach token to request in the header
     .delete(`/api/items/${id}`, tokenConfig(getState))
