@@ -12,15 +12,14 @@ router.post("/merge/:id/:idMerge", auth, (req, res) => {
   //find filename of 2 vids from id & idMerge
   //set to filepaths, path1 is id & path2 is idMerge
 
-  path1 = path.join(__dirname, "../../video_input/test1.mp4");
-  path2 = path.join(__dirname, "../../video_input/test2.mp4");
-  path1_base = path.basename(path1).replace(path.extname(path1),""); //filename w/o extension
-  path2_base = path.basename(path2).replace(path.extname(path2),"");
-  path1_tmp = path.join(path.dirname(path1), 'tmp', path1_base + "_mod.avi"); //temp file loc
-  path2_tmp = path.join(path.dirname(path2), 'tmp', path2_base + "_mod.avi");
-  pathOut_tmp = path.join(__dirname, '../../video_output/tmp');
-  pathOut_path = path.join(__dirname, "../../video_output/", path1_base + ".avi");
-  //__dirname, '../../video_input/tmp/test2_changed.avi'   "../../video_output/testmerged.avi"
+  var path1 = path.join(__dirname, "../../video_input/test1.mp4");
+  var path2 = path.join(__dirname, "../../video_input/test2.mp4");
+  var path1_base = path.basename(path1).replace(path.extname(path1),""); //filename w/o extension
+  var path2_base = path.basename(path2).replace(path.extname(path2),"");
+  var path1_tmp = path.join(path.dirname(path1), 'tmp', path1_base + "_mod.avi"); //temp file loc
+  var path2_tmp = path.join(path.dirname(path2), 'tmp', path2_base + "_mod.avi");
+  var pathOut_tmp = path.join(__dirname, '../../video_output/tmp');
+  var pathOut_path = path.join(__dirname, "../../video_output/", path1_base + ".avi");
 
   ffmpeg.ffprobe(path1, function(err, metadata){
     if(err) res.json('An error occurred [MergeResolution]: ' + err.message);
@@ -29,10 +28,11 @@ router.post("/merge/:id/:idMerge", auth, (req, res) => {
     var height = metadata.streams[0].height;
 
     ffmpeg(path1)
-    .preset('divx')
-    .size(width + "x" + height)
-    .autopad()
+    .preset('divx')    
     .withFpsInput(30)
+    .outputOptions([
+      `-vf scale=${width}:${height},setsar=1`
+    ])
     .on('progress', (progress) => {
       console.log(`[Merge1]: ${JSON.stringify(progress)}`);
     })
@@ -44,10 +44,11 @@ router.post("/merge/:id/:idMerge", auth, (req, res) => {
     })*/
     .on('end', function() {
       ffmpeg(path2)
-      .preset('divx')  
-      .size("640x360")
-      .autopad()
+      .preset('divx')   
       .withFpsInput(30)
+      .outputOptions([        
+        `-vf scale=${width}:${height},setsar=1`
+      ])
       .on('progress', (progress) => {
         console.log(`[Merge2]: ${JSON.stringify(progress)}`);
       })
@@ -67,6 +68,12 @@ router.post("/merge/:id/:idMerge", auth, (req, res) => {
           console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
         })
         .on('error', function(err) {
+          fs.unlink(path1_tmp, (err) => {
+            if (err) console.log('Could not remove Merge1 tmp file:' + err);
+          });
+          fs.unlink(path2_tmp, (err) => {
+            if (err) console.log('Could not remove Merge1 tmp file:' + err);
+          });
           res.json('An error occurred [MergeCombine]: ' + err.message);
         })
         /*.on('stderr', function(stderrLine) {
@@ -89,18 +96,20 @@ router.post("/merge/:id/:idMerge", auth, (req, res) => {
   })
 });
 
-// @route  POST /api/edit/:id/:timestampOld/:timestampNew
+// @route  POST /api/edit/cut/:id/:timestampOld/:timestampNew
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
-router.post("/:id/:timestampOld/:timestampNew", auth, (req, res) => {
+router.post("/cut/:id/:timestampOld/:timestampNew", auth, (req, res) => {
 
 });
 
-// @route  POST /api/edit/:id/:timestampTrim
+// @route  POST /api/edit/trim/:id/:timestampTrim
 // @desc   Remove video section at timestampTrim
 // @access Private
-router.post("/:id/:timestampTrim", auth, (req, res) => {
-
+router.post("/trim/:id/:timestampTrim", auth, (req, res) => {
+  path1 = path.join(__dirname, "../../video_input/test1.mp4");
+  path1_base = path.basename(path1).replace(path.extname(path1),""); //filename w/o extension
+  pathOut_path = path.join(__dirname, "../../video_output/", path1_base + ".avi");
 });
 
 module.exports = router;
