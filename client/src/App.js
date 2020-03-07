@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Player } from "video-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { Provider } from "react-redux";
@@ -22,6 +23,9 @@ class App extends Component {
           <Container>
             <ItemModal />
             <VideosList />
+            {/* <Player>
+              <source src={"/3b6041dcb7ff00c352257fb9707d9e5f"} />
+            </Player> */}
           </Container>
         </div>
       </Provider>
@@ -30,3 +34,7 @@ class App extends Component {
 }
 
 export default App;
+
+// Challenge #1: save the video file in the right directory (client/public instead of controllers/api)
+// Challenge #2: save the right stuff into mongodb
+// Challenge #3: retreive stuff from mongodb

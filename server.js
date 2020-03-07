@@ -2,11 +2,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const config = require("config");
+const bodyParser = require("body-parser");
 
 const app = express();
 
 // Body parser middleware
 app.use(express.json());
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 const db = config.get("mongoURI");
 

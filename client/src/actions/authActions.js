@@ -106,9 +106,28 @@ export const tokenConfig = getState => {
 
   // Headers
   const config = {
+    // headers: {'Content-Type': 'application/x-www-form-urlencoded'}
     headers: {
       "Content-type": "application/json"
     }
+  };
+
+  // If token, add to headers
+  if (token) {
+    config.headers["x-auth-token"] = token;
+  }
+
+  return config;
+};
+
+// Setup config/headers and token
+export const tokenConfig2 = getState => {
+  // Get token from localStorage
+  const token = getState().auth.token;
+
+  // Headers
+  const config = {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" }
   };
 
   // If token, add to headers

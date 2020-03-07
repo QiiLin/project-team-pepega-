@@ -1,6 +1,6 @@
 import axios from "axios";
 import { GET_ITEMS, ADD_ITEM, DELETE_ITEM, ITEMS_LOADING } from "./types";
-import { tokenConfig } from "./authActions";
+import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 
 let isVideo = path => {
@@ -46,7 +46,7 @@ export const addItem = item => (dispatch, getState) => {
   // Only add the video if the user input is a video path
   axios
     // Attach token to request in the header
-    .post("/api/items", item, tokenConfig(getState))
+    .post("/api/items", item, tokenConfig2(getState))
     .then(res =>
       dispatch({
         type: ADD_ITEM,

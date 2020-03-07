@@ -28,7 +28,7 @@ const storage = new GridFsStorage({
     });
   }
 });
-const upload = multer({ storage });
+// const upload = multer({ storage });
 
 const app = express();
 
@@ -44,14 +44,23 @@ router.get("/", (req, res) => {
     .then(items => res.json(items));
 });
 
+var upload = multer({ dest: path.join(__dirname, "uploads") });
+
 // @route  POST /api/items
 // @desc   Create an item
 // @access Private
-router.post("/", auth, (req, res) => {
-  const newItem = new Item({
-    name: req.body.name
-  });
-  newItem.save().then(item => res.json(item));
+router.post("/", upload.single("name"), (req, res) => {
+  //auth
+  // const newItem = new Item({
+  //   name: req.body.name
+  // });
+  // newItem.save().then(item => res.json(item));
+  console.log(req.body);
+  console.log(req.file);
+  // let newItem = {
+  //   name: req.file
+  // };
+  // newItem.save().then(item => res.json(item));
 });
 
 // @route  DELETE /api/items/:id
