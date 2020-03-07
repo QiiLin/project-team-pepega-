@@ -59,7 +59,7 @@ router.post("/:id/caption", (req, res) => {
                     if (err) console.log('Could not remove Merge1 tmp file:' + err);
                 });
                 // TODO return data with path to access the file in the database
-                return res.status(200).end("we did it");
+                return res.status(200).end("Caption is added");
             }).run();
     });
 });
