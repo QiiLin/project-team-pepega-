@@ -44,7 +44,7 @@ router.get("/", (req, res) => {
     .then(items => res.json(items));
 });
 
-var upload = multer({ dest: path.join(__dirname, "uploads") });
+var upload = multer({ dest: path.join(__dirname, "../../client/public") });
 
 // @route  POST /api/items
 // @desc   Create an item
