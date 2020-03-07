@@ -32,7 +32,6 @@ router.post("/:id/caption", (req, res) => {
     let input_path =  path.join(__dirname +  "/../../temp/video/test.mp4");
 
     let out_path = path.join(__dirname + "/../../temp/video/out.mp4");
-    console.log(sub_path, srt_path, input_path,out_path);
     fs.writeFile(srt_path, result, function (err) {
         if (err) throw err;
         console.log('Saved!');
@@ -57,7 +56,6 @@ router.post("/:id/caption", (req, res) => {
             .on("end",function () {
                 fs.unlink(srt_path, (err) => {
                     if (err) console.log('Could not remove srt file:' + err);
-                    res.status(500).json('An error occurred [Caption]: ' + err.message);
                 });
                 // TODO return data with path to access the file in the database
                 return res.status(200).end("Caption is added");
