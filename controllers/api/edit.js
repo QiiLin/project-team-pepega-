@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../../middleware/auth");
 const fs = require('fs');
+const path = require('path');
 const ffmpeg  = require('../../controllers/ff_path');
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
@@ -15,6 +16,9 @@ router.post("/:id/caption", (req, res) => {
         temp += curr.text + "\n";
         result += temp;
     });
+
+    var sub_path = path.join(__dirname, "/../../temp/subtitle/", req.params.id + "_sub.srt").replace(/\\/g, "\\\\\\\\").replace(":","\\\\:");
+    
     console.log(result);
     fs.writeFile( __dirname + '/../../temp/subtitle/'+ req.params.id + '_sub.srt', result, function (err) {
         if (err) throw err;
@@ -25,8 +29,13 @@ router.post("/:id/caption", (req, res) => {
         // ff.save(__dirname + '/../../temp/video/out.mp4');
         ffmpeg()
             .input(__dirname + '/../../temp/video/test.mp4')
-            .outputOptions(`-vf`,  'subtitles=/../../temp/subtitle/'+ 'sub.srt' )
+            .outputOptions([
+              `-vf subtitles=${sub_path}` 
+            ])
             .output(__dirname + '/../../temp/video/out.mp4')
+            .on('stderr', function(stderrLine) {
+              console.log('Stderr output [Subtitle]:: ' + stderrLine);
+            })
             .on("end",function () {
                 console.log('finished');
             }).run();
