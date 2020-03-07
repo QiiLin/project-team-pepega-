@@ -4,6 +4,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { connect } from "react-redux";
 import { getItems, deleteItem } from "../actions/itemActions";
 import PropTypes from "prop-types";
+import { Player } from "video-react";
 
 class VideosList extends Component {
   static propTypes = {
@@ -27,7 +28,7 @@ class VideosList extends Component {
     return (
       <Container>
         <ListGroup>
-          <TransitionGroup className="shoppings-list">
+          <TransitionGroup className="videos-list">
             {items.map(({ _id, name }) => (
               <CSSTransition key={_id} timeout={500} classNames="fade">
                 <ListGroupItem>
@@ -41,7 +42,9 @@ class VideosList extends Component {
                       &times;
                     </Button>
                   ) : null}
-                  {name}
+                  <Player>
+                    <source src={name} />
+                  </Player>
                 </ListGroupItem>
               </CSSTransition>
             ))}
