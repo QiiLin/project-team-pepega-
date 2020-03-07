@@ -56,7 +56,8 @@ router.post("/:id/caption", (req, res) => {
             // })
             .on("end",function () {
                 fs.unlink(srt_path, (err) => {
-                    if (err) console.log('Could not remove Merge1 tmp file:' + err);
+                    if (err) console.log('Could not remove srt file:' + err);
+                    res.status(500).json('An error occurred [Caption]: ' + err.message);
                 });
                 // TODO return data with path to access the file in the database
                 return res.status(200).end("Caption is added");
