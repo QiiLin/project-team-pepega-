@@ -8,6 +8,7 @@ let isVideo = path => {
   let extension = arr.length > 0 ? arr[arr.length - 1] : "";
   let videoExts = [
     "webm",
+    "mov",
     "mpg",
     "mp2",
     "mpeg",
@@ -41,21 +42,20 @@ export const getItems = () => dispatch => {
 };
 
 export const addItem = item => (dispatch, getState) => {
+  console.log("addItem called");
   // Only add the video if the user input is a video path
-  if (isVideo(item.name)) {
-    axios
-      // Attach token to request in the header
-      .post("/api/items", item, tokenConfig(getState))
-      .then(res =>
-        dispatch({
-          type: ADD_ITEM,
-          payload: res.data
-        })
-      )
-      .catch(err =>
-        dispatch(returnErrors(err.response.data, err.response.status))
-      );
-  }
+  axios
+    // Attach token to request in the header
+    .post("/api/items", item, tokenConfig(getState))
+    .then(res =>
+      dispatch({
+        type: ADD_ITEM,
+        payload: res.data
+      })
+    )
+    .catch(err =>
+      dispatch(returnErrors(err.response.data, err.response.status))
+    );
 };
 
 // This returns to the reducer, and the reducer also needs to know the id when deleting an item, so we include a payload

@@ -39,6 +39,7 @@ class ItemModal extends Component {
     const newItem = {
       name: this.state.name
     };
+    console.log("newItem: ", newItem);
     // Add video through add item action
     this.props.addItem(newItem);
     // Close modal
@@ -63,20 +64,19 @@ class ItemModal extends Component {
         <Modal isOpen={this.state.modal} toggle={this.toggle}>
           <ModalHeader toggle={this.toggle}>Add To Videos List</ModalHeader>
           <ModalBody>
-            <Form onSubmit={this.onSubmit}>
+            <Form onSubmit={this.onSubmit} action="/upload" method="POST">
               <FormGroup>
                 <Label for="item">Video URL</Label>
-                <br />
+                {/* <br />
                 Example:
                 <Badge>
                   https://media.w3.org/2010/05/sintel/trailer_hd.mp4
-                </Badge>
+                </Badge> */}
                 <Input
-                  type="text"
+                  type="file"
                   // this should match whatever that is in the state
                   name="name"
                   id="item"
-                  placeholder="Add a video URL"
                   onChange={this.onChange}
                 />
                 <Button color="dark" style={{ marginTop: "2rem" }} block>
@@ -97,3 +97,23 @@ const mapStateToProps = state => ({
 });
 
 export default connect(mapStateToProps, { addItem })(ItemModal);
+
+/*
+import { UploaderComponent } from '@syncfusion/ej2-react-inputs';
+import * as React from 'react';
+import * as ReactDOM from "react-dom";
+
+export default class App extends React.Component<{}, {}> {
+  public path: object = {
+    removeUrl: 'https://aspnetmvc.syncfusion.com/services/api/uploadbox/Remove',
+    saveUrl: 'https://aspnetmvc.syncfusion.com/services/api/uploadbox/Save'
+  }
+  public render(): JSX.Element {
+    return (
+      <UploaderComponent multiple={false} asyncSettings={this.path} />
+    );
+  }
+}
+
+ReactDOM.render(<App />, document.getElementById('fileupload'));
+*/

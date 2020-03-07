@@ -1,6 +1,36 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../../middleware/auth");
+const multer = require("multer");
+const GridFsStorage = require("multer-gridfs-storage");
+const Grid = require("gridfs-stream");
+const path = require("path");
+const crypto = require("crypto");
+const config = require("config");
+const url = config.get("mongoURI");
+
+const storage = new GridFsStorage({
+  url: url,
+  options: { useUnifiedTopology: true },
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {
+        if (err) {
+          return reject(err);
+        }
+        const filename = buf.toString("hex") + path.extname(file.originalname);
+        const fileInfo = {
+          filename: filename,
+          bucketName: "uploads"
+        };
+        resolve(fileInfo);
+      });
+    });
+  }
+});
+const upload = multer({ storage });
+
+const app = express();
 
 // Item model
 const Item = require("../../models/Item");
@@ -31,6 +61,10 @@ router.delete("/:id", auth, (req, res) => {
   Item.findById(req.params.id)
     .then(item => item.remove().then(() => res.json({ deleted: true })))
     .catch(err => res.status(404).json({ deleted: false }));
+});
+
+router.post("/upload", auth, (req, res) => {
+  res.json({ name: req.name });
 });
 
 module.exports = router;
