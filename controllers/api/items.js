@@ -49,18 +49,29 @@ var upload = multer({ dest: path.join(__dirname, "../../client/public") });
 // @route  POST /api/items
 // @desc   Create an item
 // @access Private
-router.post("/", upload.single("name"), (req, res) => {
-  //auth
-  // const newItem = new Item({
-  //   name: req.body.name
-  // });
-  // newItem.save().then(item => res.json(item));
-  console.log(req.body);
-  console.log(req.file);
-  // let newItem = {
-  //   name: req.file
-  // };
-  // newItem.save().then(item => res.json(item));
+router.post("/", upload.single("video"), (req, res) => {
+  // {
+  //     fieldname: 'name',
+  //     originalname: 'avideo.MOV',
+  //     encoding: '7bit',
+  //     mimetype: 'video/quicktime',
+  //     destination: '/Users/harrisonapple/Documents/CSCC09/project-team-pepega/client/public',
+  //     filename: '4f4395e0f7963b85fe87b3a2482f25cd',
+  //     path: '/Users/harrisonapple/Documents/CSCC09/project-team-pepega/client/public/4f4395e0f7963b85fe87b3a2482f25cd',
+  //     size: 4141876
+  // }
+  let uploaded_file = req.file;
+  console.log(uploaded_file);
+  const newItem = new Item({
+    file_name: uploaded_file.filename,
+    file_path: uploaded_file.path
+  });
+  newItem.save().then(item => res.json(item));
+
+  /* should expect this in db
+  filename: '4f4395e0f7963b85fe87b3a2482f25cd',
+  path: '/Users/harrisonapple/Documents/CSCC09/project-team-pepega/client/public/4f4395e0f7963b85fe87b3a2482f25cd',
+  */
 });
 
 // @route  DELETE /api/items/:id

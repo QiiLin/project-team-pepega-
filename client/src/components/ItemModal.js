@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { Component } from "react";
 import {
   Button,
@@ -15,10 +16,14 @@ import { addItem } from "../actions/itemActions";
 import { PropTypes } from "prop-types";
 
 class ItemModal extends Component {
-  state = {
-    modal: false,
-    name: ""
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      modal: false,
+      name: "",
+      video: ""
+    };
+  }
 
   static propTypes = {
     isAuthenticated: PropTypes.bool
@@ -34,14 +39,22 @@ class ItemModal extends Component {
     this.setState({ [e.target.name]: e.target.value });
   };
 
+  fileSelectedHandler = e => {
+    console.log("fileSelectedHandler: ", e.target.files[0]);
+    this.setState({
+      video: e.target.files[0]
+    });
+  };
+
   onSubmit = e => {
     e.preventDefault();
-    const newItem = {
-      name: this.state.name
-    };
-    console.log("newItem: ", newItem);
+
+    let bodyFormData = new FormData();
+    // bodyFormData.set("video", this.state.video);
+    bodyFormData.append("video", this.state.video);
+
     // Add video through add item action
-    this.props.addItem(newItem);
+    this.props.addItem(bodyFormData);
     // Close modal
     this.toggle();
   };
@@ -64,7 +77,7 @@ class ItemModal extends Component {
         <Modal isOpen={this.state.modal} toggle={this.toggle}>
           <ModalHeader toggle={this.toggle}>Add To Videos List</ModalHeader>
           <ModalBody>
-            <Form onSubmit={this.onSubmit} action="/upload" method="POST">
+            <Form onSubmit={this.onSubmit}>
               <FormGroup>
                 <Label for="item">Video URL</Label>
                 {/* <br />
@@ -72,13 +85,14 @@ class ItemModal extends Component {
                 <Badge>
                   https://media.w3.org/2010/05/sintel/trailer_hd.mp4
                 </Badge> */}
-                <Input
+                {/* <Input
                   type="file"
                   // this should match whatever that is in the state
                   name="name"
                   id="item"
                   onChange={this.onChange}
-                />
+                /> */}
+                <input type="file" onChange={this.fileSelectedHandler} />
                 <Button color="dark" style={{ marginTop: "2rem" }} block>
                   Add Video
                 </Button>
@@ -102,6 +116,7 @@ export default connect(mapStateToProps, { addItem })(ItemModal);
 import { UploaderComponent } from '@syncfusion/ej2-react-inputs';
 import * as React from 'react';
 import * as ReactDOM from "react-dom";
+import { axios } from 'axios';
 
 export default class App extends React.Component<{}, {}> {
   public path: object = {

@@ -3,7 +3,11 @@ const Schema = mongoose.Schema;
 
 // Create schema
 const ItemSchema = new Schema({
-  name: {
+  file_name: {
+    type: String,
+    required: true
+  },
+  file_path: {
     type: String,
     required: true
   },
