@@ -102,8 +102,7 @@ router.post("/merge/:id/:idMerge", auth, (req, res) => {
 router.post("/cut/:id", auth, (req, res) => {
   if(!req.body.timestampOldStart ||
      !req.body.timestampOldEnd ||
-     !req.body.timestampNewStart ||
-     !req.body.timestampNewEnd) return res.status(400).end("timestamp required");
+     !req.body.timestampNewStart) return res.status(400).end("timestamp required");
   
 });
 
