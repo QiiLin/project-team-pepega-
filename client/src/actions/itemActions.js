@@ -45,24 +45,6 @@ export const addItem = item => (dispatch, getState) => {
   console.log("addItem called");
   console.log("addItem item: ", item);
 
-  // axios({
-  //   method: "post",
-  //   url: "/api/items",
-  //   data: item,
-  //   headers: { "Content-Type": "application/x-www-form-urlencoded" }
-  // })
-  //   .then(function(res) {
-  //     console.log(res);
-  //     dispatch({
-  //       type: ADD_ITEM,
-  //       payload: res.data
-  //     });
-  //   })
-  //   .catch(function(err) {
-  //     console.log(err);
-  //     dispatch(returnErrors(err.response.data, err.response.status));
-  //   });
-
   // Only add the video if the user input is a video path
   axios
     // Attach token to request in the header

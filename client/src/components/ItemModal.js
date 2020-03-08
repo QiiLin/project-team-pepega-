@@ -7,9 +7,7 @@ import {
   ModalBody,
   Form,
   FormGroup,
-  Label,
-  Input,
-  Badge
+  Label
 } from "reactstrap";
 import { connect } from "react-redux";
 import { addItem } from "../actions/itemActions";
