@@ -34,6 +34,3 @@ class App extends Component {
 }
 
 export default App;
-
-// Challenge #2: save the right stuff into mongodb
-// Challenge #3: retreive stuff from mongodb
