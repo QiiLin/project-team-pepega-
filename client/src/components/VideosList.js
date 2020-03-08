@@ -7,6 +7,10 @@ import PropTypes from "prop-types";
 import { Player } from "video-react";
 
 class VideosList extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   static propTypes = {
     getItems: PropTypes.func.isRequired,
     item: PropTypes.object.isRequired,
@@ -16,6 +20,7 @@ class VideosList extends Component {
   // Run when making an api request (or calling an actions)
   componentDidMount() {
     this.props.getItems();
+    console.log(this.props.getItems());
   }
 
   onDeleteClick = id => {
@@ -29,7 +34,7 @@ class VideosList extends Component {
       <Container>
         <ListGroup>
           <TransitionGroup className="videos-list">
-            {items.map(({ _id, name }) => (
+            {items.map(({ _id, file_name }) => (
               <CSSTransition key={_id} timeout={500} classNames="fade">
                 <ListGroupItem>
                   {this.props.isAuthenticated ? (
@@ -43,7 +48,7 @@ class VideosList extends Component {
                     </Button>
                   ) : null}
                   <Player>
-                    <source src={name} />
+                    <source src={file_name} />
                   </Player>
                 </ListGroupItem>
               </CSSTransition>
