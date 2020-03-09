@@ -23,9 +23,6 @@ class App extends Component {
           <Container>
             <ItemModal />
             <VideosList />
-            {/* <Player>
-              <source src={"/3b6041dcb7ff00c352257fb9707d9e5f"} />
-            </Player> */}
           </Container>
         </div>
       </Provider>
