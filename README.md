@@ -12,5 +12,5 @@ project-team-pepega created by GitHub Classroom
 
 To run, Type the following in the terminal:
 
-- 1. npm run nodemon-debug
-- 2. npm run dev
+- npm run nodemon-debug
+- npm run dev
