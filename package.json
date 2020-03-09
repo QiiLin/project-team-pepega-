@@ -4,6 +4,7 @@
   "description": "In-browser video editing app",
   "main": "server.js",
   "scripts": {
+    "nodemon-debug": "npm install -g nodemon@debug",
     "client-install": "npm install --prefix client",
     "start": "node server.js",
     "server": "nodemon server.js",
