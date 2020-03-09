@@ -16,7 +16,6 @@ class VideosList extends Component {
   // Run when making an api request (or calling an actions)
   componentDidMount() {
     this.props.getItems();
-    console.log(this.props.getItems());
   }
 
   onDeleteClick = id => {
