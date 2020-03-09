@@ -3,34 +3,6 @@ import { GET_ITEMS, ADD_ITEM, DELETE_ITEM, ITEMS_LOADING } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 
-let isVideo = path => {
-  let arr = path.split(".");
-  let extension = arr.length > 0 ? arr[arr.length - 1] : "";
-  let videoExts = [
-    "webm",
-    "mov",
-    "mpg",
-    "mp2",
-    "mpeg",
-    "mpe",
-    "mpv",
-    "ogg",
-    "mp4",
-    "m4p",
-    "m4v",
-    "avi",
-    "wmv",
-    "avi",
-    "wmv",
-    "mov",
-    "qt",
-    "flv",
-    "swf",
-    "avchd"
-  ];
-  return !videoExts.includes(extension) ? false : true;
-};
-
 export const getItems = () => dispatch => {
   dispatch(setItemsLoading());
   axios

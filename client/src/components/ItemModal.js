@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { Component } from "react";
 import {
   Button,
@@ -109,24 +108,3 @@ const mapStateToProps = state => ({
 });
 
 export default connect(mapStateToProps, { addItem })(ItemModal);
-
-/*
-import { UploaderComponent } from '@syncfusion/ej2-react-inputs';
-import * as React from 'react';
-import * as ReactDOM from "react-dom";
-import { axios } from 'axios';
-
-export default class App extends React.Component<{}, {}> {
-  public path: object = {
-    removeUrl: 'https://aspnetmvc.syncfusion.com/services/api/uploadbox/Remove',
-    saveUrl: 'https://aspnetmvc.syncfusion.com/services/api/uploadbox/Save'
-  }
-  public render(): JSX.Element {
-    return (
-      <UploaderComponent multiple={false} asyncSettings={this.path} />
-    );
-  }
-}
-
-ReactDOM.render(<App />, document.getElementById('fileupload'));
-*/

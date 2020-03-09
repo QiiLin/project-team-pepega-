@@ -7,10 +7,6 @@ import PropTypes from "prop-types";
 import { Player } from "video-react";
 
 class VideosList extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   static propTypes = {
     getItems: PropTypes.func.isRequired,
     item: PropTypes.object.isRequired,
