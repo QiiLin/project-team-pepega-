@@ -7,7 +7,8 @@ import PropTypes from "prop-types";
 // import SublimeVideo from "react-sublime-video";
 // import { Media, Player, controls } from "react-media-player";
 // const { PlayPause, MuteUnmute } = controls;
-import VPlayer from "react-vplayer";
+// import VPlayer from "react-vplayer";
+import Player from "video-react";
 
 class VideosList extends Component {
   static propTypes = {
@@ -45,11 +46,15 @@ class VideosList extends Component {
                       &times;
                     </Button>
                   ) : null}
-                  {/* <Player>
+                  <Player>
                     <source src={file_name} />
-                  </Player> */}
+                  </Player>
                   {/* <SublimeVideo autoPlay loop src={file_name} /> */}
-                  <VPlayer source={file_name} />
+                  {/* <VPlayer
+                    source={[
+                      { url: file_name, type: "video/mp4", quality: 720 }
+                    ]}
+                  /> */}
                 </ListGroupItem>
               </CSSTransition>
             ))}
