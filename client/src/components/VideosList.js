@@ -4,9 +4,7 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { connect } from "react-redux";
 import { getItems, deleteItem } from "../actions/itemActions";
 import PropTypes from "prop-types";
-// import ReactPlayer from "react-player";
-import { DefaultPlayer as Video } from "react-html5video";
-import "react-html5video/dist/styles.css";
+import SublimeVideo from "react-sublime-video";
 
 class VideosList extends Component {
   static propTypes = {
@@ -47,31 +45,7 @@ class VideosList extends Component {
                   {/* <Player>
                     <source src={file_name} />
                   </Player> */}
-                  <Video
-                    autoPlay
-                    loop
-                    muted
-                    controls={[
-                      "PlayPause",
-                      "Seek",
-                      "Time",
-                      "Volume",
-                      "Fullscreen"
-                    ]}
-                    // poster="http://sourceposter.jpg"
-                    // onCanPlayThrough={() => {
-                    //   // Do stuff
-                    // }}
-                  >
-                    <source src={file_name} type="video/webm" />
-                    {/* <track
-                      label="English"
-                      kind="subtitles"
-                      srcLang="en"
-                      src="http://source.vtt"
-                      default
-                    /> */}
-                  </Video>
+                  <SublimeVideo autoPlay loop src={file_name} />
                 </ListGroupItem>
               </CSSTransition>
             ))}
