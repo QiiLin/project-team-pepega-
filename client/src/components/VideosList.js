@@ -4,7 +4,10 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { connect } from "react-redux";
 import { getItems, deleteItem } from "../actions/itemActions";
 import PropTypes from "prop-types";
-import SublimeVideo from "react-sublime-video";
+// import SublimeVideo from "react-sublime-video";
+// import { Media, Player, controls } from "react-media-player";
+// const { PlayPause, MuteUnmute } = controls;
+import VPlayer from "react-vplayer";
 
 class VideosList extends Component {
   static propTypes = {
@@ -45,7 +48,8 @@ class VideosList extends Component {
                   {/* <Player>
                     <source src={file_name} />
                   </Player> */}
-                  <SublimeVideo autoPlay loop src={file_name} />
+                  {/* <SublimeVideo autoPlay loop src={file_name} /> */}
+                  <VPlayer source={file_name} />
                 </ListGroupItem>
               </CSSTransition>
             ))}
