@@ -46,6 +46,8 @@ class VideosList extends Component {
                     url={file_name}
                     className="react-player"
                     playing
+                    loop
+                    controls
                     width="100%"
                     height="100%"
                   />
