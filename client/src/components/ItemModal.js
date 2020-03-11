@@ -11,6 +11,7 @@ import {
 import { connect } from "react-redux";
 import { addItem } from "../actions/itemActions";
 import { PropTypes } from "prop-types";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 class ItemModal extends Component {
   constructor(props) {
@@ -76,7 +77,7 @@ class ItemModal extends Component {
           <ModalBody>
             <Form onSubmit={this.onSubmit}>
               <FormGroup>
-                <Label for="item">Video URL</Label>
+                <Label for="item">Video: </Label>
                 {/* <br />
                 Example:
                 <Badge>
@@ -89,7 +90,12 @@ class ItemModal extends Component {
                   id="item"
                   onChange={this.onChange}
                 /> */}
-                <input type="file" onChange={this.fileSelectedHandler} />
+                <input
+                  type="file"
+                  id="fileInput"
+                  onChange={this.fileSelectedHandler}
+                  className="form-control-file border"
+                />
                 <Button color="dark" style={{ marginTop: "2rem" }} block>
                   Add Video
                 </Button>
