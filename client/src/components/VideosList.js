@@ -4,7 +4,6 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { connect } from "react-redux";
 import { getItems, deleteItem } from "../actions/itemActions";
 import PropTypes from "prop-types";
-// import { Player } from "video-react";
 import ReactPlayer from "react-player";
 
 class VideosList extends Component {
@@ -43,9 +42,6 @@ class VideosList extends Component {
                       &times;
                     </Button>
                   ) : null}
-                  {/* <Player>
-                    <source src={file_name} />
-                  </Player> */}
                   <ReactPlayer
                     url={file_name}
                     className="react-player"
