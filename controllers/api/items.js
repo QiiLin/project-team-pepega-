@@ -43,8 +43,9 @@ router.post("/", upload.single("video"), (req, res) => {
   let uploaded_file = req.file;
   console.log("Uploaded file: ", uploaded_file);
   const newItem = new Item({
+    uploader_id: req.body.uploader_id,
     file_name: uploaded_file.filename,
-    file_path: uploaded_file.path
+    file_path: uploaded_file.path    
   });
   newItem.save().then(item => res.json(item));
 });
