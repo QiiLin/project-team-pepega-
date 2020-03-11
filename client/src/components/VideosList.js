@@ -6,7 +6,6 @@ import { getItems, deleteItem } from "../actions/itemActions";
 import { editItem } from "../actions/editActions";
 import EditModal from "./EditModal";
 import PropTypes from "prop-types";
-// import ReactPlayer from "react-player";
 import { Player } from "video-react";
 
 
@@ -95,15 +94,6 @@ class VideosList extends Component {
                     </Navbar>
 
                   ) : null}
-                  {/* <ReactPlayer
-                    url={file_name}
-                    className="react-player"
-                    playing
-                    loop
-                    controls
-                    width="100%"
-                    height="100%"
-                  /> */}
                   <Player>
                     <source src={file_name} />
                   </Player>
