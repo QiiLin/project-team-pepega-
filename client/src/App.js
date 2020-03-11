@@ -8,6 +8,7 @@ import VideosList from "./components/VideosList";
 import ItemModal from "./components/ItemModal";
 import { Container } from "reactstrap";
 import { loadUser } from "./actions/authActions";
+import "../node_modules/video-react/dist/video-react.css";
 
 class App extends Component {
   componentDidMount() {
