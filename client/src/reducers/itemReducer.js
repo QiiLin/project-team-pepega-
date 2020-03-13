@@ -2,10 +2,13 @@ import {
   GET_ITEMS,
   ADD_ITEM,
   DELETE_ITEM,
-  ITEMS_LOADING
+  ITEMS_LOADING,
+  SET_SELECTED_ITEM,
+  GET_SELECTED_ITEM
 } from "../actions/types";
 
 const initialState = {
+  selectItem: null,
   items: [],
   loading: false
 };
@@ -33,6 +36,16 @@ export default function(state = initialState, action) {
         ...state,
         loading: true
       };
+    case SET_SELECTED_ITEM:
+      return {
+        ...state,
+        selectItem: action.payload
+      };
+      // doesn't need
+    // case GET_SELECTED_ITEM:
+    //   return {
+    //     ...state
+    //   };
     default:
       return state;
   }
