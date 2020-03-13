@@ -4,8 +4,7 @@ import {
   } from "../actions/types";
   
   const initialState = {
-    items: [],
-    loading: false
+    items: []
   };
   
   export default function(state = initialState, action) {
@@ -13,13 +12,12 @@ import {
       case MERGE_CLIP:
         return {
           ...state,
-          items: action.payload,
-          loading: false
+          items: action.payload
         };
       case TRIM_CLIP:
         return {
           ...state,
-          items: state.items.filter(item => item._id !== action.payload)
+          items: action.payload
         };
       default:
         return state;

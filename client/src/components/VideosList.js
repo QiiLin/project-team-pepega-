@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, ListGroup, ListGroupItem, Button} from "reactstrap";
+import { Container, ListGroup, ListGroupItem, Button, Navbar} from "reactstrap";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { connect } from "react-redux";
 import { getItems, deleteItem } from "../actions/itemActions";
@@ -60,11 +60,11 @@ class VideosList extends Component {
         </EditModal>
         <ListGroup>
           <TransitionGroup className="videos-list">
-            {items.map(({ _id, file_name }) => (
+            {items.map(({ _id, file_name, originalname }) => (
               <CSSTransition key={_id} timeout={500} classNames="fade">                
                 <ListGroupItem>
                   {this.props.isAuthenticated ? (
-                    <Container>
+                    <Navbar color="light">
                     <Button
                       className="remove-btn"
                       color="danger"
@@ -72,8 +72,10 @@ class VideosList extends Component {
                       onClick={this.onDeleteClick.bind(this, _id)}
                     >
                       &times;
-                    </Button>   
-                            
+                    </Button>
+
+                  <span className="video-header">{originalname}</span>
+
                     <Button
                       className="edit-btn"
                       color="primary"
@@ -82,7 +84,7 @@ class VideosList extends Component {
                     >
                       Edit
                     </Button>
-                  </Container>
+                    </Navbar>
 
                   ) : null}
                   <ReactPlayer

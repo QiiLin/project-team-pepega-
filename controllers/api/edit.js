@@ -67,11 +67,14 @@ router.post("/:id/caption", (req, res) => {
 // @desc   Append video from idMerge to video from id
 // @access Private
 router.post("/merge", auth, (req, res) => {
-  if (
+  console.log("aaa", req.params);
+  console.log("bbb", req.body);
+
+  /*if (
     !req.body.curr_vid_id ||
     !req.body.merge_vid_id
   )
-    return res.status(400).end("video id for merging required");
+    return res.status(400).end("video id for merging required");*/
 
   const curr_vid_id = req.curr_vid_id;
   const merge_vid_id = req.merge_vid_id;

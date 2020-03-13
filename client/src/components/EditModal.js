@@ -39,7 +39,7 @@ class EditModal extends Component {
     let bodyFormData = new FormData();
     bodyFormData.append("curr_vid_id", this.props.video_id);
     bodyFormData.append("merge_vid_id", this.state.merge_dropdownValue);
-    console.log("curr_vid_id", this.props.video_id, "merge_vid_id", this.state.merge_dropdownValue);
+    
     // Add video through add item action
     this.props.mergeClip(bodyFormData);
   };
@@ -59,13 +59,11 @@ class EditModal extends Component {
 
   render() {
     const { items } = this.props.item;
-    console.log(items);
     return (
       <div>
-        <Modal isOpen={this.props.modal} toggle={this.props.toggle} className={this.props.className}>
+        <Modal isOpen={this.props.modal} toggle={this.props.toggle} size="xl">
           <ModalHeader toggle={this.props.toggle}>Video Editor</ModalHeader>
           <ModalBody>
-            <h1>This is modal body</h1>
 
             {items.map(({ _id, originalname }) => (
             <Container key="merge_container">
