@@ -12,6 +12,30 @@ import { connect } from "react-redux";
 import { addItem } from "../actions/itemActions";
 import { PropTypes } from "prop-types";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useDropzone } from "react-dropzone";
+
+function Basic(props) {
+  const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
+
+  const files = acceptedFiles.map(file => (
+    <li key={file.path}>
+      {file.path} - {file.size} bytes
+    </li>
+  ));
+
+  return (
+    <section className="container">
+      <div {...getRootProps({ className: "dropzone" })}>
+        <input {...getInputProps()} />
+        <p>Drag 'n' drop some files here, or click to select files</p>
+      </div>
+      <aside>
+        <h4>Files</h4>
+        <ul>{files}</ul>
+      </aside>
+    </section>
+  );
+}
 
 class ItemModal extends Component {
   constructor(props) {
@@ -97,6 +121,7 @@ class ItemModal extends Component {
                   onChange={this.fileSelectedHandler}
                   className="form-control-file border"
                 />
+                <Basic id="fileInput" onChange={this.fileSelectedHandler} />
                 <Button color="dark" style={{ marginTop: "2rem" }} block>
                   Add Video
                 </Button>
