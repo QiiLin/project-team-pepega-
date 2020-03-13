@@ -7,6 +7,10 @@ const ItemSchema = new Schema({
     type: Schema.Types.ObjectId,
     required: true
   },
+  originalname: {
+    type: String,
+    required: true
+  },
   file_name: {
     type: String,
     required: true

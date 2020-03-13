@@ -4,6 +4,8 @@ const auth = require("../../middleware/auth");
 const fs = require("fs");
 const path = require("path");
 const ffmpeg = require("../../controllers/ff_path");
+// Item model
+const Item = require("../../models/Item");
 
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
@@ -61,15 +63,35 @@ router.post("/:id/caption", (req, res) => {
   });
 });
 
-// @route  POST /api/edit/merge/:id/:idSplice
+// @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
-router.post("/merge/:id/:idMerge", auth, (req, res) => {
+router.post("/merge", auth, (req, res) => {
+  if (
+    !req.body.curr_vid_id ||
+    !req.body.merge_vid_id
+  )
+    return res.status(400).end("video id for merging required");
+
+  const curr_vid_id = req.curr_vid_id;
+  const merge_vid_id = req.merge_vid_id;
+
+  var path1 = "";
+  var path2 = "";
+
+  Item.findById(curr_vid_id, 'file_path')
+    .then(itm => path1 = itm);
+  Item.findById(merge_vid_id, 'file_path')
+    .then(itm => path2 = itm);
+
+  console.log("path1: ", path1);
+  console.log("path2: ", path2);
+
   //find filename of 2 vids from id & idMerge
   //set to filepaths, path1 is id & path2 is idMerge
 
-  var path1 = path.join(__dirname, "../../video_input/test1.mp4");
-  var path2 = path.join(__dirname, "../../video_input/test2.mp4");
+  //var path1 = path.join(__dirname, "../../video_input/test1.mp4");
+  //var path2 = path.join(__dirname, "../../video_input/test2.mp4");
   var path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
   var path2_base = path.basename(path2).replace(path.extname(path2), "");
   var path1_tmp = path.join(

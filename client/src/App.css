@@ -2,6 +2,10 @@
   margin-right: 0.5rem;
 }
 
+.edit-btn {
+  float: right;
+}
+
 .fade-enter {
   opacity: 0.01;
 }

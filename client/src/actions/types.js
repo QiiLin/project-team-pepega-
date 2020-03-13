@@ -13,3 +13,6 @@ export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
 export const REGISTER_FAIL = "REGISTER_FAIL";
 export const GET_ERRORS = "GET_ERRORS";
 export const CLEAR_ERRORS = "ITEMS_LOADING";
+
+export const MERGE_CLIP = "MERGE_CLIP";
+export const TRIM_CLIP = "TRIM_CLIP";

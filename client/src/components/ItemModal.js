@@ -51,8 +51,7 @@ class ItemModal extends Component {
     let bodyFormData = new FormData();
     // bodyFormData.set("video", this.state.video);
     bodyFormData.append("video", this.state.video);
-    bodyFormData.append("uploader_id", this.props.user.user.id);
-    console.log(this.props.user.user.id);
+    bodyFormData.append("uploader_id", this.props.user._id);
     // Add video through add item action
     this.props.addItem(bodyFormData);
     // Close modal
