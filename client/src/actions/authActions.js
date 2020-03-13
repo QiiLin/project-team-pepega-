@@ -137,24 +137,3 @@ export const tokenConfig2 = getState => {
 
   return config;
 };
-
-// Setup config/headers and token
-export const tokenConfig3 = getState => {
-  // Get token from localStorage
-  const token = getState().auth.token;
-
-  // Headers
-  var config = {
-    //headers: { "Content-Type": "multipart/form-data" }
-  };
-
-  // If token, add to headers
-  if (token) {
-    //config.headers["x-auth-token"] = token;
-    config = {
-      headers: { "x-auth-token": token }
-    }
-  }
-
-  return config;
-};

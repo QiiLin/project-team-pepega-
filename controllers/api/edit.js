@@ -1,11 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../../middleware/auth");
+const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const ffmpeg = require("../../controllers/ff_path");
 // Item model
 const Item = require("../../models/Item");
+
+const upload = multer();
 
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
@@ -63,30 +66,35 @@ router.post("/:id/caption", (req, res) => {
   });
 });
 
+function retrievePath(id, callback) {
+  Item.findById(curr_vid_id, function(err, res) {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, res.file_path);
+    }
+  });
+};
+
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
-router.post("/merge", auth, (req, res) => {
-  console.log("aaa", req.params);
-  console.log("bbb", req.body);
-
-  /*if (
+router.post("/merge", upload.none(), auth, (req, res) => {
+  if (
     !req.body.curr_vid_id ||
     !req.body.merge_vid_id
   )
-    return res.status(400).end("video id for merging required");*/
+    return res.status(400).end("video id for merging required");
 
-  const curr_vid_id = req.curr_vid_id;
-  const merge_vid_id = req.merge_vid_id;
-
+  const curr_vid_id = req.body.curr_vid_id;
+  const merge_vid_id = req.body.merge_vid_id;
   var path1 = "";
   var path2 = "";
 
-  Item.findById(curr_vid_id, 'file_path')
-    .then(itm => path1 = itm);
-  Item.findById(merge_vid_id, 'file_path')
-    .then(itm => path2 = itm);
+  var test1 = Item.findById(curr_vid_id, 'file_path').exec(retrievePath);
 
+  var test2 = Item.findById(merge_vid_id, 'file_path').exec(retrievePath);
+  
   console.log("path1: ", path1);
   console.log("path2: ", path2);
 

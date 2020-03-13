@@ -51,6 +51,7 @@ class VideosList extends Component {
   render() {
     // item represents the entire state object, items is the array inside the state
     const { items } = this.props.item;
+    console.log(items);
     return (
       <Container>
         <EditModal 

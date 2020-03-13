@@ -1,6 +1,6 @@
 import axios from "axios";
 import { MERGE_CLIP, TRIM_CLIP } from "./types";
-import { tokenConfig2, tokenConfig3 } from "./authActions";
+import { tokenConfig2} from "./authActions";
 import { returnErrors } from "./errorActions";
 
 export const mergeClip = ids => (dispatch, getState) => {
@@ -11,7 +11,11 @@ export const mergeClip = ids => (dispatch, getState) => {
 
   axios
     // Attach token to request in the header
-    .post("/api/edit/merge", ids, tokenConfig3(getState))
+    .post("/api/edit/merge", ids, tokenConfig2(getState), {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
     .catch((err) => {
       console.log(err.response.data);
     })

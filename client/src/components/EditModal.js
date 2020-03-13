@@ -20,6 +20,8 @@ import { mergeClip, trimClip } from "../actions/editActions";
 import { PropTypes } from "prop-types";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+const FormData = require('form-data');
+
 class EditModal extends Component {
   constructor(props) {
     super(props);
