@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GET_ITEMS, ADD_ITEM, DELETE_ITEM, ITEMS_LOADING } from "./types";
+import { GET_ITEMS, ADD_ITEM, DELETE_ITEM, ITEMS_LOADING, SET_SELECTED_ITEM, GET_SELECTED_ITEM } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 
@@ -53,3 +53,18 @@ export const setItemsLoading = () => {
     type: ITEMS_LOADING
   };
 };
+
+export const setSelectItem = (id) => {
+    return {
+        type: SET_SELECTED_ITEM,
+        payload: id
+    };
+};
+
+export const getSelectItem = () => {
+    return {
+        type: GET_SELECTED_ITEM,
+    };
+};
+
+
