@@ -10,7 +10,11 @@ export const getItems = () => dispatch => {
     dispatch(setItemsLoading());
     axios
         .get("/api/items")
-        .then(res => dispatch({type: GET_ITEMS, payload: res.data}))
+        .then(res => {
+            console.log(res.data);
+            dispatch({type: GET_ITEMS, payload: res.data});
+            console.log("did");}
+)
         .catch(err =>
             dispatch(returnErrors(err.response.data, err.response.status))
         );
@@ -23,12 +27,13 @@ export const addItem = item => (dispatch, getState) => {
     // Only add the video if the user input is a video path
     axios
     // Attach token to request in the header
-        .post("/api/items", item, tokenConfig2(getState))
-        .then(res =>
-            dispatch({
-                type: ADD_ITEM,
-                payload: res.data
-            })
+        .post("/api/items/upload", item, tokenConfig2(getState))
+        .then(res => {
+                dispatch({
+                    type: ADD_ITEM,
+                    payload: res.data
+                });
+        }
         )
         .catch(err =>
             dispatch(returnErrors(err.response.data, err.response.status))
@@ -71,7 +76,6 @@ export const setSelectItemTwo = (id) => {
 };
 
 export const setVideoOneRange = (range) => {
-    console.log(range, "one");
     return {
         type: SET_ITEM_ONE_RANGE,
         payload: range
@@ -79,7 +83,6 @@ export const setVideoOneRange = (range) => {
 
 };
 export const setVideoTwoRange = (range) => {
-    console.log(range, "two");
     return {
         type: SET_ITEM_TWO_RANGE,
         payload: range

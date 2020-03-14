@@ -16,18 +16,15 @@ export const mergeClip = ids => (dispatch, getState) => {
         'Content-Type': 'multipart/form-data'
       }
     })
-    .catch((err) => {
-      console.log(err.response.data);
-    })
-    /*.then(res =>
+    .then(res =>
       dispatch({
         type: MERGE_CLIP,
         payload: res.data
       })
     )
-    .catch(err =>
+    .catch((err) => {
       dispatch(returnErrors(err.response.data, err.response.status))
-    );*/
+    });
 };
 
 export const trimClip = () => dispatch => {
