@@ -65,16 +65,16 @@ class EditModal extends Component {
       <div>
         <Modal isOpen={this.props.modal} toggle={this.props.toggle} size="xl">
           <ModalHeader toggle={this.props.toggle}>Video Editor</ModalHeader>
-          <ModalBody>
-
-            {items.map(({ _id, originalname }) => (
+          <ModalBody>            
             <Container key="merge_container">
               <Row>
               <Col>
               <Dropdown isOpen={this.state.merge_dropdownOpen} toggle={this.merge_dropdownToggle}>
                 <DropdownToggle caret>Select a video to merge</DropdownToggle>
-                <DropdownMenu>                
-                  <DropdownItem onClick={this.merge_dropdownChanged.bind(this, _id)}>{originalname}</DropdownItem>                  
+                <DropdownMenu>
+                {items.map(({ _id, originalname }) => (                
+                  <DropdownItem key={_id} onClick={this.merge_dropdownChanged.bind(this, _id)}>{originalname}</DropdownItem>                  
+                ))}
                 </DropdownMenu>
               </Dropdown>
               </Col>
@@ -89,7 +89,7 @@ class EditModal extends Component {
               </Col>
               </Row>
             </Container>
-            ))}
+            
 
           </ModalBody>
         </Modal>

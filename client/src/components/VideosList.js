@@ -8,6 +8,8 @@ import EditModal from "./EditModal";
 import PropTypes from "prop-types";
 import { Player } from "video-react";
 
+const path = require("path");
+
 class VideosList extends Component {
   constructor(props) {
     super(props);
@@ -48,6 +50,12 @@ class VideosList extends Component {
     });
   }
 
+  getFile = (file_path) => {
+    console.log(path.extname(file_path));
+    return path.basename("file_path");
+  }
+
+//{path.basename(file_path, 'avi')}
   render() {
     // item represents the entire state object, items is the array inside the state
     const { items } = this.props.item;
@@ -60,7 +68,7 @@ class VideosList extends Component {
         </EditModal>
         <ListGroup>
           <TransitionGroup className="videos-list">
-            {items.map(({ _id, file_name, originalname }) => (
+            {items.map(({ _id, file_name, file_path}) => (
               <CSSTransition key={_id} timeout={500} classNames="fade">                
                 <ListGroupItem>
                   {this.props.isAuthenticated ? (
@@ -87,8 +95,8 @@ class VideosList extends Component {
                     </Navbar>
 
                   ) : null}
-                  <Player>
-                    <source src={file_name} />
+                  <Player> 
+                    <source src={file_name + path.extname(file_path) } />
                   </Player>
                 </ListGroupItem>
               </CSSTransition>

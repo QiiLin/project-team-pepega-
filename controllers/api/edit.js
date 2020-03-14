@@ -9,11 +9,6 @@ const ffmpeg = require("../../controllers/ff_path");
 const Item = require("../../models/Item");
 const upload = multer({ dest: path.join(__dirname, "../../client/public") });
 
-let filter = filter_type => {
-  switch (filter_type) {
-  }
-};
-
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
 // @access Private
@@ -97,133 +92,118 @@ router.post("/merge", upload.none(), auth, (req, res) => {
 
   Promise.all([path_curr, path_merge])
     .then(function(itm){
-      var path1 = itm[0].file_path;
-      var path2 = itm[1].file_path;
-  /*Item.findById(curr_vid_id, 'file_path', function (err, res){
-    if(err) return res.status(404).end("current video id not found");
-    path1 = res.file_path;
-    console.log("path1: ", path1);
-  });
-  console.log("path1: ", path1);
+    var path1 = itm[0].file_path;
+    var path2 = itm[1].file_path;
+    var path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
+    var path2_base = path.basename(path2).replace(path.extname(path2), "");
+    var path1_tmp = path.join(
+      path.dirname(path1),
+      "tmp/video_input",
+      path1_base + "_mod1.mov"
+    ); //temp file loc
+    var path2_tmp = path.join(
+      path.dirname(path2),
+      "tmp/video_input",
+      path2_base + "_mod2.mov"
+    );
+    var pathOut_tmp = path.join(__dirname, "../../client/public/tmp/video_output");
+    var pathOut_path = path.join(
+      __dirname,
+      "../../client/public",
+      path1_base + ".mov"
+    );
 
-  Item.findById(merge_vid_id, 'file_path', function (err, res){
-    if(err) return res.status(404).end("merge video id not found");
-    path2 = res.file_path;
-    console.log("path2: ", path2);
-  });*/
-  var path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
-  var path2_base = path.basename(path2).replace(path.extname(path2), "");
-  var path1_tmp = path.join(
-    path.dirname(path1),
-    "tmp/video_input",
-    path1_base + "_mod1.avi"
-  ); //temp file loc
-  var path2_tmp = path.join(
-    path.dirname(path2),
-    "tmp/video_input",
-    path2_base + "_mod2.avi"
-  );
-  var pathOut_tmp = path.join(__dirname, "../../client/public/tmp/video_output");
-  /*var pathOut_path = path.join(
-    __dirname,
-    "../../client/public/tmp/video_output",
-    path1_base + ".avi"
-  );*/
-  var pathOut_path = path.join(
-    __dirname,
-    "../../client/public",
-    path1_base + ".avi"
-  );
-
-  console.log(path1_tmp);
-  console.log(path2_tmp);
-  console.log(pathOut_tmp);
-  console.log(pathOut_path);
+    console.log(path1_tmp);
+    console.log(path2_tmp);
+    console.log(pathOut_tmp);
+    console.log(pathOut_path);
 
 
-  ffmpeg.ffprobe(path1, function(err, metadata) {
-    if (err) res.json("An error occurred [MergeResolution]: " + err.message);    
-    var width = metadata.streams[0].width;
-    var height = metadata.streams[0].height;
-    var fps = metadata.streams[0].r_frame_rate;
-    console.log(fps);
+    ffmpeg.ffprobe(path1, function(err, metadata) {
+      if (err) res.json("An error occurred [MergeResolution]: " + err.message);    
+      var width = metadata.streams[0].width;
+      var height = metadata.streams[0].height;
+      var fps = metadata.streams[0].r_frame_rate;
+      console.log(fps);
 
-    ffmpeg(path1)
-      .preset("divx")
-      .withFpsInput(fps)
-      .outputOptions([
-        `-vf scale=${width}:${height},setsar=1` //Sample Aspect Ratio = 1.0
-      ])
-      .on("progress", progress => {
-        console.log(`[Merge1]: ${JSON.stringify(progress)}`);
-      })
-      .on("error", function(err) {
-        res.json("An error occurred [Merge1]: " + err.message);
-      })
-      /*.on('stderr', function(stderrLine) {
-      console.log('Stderr output [Merge1]: ' + stderrLine);
-    })*/
-      .on("end", function() {
-        ffmpeg(path2)
-          .preset("divx")
-          .withFpsInput(fps)
-          .outputOptions([`-vf scale=${width}:${height},setsar=1`])
-          .on("progress", progress => {
-            console.log(`[Merge2]: ${JSON.stringify(progress)}`);
-          })
-          .on("error", function(err) {
-            fs.unlink(path1_tmp, err => {
-              if (err) console.log("Could not remove Merge1 tmp file:" + err);
-            });
-            res.json("An error occurred [Merge2]: " + err.message);
-          })
-          /*.on('stderr', function(stderrLine) {
-        console.log('Stderr output [Merge2]:: ' + stderrLine);
+      ffmpeg(path1)
+        .preset("divx")
+        .format("mov")
+        .withFpsInput(fps)
+        .outputOptions([
+          `-vf scale=${width}:${height},setsar=1` //Sample Aspect Ratio = 1.0
+        ])
+        .on("progress", progress => {
+          console.log(`[Merge1]: ${JSON.stringify(progress)}`);
+        })
+        .on("error", function(err) {
+          res.json("An error occurred [Merge1]: " + err.message);
+        })
+        /*.on('stderr', function(stderrLine) {
+        console.log('Stderr output [Merge1]: ' + stderrLine);
       })*/
-          .on("end", function() {
-            ffmpeg({ source: path1_tmp })
-              .mergeAdd(path2_tmp)
-              .on("progress", progress => {
-                console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
-              })
-              .on("error", function(err) {
-                fs.unlink(path1_tmp, err => {
-                  if (err)
-                    console.log("Could not remove Merge1 tmp file:" + err);
-                });
-                fs.unlink(path2_tmp, err => {
-                  if (err)
-                    console.log("Could not remove Merge2 tmp file:" + err);
-                });
-                res.json("An error occurred [MergeCombine]: " + err.message);
-              })
-              /*.on('stderr', function(stderrLine) {
-                console.log('Stderr output [MergeCombine]:: ' + stderrLine);
-              })*/
-              .on("end", function() {
-                fs.unlink(path1_tmp, err => {
-                  if (err)
-                    console.log("Could not remove Merge1 tmp file:" + err);
-                });
-                fs.unlink(path2_tmp, err => {
-                  if (err)
-                    console.log("Could not remove Merge2 tmp file:" + err);
-                });
-                const newItem = new Item({
-                  uploader_id: itm[0].uploader_id,
-                  originalname: itm[0].originalname,
-                  file_name: path.basename(itm[0].file_name) + "1" + path.extname(itm[0].file_name),
-                  file_path: pathOut_path
-                });
-                newItem.save().then(item => res.json(item));
-              })
-              .mergeToFile(pathOut_path, pathOut_tmp);
-          })
-          .save(path2_tmp);
-      })
-      .save(path1_tmp);
+        .on("end", function() {
+          ffmpeg(path2)
+            .preset("divx")
+            .format("mov")
+            .withFpsInput(fps)
+            .outputOptions([`-vf scale=${width}:${height},setsar=1`])
+            .on("progress", progress => {
+              console.log(`[Merge2]: ${JSON.stringify(progress)}`);
+            })
+            .on("error", function(err) {
+              fs.unlink(path1_tmp, err => {
+                if (err) console.log("Could not remove Merge1 tmp file:" + err);
+              });
+              res.json("An error occurred [Merge2]: " + err.message);
+            })
+            /*.on('stderr', function(stderrLine) {
+          console.log('Stderr output [Merge2]:: ' + stderrLine);
+        })*/
+            .on("end", function() {
+              ffmpeg({ source: path1_tmp })
+                .mergeAdd(path2_tmp)
+                .on("progress", progress => {
+                  console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
+                })
+                .on("error", function(err) {
+                  fs.unlink(path1_tmp, err => {
+                    if (err)
+                      console.log("Could not remove Merge1 tmp file:" + err);
+                  });
+                  fs.unlink(path2_tmp, err => {
+                    if (err)
+                      console.log("Could not remove Merge2 tmp file:" + err);
+                  });
+                  res.json("An error occurred [MergeCombine]: " + err.message);
+                })
+                /*.on('stderr', function(stderrLine) {
+                  console.log('Stderr output [MergeCombine]:: ' + stderrLine);
+                })*/
+                .on("end", function() {
+                  fs.unlink(path1_tmp, err => {
+                    if (err)
+                      console.log("Could not remove Merge1 tmp file:" + err);
+                  });
+                  fs.unlink(path2_tmp, err => {
+                    if (err)
+                      console.log("Could not remove Merge2 tmp file:" + err);
+                  });
+                  const newItem = new Item({
+                    uploader_id: itm[0].uploader_id,
+                    originalname: itm[0].originalname,
+                    file_name: path.basename(itm[0].file_name) + path.extname(itm[0].file_name),
+                    file_path: pathOut_path
+                  });
+                  newItem.save().then(item => res.json(item));
+                })
+                .mergeToFile(pathOut_path, pathOut_tmp);
+            })
+            .save(path2_tmp);
+        })
+        .save(path1_tmp);
+    });
   });
-});
 });
 
 // @route  POST /api/edit/cut/:id/
