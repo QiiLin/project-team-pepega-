@@ -89,8 +89,8 @@ class VideosList extends Component {
                     </Navbar>
 
                   ) : null}
-                  <Player> 
-                    <source src={file_name + path.extname(file_path) } />
+                  <Player>
+                    <source src={"api/items/" + file_name} />
                   </Player>
                 </ListGroupItem>
               </CSSTransition>
@@ -101,7 +101,7 @@ class VideosList extends Component {
     );
   }
 }
-
+//<source src={file_name + path.extname(file_path) } />
 // Mapping a redux state to a component property
 const mapStateToProps = state => ({
   // item because we called it that in reducers/index.js (root reducer)

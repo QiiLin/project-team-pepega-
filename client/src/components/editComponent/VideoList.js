@@ -42,9 +42,10 @@ class VideoList extends Component {
             }));
         }
     };
-
+    //<Button onClick={ () => {this.props.setSelectItemOne(file_name + path.extname(file_path))}}>Load to player one</Button>
     render() {
         const {items} = this.props.item;
+        console.timeLog(items);
         return (
             <div>
                 <Nav tabs>
@@ -71,14 +72,14 @@ class VideoList extends Component {
                         {items.map(({ _id, file_name, file_path}) => (
                             <Col sm="6" key={_id}>
                                 <Card body >
-                                    <CardTitle>{file_name}</CardTitle>
+                                    <CardTitle>{filename}</CardTitle>
                                     <CardText  >
                                         This is video image and make sure add event listener</CardText>
                                     <ButtonGroup vertical>
-                                    <Button onClick={ () => {this.props.setSelectItemOne(file_name + path.extname(file_path))}}>Load to player one</Button>
+                                    <Button onClick={ () => {this.props.setSelectItemOne(filename)}}>Load to player one</Button>
 
 
-                                    <Button onClick={ () => {this.props.setSelectItemTwo(file_name + path.extname(file_path))}}>Load to player two</Button>
+                                    <Button onClick={ () => {this.props.setSelectItemTwo(filename)}}>Load to player two</Button>
                                     </ButtonGroup>
                                 </Card>
                             </Col>

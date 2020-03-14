@@ -58,14 +58,14 @@ class VideoContainer extends Component {
                     <TabPane tabId="1">
                         <Row>
                             {selectItemOne ? (<Player>
-                                <source src={selectItemOne}/>
+                                <source src={"api/items/" + selectItemOne}/>
                             </Player>) : (<p> No video </p>)}
                         </Row>
                     </TabPane>
                     <TabPane tabId="2">
                         <Row>
                             {selectItemTwo ? (<Player>
-                                <source src={selectItemTwo}/>
+                                <source src={"api/items/" + selectItemTwo}/>
                             </Player>) : (<p> No video </p>)}
                         </Row>
                     </TabPane>
