@@ -43,7 +43,7 @@ class VideosList extends Component {
                     </Button>
                   ) : null}
                   <Player>
-                    <source src={file_name} />
+                    <source src={"api/items/" + file_name} />
                   </Player>
                 </ListGroupItem>
               </CSSTransition>

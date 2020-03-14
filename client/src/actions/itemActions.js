@@ -23,12 +23,13 @@ export const addItem = item => (dispatch, getState) => {
     // Only add the video if the user input is a video path
     axios
     // Attach token to request in the header
-        .post("/api/items", item, tokenConfig2(getState))
-        .then(res =>
-            dispatch({
-                type: ADD_ITEM,
-                payload: res.data
-            })
+        .post("/upload", item, tokenConfig2(getState))
+        .then(res => {
+                dispatch({
+                    type: ADD_ITEM,
+                    payload: res.data
+                });
+        }
         )
         .catch(err =>
             dispatch(returnErrors(err.response.data, err.response.status))
