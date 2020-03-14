@@ -43,6 +43,7 @@ class VideoList extends Component {
 
     render() {
         const {items} = this.props.item;
+        console.timeLog(items);
         return (
             <div>
                 <Nav tabs>
@@ -66,17 +67,17 @@ class VideoList extends Component {
                 <TabContent activeTab={this.state.selectTab}>
                     <TabPane tabId="1">
                         <Row>
-                        {items.map(({ _id, file_name }) => (
+                        {items.map(({ _id, filename }) => (
                             <Col sm="6">
                                 <Card body >
-                                    <CardTitle>{file_name}</CardTitle>
+                                    <CardTitle>{filename}</CardTitle>
                                     <CardText  >
                                         This is video image and make sure add event listener</CardText>
                                     <ButtonGroup vertical>
-                                    <Button onClick={ () => {this.props.setSelectItemOne(file_name)}}>Load to player one</Button>
+                                    <Button onClick={ () => {this.props.setSelectItemOne(filename)}}>Load to player one</Button>
 
 
-                                    <Button onClick={ () => {this.props.setSelectItemTwo(file_name)}}>Load to player two</Button>
+                                    <Button onClick={ () => {this.props.setSelectItemTwo(filename)}}>Load to player two</Button>
                                     </ButtonGroup>
                                 </Card>
                             </Col>
