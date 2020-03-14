@@ -6,7 +6,7 @@ import { getItems, deleteItem } from "../actions/itemActions";
 import { editItem } from "../actions/editActions";
 import EditModal from "./EditModal";
 import PropTypes from "prop-types";
-import ReactPlayer from "react-player";
+import { Player } from "video-react";
 
 class VideosList extends Component {
   constructor(props) {
@@ -51,7 +51,6 @@ class VideosList extends Component {
   render() {
     // item represents the entire state object, items is the array inside the state
     const { items } = this.props.item;
-    console.log(items);
     return (
       <Container>
         <EditModal 
@@ -75,7 +74,7 @@ class VideosList extends Component {
                       &times;
                     </Button>
 
-                  <span className="video-header">{originalname}</span>
+                    <span></span>
 
                     <Button
                       className="edit-btn"
@@ -88,15 +87,9 @@ class VideosList extends Component {
                     </Navbar>
 
                   ) : null}
-                  <ReactPlayer
-                    url={file_name}
-                    className="react-player"
-                    playing={false}
-                    loop
-                    controls
-                    width="100%"
-                    height="100%"
-                  />
+                  <Player>
+                    <source src={file_name} />
+                  </Player>
                 </ListGroupItem>
               </CSSTransition>
             ))}
