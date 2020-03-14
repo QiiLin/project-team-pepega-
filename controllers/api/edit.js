@@ -10,8 +10,6 @@ const Item = require("../../models/Item");
 
 const upload = multer();
 
-let createJSONfilter = transitionType => {};
-
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
 // @access Private
@@ -329,6 +327,11 @@ router.post("/trim/:id/", auth, (req, res) => {
     .save(pathOut_path);*/
 });
 
+// let createJSONfilter = transitionType => {
+//   switch (transitionType) {
+//   }
+// };
+
 // @route  POST /api/edit/transition/:id/
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
@@ -364,26 +367,28 @@ router.post("/transition/:id", auth, (req, res) => {
     console.log(metadata.streams[0]);
 
     console.log("path1: ", path1);
+    console.log("transition type: ", transitionType);
 
     ffmpeg({ source: path1 })
       .inputOptions([`-ss 0`, `-to ${req.body.timestampStart}`])
       .on("progress", progress => {
         console.log(`[Transition1]: ${JSON.stringify(progress)}`);
       })
-      .on("stderr", function(stderrLine) {
-        console.log("Stderr output [Transition]: " + stderrLine);
-      })
+      // .on("stderr", function(stderrLine) {
+      //   console.log("Stderr output [Transition]: " + stderrLine);
+      // })
       .on("error", function(err) {
         console.log();
         res.json("An error occurred [Transition1]: " + err.message);
       })
       .on("end", function() {
         ffmpeg({ source: path1 })
-          .videoFilters(createJSONfilter(transitionType))
+          .videoFilters(transitionType + ":" + timestampStart)
           .on("progress", progress => {
             console.log(`[Transition1]: ${JSON.stringify(progress)}`);
           })
           .on("error", function(err) {
+            console.log(transitionType + ":" + timestampStart);
             fs.unlink(path1_tmp, err => {
               if (err)
                 console.log("Could not remove Transition2 tmp file:" + err);
@@ -392,7 +397,20 @@ router.post("/transition/:id", auth, (req, res) => {
           })
           .on("end", function() {
             ffmpeg({ source: path1_tmp })
-              .mergeAdd(transition_temp)
+              .mergeAdd(path2_tmp)
+              .inputOptions([
+                `-ss ${req.body.timestampStart}`,
+                `-to ${duration}`
+              ])
+
+              // path2_tmp.inputOptions([
+              //   `-ss ${req.body.timestampStart}`,
+              //   `-to ${duration}`
+              // ])
+              // .inputOptions([
+              //   `-ss ${req.body.timestampStart}`,
+              //   `-to ${duration}`
+              // ])
               .on("progress", progress => {
                 console.log(
                   `[TransitionMergeCombine]: ${JSON.stringify(progress)}`
