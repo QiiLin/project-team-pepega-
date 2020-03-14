@@ -1,10 +1,15 @@
 import React from "react";
-import { Container, Row, Col } from 'reactstrap';
+import {Container, Row, Col} from 'reactstrap';
 import VideoList from "./editComponent/VideoList";
 import VideoContainer from "./editComponent/VideoContainer"
 import VideoCaptionInput from "./VideoCaptionInput";
 import TimeLineSector from "./editComponent/TimeLineSector";
 import EditOption from "./editComponent/EditOption";
+import {
+    setVideoOneRange,
+    setVideoTwoRange
+} from "../actions/itemActions";
+import {connect} from "react-redux";
 class EditView extends React.Component {
 
     constructor(props) {
@@ -15,7 +20,7 @@ class EditView extends React.Component {
     }
 
     render() {
-        return  (
+        return (
             <Container>
                 <Row>
                     <Col>
@@ -24,21 +29,30 @@ class EditView extends React.Component {
                     <Col>
                         <Container>
                             <Row>
-                                <Col> <VideoContainer/>    </Col>
+                                <Col> <VideoContainer/> </Col>
                             </Row>
                             <Row>
-                                <Col> <VideoCaptionInput/>  </Col>
+                                <Col> <VideoCaptionInput/> </Col>
                             </Row>
-                            <Row>  <EditOption/>   </Row>
+                            <Row> <EditOption/> </Row>
                         </Container>
                     </Col>
                 </Row>
                 <Row>
-                    <Col> <TimeLineSector/> </Col>
+                    <Col> <TimeLineSector title="Video One Selector" callback = {this.props.setVideoOneRange}/> </Col>
+                </Row>
+                <Row>
+                    <Col> <TimeLineSector  title="Video Two Selector" callback = {this.props.setVideoTwoRange}/> </Col>
                 </Row>
             </Container>
         );
     }
 }
 
-export default EditView;
+const mapStateToProps = state => ({
+    // item because we called it that in reducers/index.js (root reducer)
+    item: state.item,
+    isAuthenticated: state.auth.isAuthenticated
+});
+
+export default connect(mapStateToProps, {setVideoOneRange,setVideoTwoRange  })(EditView);
