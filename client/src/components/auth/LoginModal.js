@@ -109,7 +109,12 @@ class LoginModal extends Component {
                   onChange={this.onChange}
                 />
 
-                <Button color="dark" style={{ marginTop: "2rem" }} block>
+                <Button
+                  type="submit"
+                  color="dark"
+                  style={{ marginTop: "2rem" }}
+                  block
+                >
                   Login
                 </Button>
               </FormGroup>
