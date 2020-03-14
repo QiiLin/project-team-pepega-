@@ -6,8 +6,13 @@ import store from "./store";
 import AppNavbar from "./components/AppNavbar";
 import VideosList from "./components/VideosList";
 import ItemModal from "./components/ItemModal";
+import VideoList from "./components/editComponent/VideoList";
+import VideoContainer from "./components/editComponent/VideoContainer"
+import VideoCaptionInput from "./components/VideoCaptionInput";
+import EditView from "./components/EditView"
 import { Container } from "reactstrap";
 import { loadUser } from "./actions/authActions";
+import "../node_modules/video-react/dist/video-react.css";
 
 class App extends Component {
   componentDidMount() {
@@ -21,7 +26,7 @@ class App extends Component {
           <AppNavbar />
           <Container>
             <ItemModal />
-            <VideosList />
+            <EditView/>
           </Container>
         </div>
       </Provider>
