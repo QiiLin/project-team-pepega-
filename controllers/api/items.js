@@ -8,6 +8,15 @@ const auth = require("../../middleware/auth");
 // @route POST /upload
 // @desc  Uploads file to DB
 router.post('/upload', upload.single('video'), (req, res) => {
+  let uploaded_file = req.file;
+  console.log("Uploaded file: ", uploaded_file);
+  const newItem = new Item({
+    uploader_id: req.body.uploader_id,
+    originalname: uploaded_file.originalname,
+    file_name: uploaded_file.filename,
+    file_path: uploaded_file.path 
+  });
+
   res.json({ file: req.file });
 });
 
