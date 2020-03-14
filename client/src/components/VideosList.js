@@ -50,12 +50,6 @@ class VideosList extends Component {
     });
   }
 
-  getFile = (file_path) => {
-    console.log(path.extname(file_path));
-    return path.basename("file_path");
-  }
-
-//{path.basename(file_path, 'avi')}
   render() {
     // item represents the entire state object, items is the array inside the state
     const { items } = this.props.item;

@@ -16,6 +16,8 @@ import {
 import {connect} from "react-redux";
 import {deleteItem, getItems ,setSelectItemOne,setSelectItemTwo } from "../../actions/itemActions";
 import PropTypes from "prop-types";
+const path = require("path");
+
 class VideoList extends Component {
     static propTypes = {
         getItems: PropTypes.func.isRequired,
@@ -66,17 +68,17 @@ class VideoList extends Component {
                 <TabContent activeTab={this.state.selectTab}>
                     <TabPane tabId="1">
                         <Row>
-                        {items.map(({ _id, file_name }) => (
-                            <Col sm="6">
+                        {items.map(({ _id, file_name, file_path}) => (
+                            <Col sm="6" key={_id}>
                                 <Card body >
                                     <CardTitle>{file_name}</CardTitle>
                                     <CardText  >
                                         This is video image and make sure add event listener</CardText>
                                     <ButtonGroup vertical>
-                                    <Button onClick={ () => {this.props.setSelectItemOne(file_name)}}>Load to player one</Button>
+                                    <Button onClick={ () => {this.props.setSelectItemOne(file_name + path.extname(file_path))}}>Load to player one</Button>
 
 
-                                    <Button onClick={ () => {this.props.setSelectItemTwo(file_name)}}>Load to player two</Button>
+                                    <Button onClick={ () => {this.props.setSelectItemTwo(file_name + path.extname(file_path))}}>Load to player two</Button>
                                     </ButtonGroup>
                                 </Card>
                             </Col>

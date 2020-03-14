@@ -41,7 +41,7 @@ var upload = multer({ dest: path.join(__dirname, "../../client/public") });
 // @access Private
 router.post("/", upload.single("video"), (req, res) => {
   let uploaded_file = req.file;
-  console.log("Uploaded file: ", uploaded_file);
+  console.log("Uploaded file: ", uploaded_file);``
   const newItem = new Item({
     uploader_id: req.body.uploader_id,
     originalname: uploaded_file.originalname,
