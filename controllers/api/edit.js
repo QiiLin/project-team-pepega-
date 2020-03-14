@@ -1,9 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../../middleware/auth");
+const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const ffmpeg = require("../../controllers/ff_path");
+// Item model
+const Item = require("../../models/Item");
+
+const upload = multer();
 
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
@@ -61,15 +66,43 @@ router.post("/:id/caption", (req, res) => {
   });
 });
 
-// @route  POST /api/edit/merge/:id/:idSplice
+function retrievePath(id, callback) {
+  Item.findById(curr_vid_id, function(err, res) {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, res.file_path);
+    }
+  });
+};
+
+// @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
-router.post("/merge/:id/:idMerge", auth, (req, res) => {
+router.post("/merge", upload.none(), auth, (req, res) => {
+  if (
+    !req.body.curr_vid_id ||
+    !req.body.merge_vid_id
+  )
+    return res.status(400).end("video id for merging required");
+
+  const curr_vid_id = req.body.curr_vid_id;
+  const merge_vid_id = req.body.merge_vid_id;
+  var path1 = "";
+  var path2 = "";
+
+  var test1 = Item.findById(curr_vid_id, 'file_path').exec(retrievePath);
+
+  var test2 = Item.findById(merge_vid_id, 'file_path').exec(retrievePath);
+  
+  console.log("path1: ", path1);
+  console.log("path2: ", path2);
+
   //find filename of 2 vids from id & idMerge
   //set to filepaths, path1 is id & path2 is idMerge
 
-  var path1 = path.join(__dirname, "../../video_input/test1.mp4");
-  var path2 = path.join(__dirname, "../../video_input/test2.mp4");
+  //var path1 = path.join(__dirname, "../../video_input/test1.mp4");
+  //var path2 = path.join(__dirname, "../../video_input/test2.mp4");
   var path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
   var path2_base = path.basename(path2).replace(path.extname(path2), "");
   var path1_tmp = path.join(
