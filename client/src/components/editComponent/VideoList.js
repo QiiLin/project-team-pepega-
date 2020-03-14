@@ -69,7 +69,7 @@ class VideoList extends Component {
                 <TabContent activeTab={this.state.selectTab}>
                     <TabPane tabId="1">
                         <Row>
-                        {items.map(({ _id, file_name, file_path}) => (
+                        {items.map(({ _id, filename}) => (
                             <Col sm="6" key={_id}>
                                 <Card body >
                                     <CardTitle>{filename}</CardTitle>

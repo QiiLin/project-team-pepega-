@@ -37,6 +37,7 @@ class EditOption extends React.Component {
 
     render() {
         const { items } = this.props.item;
+        console.log(items);
         return(
             <div>
                 <Grid key="merge_grid" container>
