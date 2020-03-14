@@ -182,6 +182,10 @@ router.post("/merge", upload.none(), (req, res) => {
                                             //     if (err)
                                             //         console.log("Could not remove Merge2 tmp file:" + err);
                                             // });
+
+                                            Result.on('finish', function (filen) {
+                                                console.log('Written file ' + filen.name);
+                                            });
                                             res.json("Merging finished !");
                                         })
                                         .mergeToFile(Result, TempResult);
