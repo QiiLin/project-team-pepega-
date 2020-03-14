@@ -398,10 +398,10 @@ router.post("/transition/:id", auth, (req, res) => {
           .on("end", function() {
             ffmpeg({ source: path1_tmp })
               .mergeAdd(path2_tmp)
-              .inputOptions([
-                `-ss ${req.body.timestampStart}`,
-                `-to ${duration}`
-              ])
+              // .inputOptions([
+              //   `-ss ${req.body.timestampStart}`,
+              //   `-to ${duration}`
+              // ])
 
               // path2_tmp.inputOptions([
               //   `-ss ${req.body.timestampStart}`,
