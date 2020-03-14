@@ -217,7 +217,9 @@ router.post("/cut/:id", auth, (req, res) => {
 // @desc   Remove video section at timestampStart & timestampEnd from body
 // @access Private
 router.post("/trim/:id/", auth, (req, res) => {
-  if (!req.body.timestampStart || !req.body.timestampEnd)
+  let timestampStart = req.body.timestampStart;
+  let timestampEnd = req.body.timestampEnd;
+  if (!timestampStart || !timestampEnd)
     return res.status(400).end("timestamp required");
   //find filename of vid from id
   //set to path1
@@ -246,7 +248,7 @@ router.post("/trim/:id/", auth, (req, res) => {
     console.log(metadata.streams[0]);
 
     ffmpeg({ source: path1 })
-      .inputOptions([`-ss 0`, `-to ${req.body.timestampStart}`])
+      .inputOptions([`-ss 0`, `-to ${timestampStart}`])
       .on("progress", progress => {
         console.log(`[Trim1]: ${JSON.stringify(progress)}`);
       })
@@ -258,7 +260,7 @@ router.post("/trim/:id/", auth, (req, res) => {
       })
       .on("end", function() {
         ffmpeg({ source: path1 })
-          .inputOptions([`-ss ${req.body.timestampEnd}`, `-to ${duration}`])
+          .inputOptions([`-ss ${timestampEnd}`, `-to ${duration}`])
           .on("progress", progress => {
             console.log(`[Trim1]: ${JSON.stringify(progress)}`);
           })
