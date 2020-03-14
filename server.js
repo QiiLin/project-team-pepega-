@@ -3,10 +3,6 @@ const mongoose = require("mongoose");
 const path = require("path");
 const config = require("config");
 const bodyParser = require("body-parser");
-const crypto = require('crypto');
-const multer = require('multer');
-const GridFsStorage = require('multer-gridfs-storage');
-const Grid = require('gridfs-stream');
 const methodOverride = require('method-override');
 
 const app = express();
@@ -27,8 +23,6 @@ mongoose
   })
   .then(() => console.log("Mongo DB connected"))
   .catch(err => console.log(err));
-
-
 
 
 app.use("/api/items", require("./controllers/api/items"));
