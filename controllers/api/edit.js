@@ -208,9 +208,9 @@ router.post("/merge", upload.none(), (req, res) => {
                                             });
                                             res.json("An error occurred [MergeCombine]: " + err.message);
                                         })
-                                        .on('stderr', function (stderrLine) {
+                                        /*.on('stderr', function (stderrLine) {
                                             console.log('Stderr output [MergeCombine]:: ' + stderrLine);
-                                        })
+                                        })*/
                                         .on("end", function () {
                                             fs.unlink(path1_tmp, err => {
                                                 if (err)
