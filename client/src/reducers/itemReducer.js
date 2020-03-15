@@ -13,6 +13,7 @@ import {
 const initialState = {
   selectItemOne: null,
   selectItemTwo: null,
+  downloadFile: null,
   videoOneSelection: [],
   videoTwoSelection: [],
   items: [],

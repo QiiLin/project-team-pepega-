@@ -1,24 +1,24 @@
 const express = require("express");
 const router = express.Router();
 
-const {gfs_prim, upload} = require('../../middleware/gridSet');
+const { gfs_prim, upload } = require("../../middleware/gridSet");
 const ffmpeg = require("../../controllers/ff_path");
 const mongoose = require("mongoose");
 const auth = require("../../middleware/auth");
 
 // @route POST /upload
 // @desc  Uploads file to DB
-router.post('/upload', upload.single('video'), (req, res) => {
-  gfs_prim.then(function (gfs) {
+router.post("/upload", upload.single("video"), (req, res) => {
+  gfs_prim.then(function(gfs) {
     gfs.files.findOne({ filename: req.file.filename }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
         return res.status(404).json({
-          err: 'No file exists'
+          err: "No file exists"
         });
       }
       const readstream = gfs.createReadStream(file.filename);
-      ffmpeg.ffprobe(readstream, function (err, metadata) {
+      ffmpeg.ffprobe(readstream, function(err, metadata) {
         let duration = metadata.streams[0].duration || 100;
         const newItem = new Item({
           uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
@@ -31,19 +31,18 @@ router.post('/upload', upload.single('video'), (req, res) => {
       });
     });
   });
-  return res.json({...req.file, _id: req.file.id});
+  return res.json({ ...req.file, _id: req.file.id });
 });
-
 
 // @route GET /api/items
 // @desc  Display all files in JSON
-router.get('/', (req, res) => {
-  gfs_prim.then(function (gfs) {
+router.get("/", (req, res) => {
+  gfs_prim.then(function(gfs) {
     gfs.files.find().toArray((err, files) => {
       // Check if files
       if (!files || files.length === 0) {
         return res.status(404).json({
-          err: 'No files exist'
+          err: "No files exist"
         });
       }
       // Files exist
@@ -54,7 +53,7 @@ router.get('/', (req, res) => {
 
 // @route GET /api/items/:filename
 // @desc  Display single file object
-router.get('/:filename', (req, res) => {
+router.get("/:filename", (req, res) => {
   // gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
   //     // Check if file
   //     if (!file || file.length === 0) {
@@ -65,12 +64,12 @@ router.get('/:filename', (req, res) => {
   //     // File exists
   //     return res.json(file);
   // });
-  gfs_prim.then(function (gfs) {
+  gfs_prim.then(function(gfs) {
     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
         return res.status(404).json({
-          err: 'No file exists'
+          err: "No file exists"
         });
       }
 
@@ -85,7 +84,6 @@ router.get('/:filename', (req, res) => {
       //     });
       // }
     });
-
 
     // TODO:  TRY THIS the below doesn't work
     // let file_id = req.params.filename;
@@ -110,9 +108,9 @@ router.get('/:filename', (req, res) => {
 
 // @route DELETE /files/:id
 // @desc  Delete file
-router.delete('/:id', (req, res) => {
-  gfs_prim.then(function (gfs) {
-    gfs.remove({ _id: req.params.id, root: 'fs' }, (err, gridStore) => {
+router.delete("/:id", (req, res) => {
+  gfs_prim.then(function(gfs) {
+    gfs.remove({ _id: req.params.id, root: "fs" }, (err, gridStore) => {
       if (err) {
         return res.status(404).json({ err: err });
       }
@@ -120,10 +118,6 @@ router.delete('/:id', (req, res) => {
     });
   });
 });
-
-
-
-
 
 // ---------------------------stuff below are old code-----//
 // // @route  GET /api/items

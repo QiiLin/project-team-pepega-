@@ -94,28 +94,29 @@ export const setVideoTwoRange = range => {
   };
 };
 
-export const downloadFile = id => dispatch => {
+export const downloadFile = filename => dispatch => {
+  //   dispatch(setItemsLoading());
+  //   axios
+  //     .get("/api/files/" + id)
+  //     .then(res => {
+  //       console.log(res.data);
+  //       dispatch({ type: DOWNLOAD_FILE, payload: res.data });
+  //       console.log("downloadfile");
+  //     })
+  //     .catch(err =>
+  //       dispatch(returnErrors(err.response.data, err.response.status))
+  //     );
   dispatch(setItemsLoading());
-  axios
-    .get("/api/files/" + id)
-    .then(res => {
-      console.log(res.data);
-      dispatch({ type: DOWNLOAD_FILE, payload: res.data });
-      console.log("downloadfile");
-    })
-    .catch(err =>
-      dispatch(returnErrors(err.response.data, err.response.status))
-    );
-  //   axios({
-  //     url: filename,
-  //     method: "GET",
-  //     responseType: "blob"
-  //   }).then(response => {
-  //     const url = window.URL.createObjectURL(new Blob([response.data]));
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.setAttribute("download", "file.pdf");
-  //     document.body.appendChild(link);
-  //     link.click();
-  //   });
+  axios({
+    url: filename,
+    method: "GET",
+    responseType: "blob"
+  }).then(response => {
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+  });
 };
