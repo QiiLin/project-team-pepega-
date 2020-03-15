@@ -18,6 +18,7 @@ class VideoContainer extends Component {
         this.state = {selectTab: '1'};
         this.toggle = this.toggle.bind(this);
     }
+    
     toggle = tab => {
         if (tab !== this.state.selectTab) {
             this.setState(state => ({
@@ -57,14 +58,14 @@ class VideoContainer extends Component {
                 <TabContent activeTab={this.state.selectTab}>
                     <TabPane tabId="1">
                         <Row>
-                            {selectItemOne ? (<Player>
+                            {selectItemOne ? (<Player key={selectItemOne}>
                                 <source src={"api/items/" + selectItemOne}/>
                             </Player>) : (<p> No video </p>)}
                         </Row>
                     </TabPane>
                     <TabPane tabId="2">
                         <Row>
-                            {selectItemTwo ? (<Player>
+                            {selectItemTwo ? (<Player key={selectItemOne}>
                                 <source src={"api/items/" + selectItemTwo}/>
                             </Player>) : (<p> No video </p>)}
                         </Row>
