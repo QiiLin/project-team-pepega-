@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { Grid, Select, Button, InputLabel, MenuItem } from '@material-ui/core';
+import MergeTypeIcon from '@material-ui/icons/MergeType';
 import { mergeClip, trimClip } from "../../actions/editActions";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
@@ -9,7 +10,7 @@ class EditOption extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-          merge_dropdownValue: ""
+          merge_dropdownValue: '',
         };
     }
 
@@ -19,25 +20,27 @@ class EditOption extends React.Component {
         isAuthenticated: PropTypes.bool
     };
 
-    merge_dropdownSubmit = () => {
+    merge_dropdownSubmit = (selectItemOne) => {
         let bodyFormData = new FormData();
-        bodyFormData.append("curr_vid_id", this.props.video_id);
+        bodyFormData.append("curr_vid_id", selectItemOne);
         bodyFormData.append("merge_vid_id", this.state.merge_dropdownValue);
         
         // Add video through add item action
         this.props.mergeClip(bodyFormData);
-      };
+    };
       
     
-      merge_dropdownChanged = id => {
-        this.setState({
-          merge_dropdownValue: id
-        });
-      };
+    merge_dropdownChanged = event => {
+        this.setState(() => {
+            return {
+                merge_dropdownValue: event.target.value
+            }
+        })
+    };
 
     render() {
-        const { items } = this.props.item;
-        console.log(items);
+        console.log(this.props.item);
+        const { items, selectItemOne } = this.props.item;
         return(
             <div>
                 <Grid key="merge_grid" container>
@@ -48,16 +51,16 @@ class EditOption extends React.Component {
                       alignItems="flex-start"
                     >
                         <InputLabel>Select a video to merge</InputLabel>
-                        <Select className="edit-dropdown">                
-                        {items.map(({ _id, originalname }) => (                
-                            <MenuItem className="edit-dropdown-item" key={_id} value={originalname} onClick={this.merge_dropdownChanged.bind(this, _id)}>{originalname}</MenuItem>                  
+                        <Select className="edit-dropdown" style={{minWidth: 180}} value={this.state.merge_dropdownValue} onChange={this.merge_dropdownChanged}>                
+                        {items.map(({ _id, filename }) => (                
+                            <MenuItem className="edit-dropdown-item" key={_id} value={filename}>{filename}</MenuItem>                  
                         ))}
                         </Select>
-                        <Button
-                        className="merge-btn"
+                        <Button 
+                        variant="contained"
                         color="primary"
-                        size="medium"
-                        onClick={this.merge_dropdownSubmit}>
+                        endIcon={<MergeTypeIcon/>}
+                        onClick={this.merge_dropdownSubmit.bind(this,selectItemOne)}>
                         Merge
                         </Button>
                     </Grid>
