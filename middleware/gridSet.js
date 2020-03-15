@@ -12,7 +12,7 @@ let gfs_prim = new Promise(function (resolve, reject) {
     mongoose.connection.once('open', () => {
         // Init stream
         gfs = Grid(mongoose.connection.db, mongoose.mongo);
-        gfs.collection('uploads');
+        gfs.collection('fs');
         return resolve(gfs);
     });
 });
@@ -29,7 +29,7 @@ const storage = new GridFsStorage({
                 const filename = buf.toString('hex') + path.extname(file.originalname);
                 const fileInfo = {
                     filename: filename,
-                    bucketName: 'uploads'
+                    bucketName: 'fs'
                 };
                 resolve(fileInfo);
             });
