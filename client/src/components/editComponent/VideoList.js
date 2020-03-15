@@ -25,7 +25,6 @@ import {
 } from "../../actions/itemActions";
 import { Player, Shortcut, ControlBar, BigPlayButton } from "video-react";
 import PropTypes from "prop-types";
-import Download from "@axetroy/react-download";
 const path = require("path");
 
 class VideoList extends Component {
@@ -130,7 +129,6 @@ class VideoList extends Component {
                       >
                         Load to player two
                       </Button>
-                      {/* <Download file={filename}>Save</Download> */}
                       {/* <a href={filename}>Save</a> */}
                       <Button
                         color="primary"
