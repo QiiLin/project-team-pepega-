@@ -74,7 +74,7 @@ class VideoList extends Component {
                         </NavLink>
                     </NavItem>
                 </Nav>
-                <TabContent activeTab={this.state.selectTab}>
+                <TabContent activeTab={this.state.selectTab} style={{maxHeight: 600, maxWidth: 800, overflow: 'auto'}}>
                     <TabPane tabId="1">
                         <Row>
                         {items.map(({ _id, filename}) => (
