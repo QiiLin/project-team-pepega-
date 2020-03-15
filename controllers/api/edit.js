@@ -10,7 +10,7 @@ const Item = require("../../models/Item");
 // import stream from 'stream';
 const {gfs_prim} = require('../../middleware/gridSet');
 const upload = multer();
-const { StreamInput, StreamOutput } = require('fluent-ffmpeg-multistream')
+const {StreamInput, StreamOutput} = require('fluent-ffmpeg-multistream')
 
 const {PassThrough, Duplex} = require('stream');
 
@@ -85,10 +85,155 @@ function retrivePromise(id, gfs) {
     });
 }
 
+
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
 router.post("/merge", upload.none(), (req, res) => {
+    if (!req.body.curr_vid_id || !req.body.merge_vid_id)
+        return res.status(400).end("video id for merging required");
+
+    // let path_curr = getItem(req.body.curr_vid_id)
+    //     .catch(function(err){
+    //         return res.status(404).end("current video id not found: " + err);
+    //     });
+    // let path_merge = getItem(req.body.merge_vid_id)
+    //     .catch(function(err){
+    //         return res.status(404).end("merge video id not found: " + err);
+    //     });
+    gfs_prim.then(function (gfs) {
+        const curr_vid_id = req.body.curr_vid_id;
+        const merge_vid_id = req.body.merge_vid_id;
+        let itemOne = retrivePromise(curr_vid_id, gfs);
+        let itemOneCopy = retrivePromise(curr_vid_id, gfs);
+        let itemTwo = retrivePromise(merge_vid_id, gfs);
+        // let tempWriteOne = gfs.createWriteStream({ filename: 'my_1_file'});
+        // let tempWriteTwo = gfs.createWriteStream({ filename: 'my_2_file'});
+        let result = gfs.createWriteStream({
+            filename: 'my_file.avi',
+            mode: 'w'
+        });
+
+        Promise.all([itemOne, itemOneCopy, itemTwo])
+            .then(function (itm) {
+                let currStream = itm[0];
+                let currStreamCopy = itm[1];
+                let targetStream = itm[2];
+                let path1 = path.join(__dirname, "../../video_input/test1.mp4");
+                let path2 = path.join(__dirname, "../../video_input/test2.mp4");
+                let path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
+                let path2_base = path.basename(path2).replace(path.extname(path2), "");
+                let path1_tmp = path.join(
+                    path.dirname(path1),
+                    path1_base + "_mod1.avi"
+                ); //temp file loc
+                let path2_tmp = path.join(
+                    path.dirname(path2),
+                    path2_base + "_mod2.avi"
+                );
+                let pathOut_tmp = path.join(__dirname, "../../video_input");
+                let pathOut_path = path.join(
+                    __dirname,
+                    "../../video_input/",
+                    path1_base + ".avi"
+                );
+
+                console.log(path1_tmp);
+                console.log(path2_tmp);
+                console.log (pathOut_path);
+
+                ffmpeg.ffprobe(currStream, function (err, metadata) {
+                    // if (err) res.json("An error occurred [MergeResolution]: " + err.message);
+                    // let width = metadata.streams[0].width;
+                    // let height = metadata.streams[0].height;
+                    let fps = 30 || metadata.streams[0].r_frame_rate;
+                    let width = 640 || metadata.streams[0].width;
+                    let height = 360 || metadata.streams[0].height;
+                    console.log(fps);
+
+                    ffmpeg(currStreamCopy)
+                        .preset("divx")
+                        .withFpsInput(fps)
+                        .outputOptions([
+                            `-vf scale=${width}:${height},setsar=1` //Sample Aspect Ratio = 1.0
+                        ])
+                        .on("progress", progress => {
+                            console.log(`[Merge1]: ${JSON.stringify(progress)}`);
+                        })
+                        .on("error", function (err) {
+                            res.json("An error occurred [Merge1]: " + err.message);
+                        })
+                        /*.on('stderr', function(stderrLine) {
+                        console.log('Stderr output [Merge1]: ' + stderrLine);
+                      })*/
+                        .on("end", function () {
+                            ffmpeg(targetStream)
+                                .preset("divx")
+                                .withFpsInput(fps)
+                                .outputOptions([`-vf scale=${width}:${height},setsar=1`])
+                                .on("progress", progress => {
+                                    console.log(`[Merge2]: ${JSON.stringify(progress)}`);
+                                })
+                                .on("error", function (err) {
+                                    fs.unlink(path1_tmp, err => {
+                                        if (err) console.log("Could not remove Merge1 tmp file:" + err);
+                                    });
+                                    res.json("An error occurred [Merge2]: " + err.message);
+                                })
+                                /*.on('stderr', function(stderrLine) {
+                              console.log('Stderr output [Merge2]:: ' + stderrLine);
+                            })*/
+                                .on("end", function () {
+                                    ffmpeg({source: path1_tmp})
+                                        .mergeAdd(path2_tmp)
+                                        .addOutputOption(
+                                            [
+                                                '-f avi'
+                                            ])
+                                        .on("progress", progress => {
+                                            console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
+                                        })
+                                        .on("error", function (err) {
+                                            // fs.unlink(path1_tmp, err => {
+                                            //     if (err)
+                                            //         console.log("Could not remove Merge1 tmp file:" + err);
+                                            // });
+                                            // fs.unlink(path2_tmp, err => {
+                                            //     if (err)
+                                            //         console.log("Could not remove Merge2 tmp file:" + err);
+                                            // });
+                                            res.json("An error occurred [MergeCombine]: " + err.message);
+                                        })
+                                        .on('stderr', function (stderrLine) {
+                                            console.log('Stderr output [MergeCombine]:: ' + stderrLine);
+                                        })
+                                        .on("end", function () {
+                                            fs.unlink(path1_tmp, err => {
+                                                if (err)
+                                                    console.log("Could not remove Merge1 tmp file:" + err);
+                                            });
+                                            fs.unlink(path2_tmp, err => {
+                                                if (err)
+                                                    console.log("Could not remove Merge2 tmp file:" + err);
+                                            });
+                                            fs.createReadStream(pathOut_path).pipe(result);
+                                            return res.status(200).json("did");
+                                        })
+                                        .mergeToFile(pathOut_path, pathOut_tmp);
+                                })
+                                .save(path2_tmp);
+                        })
+                        .save(path1_tmp);
+                });
+            });
+    });
+});
+
+
+// @route  POST /api/edit/merge/
+// @desc   Append video from idMerge to video from id
+// @access Private
+router.post("/mergse", upload.none(), (req, res) => {
     if (!req.body.curr_vid_id || !req.body.merge_vid_id)
         return res.status(400).end("video id for merging required");
     gfs_prim.then(function (gfs) {
@@ -97,13 +242,28 @@ router.post("/merge", upload.none(), (req, res) => {
         let itemOne = retrivePromise(curr_vid_id, gfs);
         let itemOneCopy = retrivePromise(curr_vid_id, gfs);
         let itemTwo = retrivePromise(merge_vid_id, gfs);
-        let tempWriteOne = gfs.createWriteStream({ filename: 'my_1_file'});
-        let tempWriteTwo = gfs.createWriteStream({ filename: 'my_2_file'});
-        let Result = gfs.createWriteStream({ filename: 'my_file'});
-        let TempResult = gfs.createWriteStream({ filename: 'my_temp_file'});
+        // let tempWriteOne = gfs.createWriteStream({ filename: 'my_1_file'});
+        // let tempWriteTwo = gfs.createWriteStream({ filename: 'my_2_file'});
+        let Result = gfs.createWriteStream({filename: 'my_file'});
+        let TempResult = gfs.createWriteStream({filename: 'my_temp_file'});
+        let path1 = path.join(__dirname, "../../video_input/test1.mp4");
+        let path2 = path.join(__dirname, "../../video_input/test2.mp4");
+        let path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
+        let path2_base = path.basename(path2).replace(path.extname(path2), "");
+        let path1_tmp = path.join(
+            path.dirname(path1),
+            "tmp",
+            path1_base + "_mod.avi"
+        ); //temp file loc
+        let path2_tmp = path.join(
+            path.dirname(path2),
+            "tmp",
+            path2_base + "_mod.avi"
+        );
+
+
         // ensure handle stuff when all the item are being fetched
         Promise.all([itemOne, itemOneCopy, itemTwo]).then(
-
             function (result) {
                 // console.log(result);
                 let first = result[0];
@@ -145,17 +305,17 @@ router.post("/merge", upload.none(), (req, res) => {
                             })*/
                                 .on("end", function () {
 
-                                    let tempone = fs.createReadStream("tt22");
-                                    let temptwo  = fs.createReadStream("tt33");
-                                    const d = new PassThrough();
-                                    const d2 =  new PassThrough();
-                                    tempWriteOne.pipe(d);  // can be piped from reaable stream
-                                    d.pipe(tempone);                 // can pipe to writable stream
-                                    // d.on('data', console.log)              // also like readable
-                                    tempWriteTwo.pipe(d2);
-                                    d.pipe(temptwo);
-                                    ffmpeg({source: StreamInput(tempone).url})
-                                        .mergeAdd(StreamInput(temptwo).url)
+                                    // let tempone = fs.createReadStream("tt22");
+                                    // let temptwo  = fs.createReadStream("tt33");
+                                    // const d = new PassThrough();
+                                    // const d2 =  new PassThrough();
+                                    // tempWriteOne.pipe(d);  // can be piped from reaable stream
+                                    // d.pipe(tempone);                 // can pipe to writable stream
+                                    // // d.on('data', console.log)              // also like readable
+                                    // tempWriteTwo.pipe(d2);
+                                    // d.pipe(path1_tmp);
+                                    ffmpeg({source: path1_tmp})
+                                        .mergeAdd(path2_tmp)
                                         .on("progress", progress => {
                                             console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
                                         })
@@ -190,9 +350,9 @@ router.post("/merge", upload.none(), (req, res) => {
                                         })
                                         .mergeToFile(Result, TempResult);
                                 })
-                                .save(tempWriteTwo);
+                                .save(path2_tmp);
                         })
-                        .save(tempWriteOne);
+                        .save(path1_tmp);
                 });
             }
         );
@@ -201,8 +361,8 @@ router.post("/merge", upload.none(), (req, res) => {
     // //find filename of 2 vids from id & idMerge
     // //set to filepaths, path1 is id & path2 is idMerge
     //
-    // //let path1 = path.join(__dirname, "../../video_input/test1.mp4");
-    // //let path2 = path.join(__dirname, "../../video_input/test2.mp4");
+    // let path1 = path.join(__dirname, "../../video_input/test1.mp4");
+    // let path2 = path.join(__dirname, "../../video_input/test2.mp4");
     // let path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
     // let path2_base = path.basename(path2).replace(path.extname(path2), "");
     // let path1_tmp = path.join(
