@@ -282,34 +282,35 @@ router.post("/trim/:id/", (req, res) => {
     let timestampStart = req.body.timestampStart;
     let timestampEnd = req.body.timestampEnd;
     if (!timestampStart || !timestampEnd)
-        return res.status(400).end("timestamp required");
-    //find filename of vid from id
-    //set to path1
+      return res.status(400).end("timestamp required");
+    if(timestampStart === "0" || timestampStart === "00:00:00.000") //starting at 0 not allowed by library
+      timestampStart = "00:00:00.001"; 
+    
     gfs_prim.then(function (gfs) {
         let itemOne = retrivePromise(req.params.id, gfs);
         let itemOneCopy = retrivePromise(req.params.id, gfs);
         let itemCopy_One = retrivePromise(req.params.id, gfs);
-        const fname = crypto.randomBytes(16).toString('hex') + ".mp4";
+        const fname = crypto.randomBytes(16).toString('hex') + ".webm";
         let result = gfs.createWriteStream({
             filename: fname,
             mode: 'w',
-            contentType: "video/mp4"
+            contentType: "video/webm"
         });
         Promise.all([itemOne, itemOneCopy, itemCopy_One]).then((resultItem) => {
             let itemOneStream = resultItem[0];
             let itemCopyStream = resultItem[1];
-            let itemCopyOneStream = result[2];
-            let path1 = path.join(__dirname, "../../video_input/test1.mp4");
+            let itemCopyOneStream = resultItem[2];
+            let path1 = path.join(__dirname, "../../video_input/test");
             let path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
             let path1_tmp = path.join(
                 path.dirname(path1),
                 "tmp",
-                path1_base + "_1" + path.extname(path1)
+                path1_base + "_1" + ".webm"
             ); //temp file loc
             let path2_tmp = path.join(
                 path.dirname(path1),
                 "tmp",
-                path1_base + "_2" + path.extname(path1)
+                path1_base + "_2" + ".webm"
             );
             let pathOut_path = path.join(
                 __dirname,
@@ -319,11 +320,15 @@ router.post("/trim/:id/", (req, res) => {
             let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
 
             ffmpeg.ffprobe(itemOneStream, function (err, metadata) {
-                let duration = "00:00:20.000";
-                console.log("vidoe duration", duration, req.body.timestampStart, req.body.timestampEnd);
+                let duration = metadata.streams[0].duration;
+                console.log("video duration", duration, req.body.timestampStart, req.body.timestampEnd);
                 ffmpeg(itemCopyStream)
-                    .setStartTime(0) //Can be in "HH:MM:SS" format also
-                    .setDuration(3)
+                    .format("webm")
+                    .withVideoCodec('libvpx')
+                    .addOptions(['-qmin 0', '-qmax 50', '-crf 5'])
+                    .withVideoBitrate(1024)
+                    .withAudioCodec('libvorbis')
+                    .setDuration(timestampStart)
                     .on("progress", progress => {
                         console.log(`[Trim1]: ${JSON.stringify(progress)}`);
                     })
@@ -334,9 +339,15 @@ router.post("/trim/:id/", (req, res) => {
                         res.json("An error occurred [Trim1]: " + err.message);
                     })
                     .on("end", function () {
-                        ffmpeg(path1)
-                            .setStartTime(0)
-                            .setDuration(7)
+                      console.log("test", itemCopyOneStream);
+                        ffmpeg(itemCopyOneStream)
+                            .format("webm")
+                            .withVideoCodec('libvpx')
+                            .addOptions(['-qmin 0', '-qmax 50', '-crf 5'])
+                            .withVideoBitrate(1024)
+                            .withAudioCodec('libvorbis')
+                            .setStartTime(timestampEnd)
+                            .setDuration(duration)
                             .on("progress", progress => {
                                 console.log(`[Trim2]: ${JSON.stringify(progress)}`);
                             })
@@ -351,6 +362,10 @@ router.post("/trim/:id/", (req, res) => {
                             })
                             .on("end", function () {
                                 ffmpeg({source: path1_tmp})
+                                    .addOutputOption(
+                                      [
+                                          '-f webm'
+                                      ])
                                     .mergeAdd(path2_tmp)
                                     .on("progress", progress => {
                                         console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
