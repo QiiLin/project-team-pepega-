@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from "react";
 import { Grid, Select, Button, InputLabel, MenuItem } from '@material-ui/core';
 import MergeTypeIcon from '@material-ui/icons/MergeType';
-import { mergeClip, trimClip } from "../../actions/editActions";
+import {mergeClip, set_sync, trimClip} from "../../actions/editActions";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 
@@ -65,9 +65,13 @@ class EditOption extends React.Component {
                         </Button>
                     </Grid>
                     <Grid>
-                        
                     </Grid>
                 </Grid>
+                <Button
+                    color="primary"
+                    onClick={() => (this.props.set_sync())}>
+                    Sync range selector
+                </Button>
             </div>
         )
     }
@@ -79,4 +83,4 @@ const mapStateToProps = state => ({
     isAuthenticated: state.auth.isAuthenticated
   });
   
-export default connect(mapStateToProps, { mergeClip, trimClip })(EditOption);
+export default connect(mapStateToProps, { mergeClip, trimClip, set_sync })(EditOption);

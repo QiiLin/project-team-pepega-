@@ -266,13 +266,45 @@ router.post("/merge", upload.none(), (req, res) => {
 // @route  POST /api/edit/cut/:id/
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
-router.post("/cut/:id", auth, (req, res) => {
+router.post("/cut/:id", (req, res) => {
     if (
         !req.body.timestampOldStart ||
-        !req.body.timestampOldEnd ||
-        !req.body.timestampNewStart
+        !req.body.timestampDruation
     )
         return res.status(400).end("timestamp required");
+    gfs_prim.then((gfs) => {
+        const fname = crypto.randomBytes(16).toString('hex') + ".webm";
+        let result = gfs.createWriteStream({
+            filename: fname,
+            mode: 'w',
+            contentType: "video/webm"
+        });
+        let itemOne = retrivePromise(req.params.id, gfs);
+        itemOne.then((item) => {
+            ffmpeg(item)
+                .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
+                .setDuration(req.body.timestampDruation)
+                .addOutputOption(
+                    [
+                        '-f webm'
+                    ])
+                .on("progress", progress => {
+                    console.log(`[Cut1]: ${JSON.stringify(progress)}`);
+                })
+                .on('stderr', function (stderrLine) {
+                    console.log('Stderr output [Cut1]: ' + stderrLine);
+                })
+                .on("error", function (err) {
+                    return res.status(500).json("An error occurred [Cut1]: " + err.message);
+                })
+                .on("end", function () {
+                    return res.status(200).json("Operation Complete");
+                })
+                .writeToStream(result);
+        });
+    });
+
+
 });
 
 // @route  POST /api/edit/trim/:id/
@@ -289,11 +321,11 @@ router.post("/trim/:id/", (req, res) => {
         let itemOne = retrivePromise(req.params.id, gfs);
         let itemOneCopy = retrivePromise(req.params.id, gfs);
         let itemCopy_One = retrivePromise(req.params.id, gfs);
-        const fname = crypto.randomBytes(16).toString('hex') + ".webm";
+        const fname = crypto.randomBytes(16).toString('hex') + ".mp4";
         let result = gfs.createWriteStream({
             filename: fname,
             mode: 'w',
-            contentType: "video/webm"
+            contentType: "video/mp4"
         });
         Promise.all([itemOne, itemOneCopy, itemCopy_One]).then((resultItem) => {
             let itemOneStream = resultItem[0];
@@ -323,7 +355,7 @@ router.post("/trim/:id/", (req, res) => {
                 console.log("vidoe duration", duration, req.body.timestampStart, req.body.timestampEnd);
                 ffmpeg(itemCopyStream)
                     .setStartTime(0) //Can be in "HH:MM:SS" format also
-                    .setDuration(req.body.timestampStart)
+                    .setDuration(3)
                     .on("progress", progress => {
                         console.log(`[Trim1]: ${JSON.stringify(progress)}`);
                     })
@@ -334,8 +366,8 @@ router.post("/trim/:id/", (req, res) => {
                         res.json("An error occurred [Trim1]: " + err.message);
                     })
                     .on("end", function () {
-                        ffmpeg({source: itemCopyOneStream})
-                            .setStartTime(req.body.timestampEnd)
+                        ffmpeg(path1)
+                            .setStartTime(0)
                             .setDuration(7)
                             .on("progress", progress => {
                                 console.log(`[Trim2]: ${JSON.stringify(progress)}`);
@@ -382,9 +414,9 @@ router.post("/trim/:id/", (req, res) => {
                                     })
                                     .mergeToFile(result, pathOut_tmp);
                             })
-                            .save(path2_tmp);
+                            .saveToFile(path2_tmp);
                     })
-                    .save(path1_tmp);
+                    .saveToFile(path1_tmp);
             });
         });
     });

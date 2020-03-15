@@ -75,7 +75,7 @@ class VideoList extends Component {
                     </NavItem>
                 </Nav>
                 <TabContent activeTab={this.state.selectTab}>
-                    <TabPane tabId="1">
+                    <TabPane tabId="1" style={{'overflow-x': 'hidden', 'max-height':'400px' }}>
                         <Row>
                         {items.map(({ _id, filename}) => (
                             <Col sm="6" key={_id}>
