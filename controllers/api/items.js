@@ -16,40 +16,9 @@ router.post('/upload', upload.single('video'), (req, res) => {
     file_name: uploaded_file.filename,
     file_path: uploaded_file.path 
   });
-
   res.json({ file: req.file });
 });
 
-//var upload = multer({ dest: path.join(__dirname, "../../client/public") });
-/* Notes:
-  {
-      fieldname: 'name',
-      originalname: 'avideo.MOV',
-      encoding: '7bit',
-      mimetype: 'video/quicktime',
-      destination: '/Users/harrisonapple/Documents/CSCC09/project-team-pepega/client/public',
-      filename: '4f4395e0f7963b85fe87b3a2482f25cd',
-      path: '/Users/harrisonapple/Documents/CSCC09/project-team-pepega/client/public/4f4395e0f7963b85fe87b3a2482f25cd',
-      size: 4141876
-  }
-
-  Should expect this in db:
-
-  filename: '4f4395e0f7963b85fe87b3a2482f25cd',
-  path: '/Users/harrisonapple/Documents/CSCC09/project-team-pepega/client/public/4f4395e0f7963b85fe87b3a2482f25cd',
-*/
-
-// @route  POST /api/items
-// @desc   Create an item
-// @access Private
-/*router.post("/", upload.single("video"), (req, res) => {
-  let uploaded_file = req.file;
-  console.log("Uploaded file: ", uploaded_file);``
-  const newItem = new Item({
-    uploader_id: req.body.uploader_id,
-    originalname: uploaded_file.originalname,
-    file_name: uploaded_file.filename,
-    file_path: uploaded_file.path    */
 
 // @route GET /files
 // @desc  Display all files in JSON

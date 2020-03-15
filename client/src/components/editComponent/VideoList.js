@@ -6,13 +6,15 @@ import {
     NavItem,
     NavLink,
     Card,
-    Button,
     CardTitle,
     CardText,
     Row,
     Col,
     ButtonGroup
 } from 'reactstrap';
+import { Button  }  from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
+import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 import {connect} from "react-redux";
 import {deleteItem, getItems ,setSelectItemOne,setSelectItemTwo } from "../../actions/itemActions";
 import PropTypes from "prop-types";
@@ -72,14 +74,32 @@ class VideoList extends Component {
                         {items.map(({ _id, filename}) => (
                             <Col sm="6" key={_id}>
                                 <Card body >
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    startIcon={<DeleteIcon/>}
+                                    onClick={() => {this.props.deleteItem(_id)}}
+                                >
+                                    Delete
+                                </Button>
                                     <CardTitle>{filename}</CardTitle>
                                     <CardText  >
                                         This is video image and make sure add event listener</CardText>
                                     <ButtonGroup vertical>
-                                    <Button onClick={ () => {this.props.setSelectItemOne(filename)}}>Load to player one</Button>
-
-
-                                    <Button onClick={ () => {this.props.setSelectItemTwo(filename)}}>Load to player two</Button>
+                                        <Button 
+                                        variant="contained"
+                                        color="primary"
+                                        endIcon={<VideoLibraryIcon/>}
+                                        onClick={ () => {this.props.setSelectItemOne(filename)}}>
+                                            Load to player one
+                                        </Button>
+                                        <Button 
+                                        variant="contained"
+                                        color="primary"
+                                        endIcon={<VideoLibraryIcon/>}
+                                        onClick={ () => {this.props.setSelectItemTwo(filename)}}>
+                                            Load to player two
+                                        </Button>
                                     </ButtonGroup>
                                 </Card>
                             </Col>
