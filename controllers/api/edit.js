@@ -7,6 +7,8 @@ const path = require("path");
 const ffmpeg = require("../../controllers/ff_path");
 // Item model
 const Item = require("../../models/Item");
+
+let createJSONfilter = transitionType => {};
 // import stream from 'stream';
 const {gfs_prim} = require('../../middleware/gridSet');
 const upload = multer();
@@ -95,7 +97,7 @@ router.post("/merge", upload.none(), (req, res) => {
         const curr_vid_id = req.body.curr_vid_id;
         const merge_vid_id = req.body.merge_vid_id;
         let itemOne = retrivePromise(curr_vid_id, gfs);
-        let itemOneCopy = retrivePromise("f6100fb2316f0635b27570bcddbd9def.mp4", gfs);
+        let itemOneCopy = retrivePromise(curr_vid_id, gfs);
         let itemTwo = retrivePromise(merge_vid_id, gfs);
         // let tempWriteOne = gfs.createWriteStream({ filename: 'my_1_file'});
         // let tempWriteTwo = gfs.createWriteStream({ filename: 'my_2_file'});
@@ -139,9 +141,9 @@ router.post("/merge", upload.none(), (req, res) => {
                      let width = metadata.streams[0].width || 640;
                      let height = metadata.streams[0].height || 360;
                      let fps = metadata.streams[0].r_frame_rate || 30;
-                    // console.log(width);
-                    // console.log(height);
-                    // console.log(fps);
+                     console.log(width);
+                     console.log(height);
+                     console.log(fps);
 
                     ffmpeg(currStreamCopy)
                         //.preset("divx")
@@ -397,11 +399,112 @@ router.post("/transition/:id", auth, (req, res) => {
     console.log(metadata.streams[0]);
 
     ffmpeg({ source: path1 })
-      .inputOptions([`-ss 0`, `-to ${req.body.timestampStart}`])
+      .inputOptions([`-ss 0`, `-to ${timestampStart}`])
       .on("progress", progress => {
         console.log(`[Transition1]: ${JSON.stringify(progress)}`);
       })
       .on("error", function(err) {
+        res.json("An error occurred [Transition1]: " + err.message);
+      })
+      .on("end", function() {
+        ffmpeg({ source: path1 })
+          .videoFilters(createJSONfilter(transitionType))
+          .on("progress", progress => {
+            console.log(`[Transition1]: ${JSON.stringify(progress)}`);
+          })
+          .on("error", function(err) {
+            fs.unlink(path1_tmp, err => {
+              if (err)
+                console.log("Could not remove Transition2 tmp file:" + err);
+            });
+            res.json("An error occurred [Transition2]: " + err.message);
+          })
+          .on("end", function() {
+            ffmpeg({ source: path1_tmp })
+              .mergeAdd(transition_temp)
+              .on("progress", progress => {
+                console.log(
+                  `[TransitionMergeCombine]: ${JSON.stringify(progress)}`
+                );
+              })
+              .on("error", function(err) {
+                fs.unlink(path1_tmp, err => {
+                  if (err)
+                    console.log("Could not remove Transition1 tmp file:" + err);
+                });
+                fs.unlink(path2_tmp, err => {
+                  if (err)
+                    console.log("Could not remove Transition2 tmp file:" + err);
+                });
+                res.json(
+                  "An error occurred [TransitionCombine]: " + err.message
+                );
+              })
+              .on("end", function() {
+                fs.unlink(path1_tmp, err => {
+                  if (err)
+                    console.log("Could not remove Transition1 tmp file:" + err);
+                });
+                fs.unlink(path2_tmp, err => {
+                  if (err)
+                    console.log("Could not remove Transition2 tmp file:" + err);
+                });
+                res.json("Merging finished !");
+              })
+              .mergeToFile(pathOut_path, pathOut_tmp);
+          })
+          .save(path2_tmp);
+      })
+      .save(path1_tmp);
+  });
+});
+
+// @route  POST /api/edit/transition/:id/
+// @desc   Add transition effects in a video at a timestamp
+// @access Private
+router.post("/transition/:id", auth, (req, res) => {
+  let timestampStart = req.body.timestampStart;
+  let transitionType = req.body.transitionType;
+  if (!timestampStart || !transitionType)
+    return res
+      .status(400)
+      .end("Both timestamp and transition type are required");
+
+  path1 = path.join(__dirname, "../../video_input/test1.mp4");
+  let path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
+  let path1_tmp = path.join(
+    path.dirname(path1),
+    "tmp",
+    path1_base + "_1" + path.extname(path1)
+  ); //temp file loc
+  let path2_tmp = path.join(
+    path.dirname(path1),
+    "tmp",
+    path1_base + "_2" + path.extname(path1)
+  );
+  let pathOut_path = path.join(
+    __dirname,
+    "../../video_output/",
+    path.basename(path1)
+  );
+  let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
+
+  ffmpeg.ffprobe(path1, function(err, metadata) {
+    let duration = metadata.streams[0].duration; //vid duration in timebase unit
+    console.log(metadata.streams[0]);
+
+    console.log("path1: ", path1);
+
+    ffmpeg({ source: path1 })
+      .inputOptions([`-ss 0`, `-to ${req.body.timestampStart}`])
+      .on("progress", progress => {
+        console.log(`[Transition1]: ${JSON.stringify(progress)}`);
+      })
+      .on("stderr", function(stderrLine) {
+        console.log("Stderr output [Transition]: " + stderrLine);
+      })
+      .on("error", function(err) {
+        console.log();
         res.json("An error occurred [Transition1]: " + err.message);
       })
       .on("end", function() {
