@@ -15,7 +15,9 @@ class VideoContainer extends Component {
     constructor(props) {
         super(props);
         // Don't call this.setState() here!
-        this.state = {selectTab: '1'};
+        this.state = {
+            selectTab: '1'
+        };
         this.toggle = this.toggle.bind(this);
     }
     
@@ -30,7 +32,7 @@ class VideoContainer extends Component {
     render() {
         // Note selectedFile is from VideoList
         // TODO: Update the placeholder for video
-        const {selectItemOne, selectItemTwo} = this.props.item;
+        const {selectItemOne, selectItemTwo} = this.props.item
         return (
             <div>
                 <Nav tabs>
