@@ -6,7 +6,7 @@ const auth = require("../../middleware/auth");
 
 // @route POST /upload
 // @desc  Uploads file to DB
-router.post('/upload', upload.single('video'), (req, res) => {
+router.post('/upload', upload.single('video'), auth, (req, res) => {
   let uploaded_file = req.file;
   console.log("Uploaded file: ", uploaded_file);
   const newItem = new Item({
@@ -22,7 +22,7 @@ router.post('/upload', upload.single('video'), (req, res) => {
 
 // @route GET /files
 // @desc  Display all files in JSON
-router.get('/', (req, res) => {
+router.get('/', auth, (req, res) => {
   gfs_prim.then(function (gfs) {
     gfs.files.find().toArray((err, files) => {
       // Check if files
