@@ -4,18 +4,17 @@ const router = express.Router();
 const {gfs_prim, upload} = require('../../middleware/gridSet');
 const auth = require("../../middleware/auth");
 
-
 // @route POST /upload
 // @desc  Uploads file to DB
 router.post('/upload', upload.single('video'), (req, res) => {
   let uploaded_file = req.file;
   console.log("Uploaded file: ", uploaded_file);
-  const newItem = new Item({
+  /*const newItem = new Item({
     uploader_id: req.body.uploader_id,
     originalname: uploaded_file.originalname,
     file_name: uploaded_file.filename,
     file_path: uploaded_file.path 
-  });
+  });*/
   res.json({ file: req.file });
 });
 
@@ -97,7 +96,7 @@ router.get('/:filename', (req, res) => {
 // @desc  Delete file
 router.delete('/:id', (req, res) => {
   gfs_prim.then(function (gfs) {
-    gfs.remove({ _id: req.params.id, root: 'uploads' }, (err, gridStore) => {
+    gfs.remove({ _id: req.params.id, root: 'fs' }, (err, gridStore) => {
       if (err) {
         return res.status(404).json({ err: err });
       }
@@ -105,10 +104,6 @@ router.delete('/:id', (req, res) => {
     });
   });
 });
-
-
-
-
 
 
 

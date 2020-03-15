@@ -85,6 +85,7 @@ function retrivePromise(id, gfs) {
     });
 }
 
+const crypto = require('crypto');
 
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
@@ -109,12 +110,14 @@ router.post("/merge", upload.none(), (req, res) => {
         let itemTwo = retrivePromise(merge_vid_id, gfs);
         // let tempWriteOne = gfs.createWriteStream({ filename: 'my_1_file'});
         // let tempWriteTwo = gfs.createWriteStream({ filename: 'my_2_file'});
+            
+        const fname = crypto.randomBytes(16).toString('hex') + ".webm";
         let result = gfs.createWriteStream({
-            filename: 'my_file.avi',
+            filename: fname,
             mode: 'w',
-            contentType: "video/mp4"
+            contentType: "video/webm"
         });
-
+        
         Promise.all([itemOne, itemOneCopy, itemTwo])
             .then(function (itm) {
                 let currStream = itm[0];
@@ -126,17 +129,17 @@ router.post("/merge", upload.none(), (req, res) => {
                 let path2_base = path.basename(path2).replace(path.extname(path2), "");
                 let path1_tmp = path.join(
                     path.dirname(path1),
-                    path1_base + "_mod1.avi"
+                    path1_base + "_mod1.webm"
                 ); //temp file loc
                 let path2_tmp = path.join(
                     path.dirname(path2),
-                    path2_base + "_mod2.avi"
+                    path2_base + "_mod2.webm"
                 );
-                let pathOut_tmp = path.join(__dirname, "../../video_input");
+                let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
                 let pathOut_path = path.join(
                     __dirname,
-                    "../../video_input/",
-                    path1_base + ".avi"
+                    "../../video_output",
+                    path1_base + ".webm"
                 );
 
                 console.log(path1_tmp);
@@ -153,7 +156,12 @@ router.post("/merge", upload.none(), (req, res) => {
                     console.log(fps);
 
                     ffmpeg(currStreamCopy)
-                        .preset("divx")
+                        //.preset("divx")
+                        .format("webm")
+                        .withVideoCodec('libvpx')
+                        .addOptions(['-qmin 0', '-qmax 50', '-crf 5'])
+                        .withVideoBitrate(1024)
+                        .withAudioCodec('libvorbis')
                         .withFpsInput(fps)
                         .outputOptions([
                             `-vf scale=${width}:${height},setsar=1` //Sample Aspect Ratio = 1.0
@@ -169,7 +177,12 @@ router.post("/merge", upload.none(), (req, res) => {
                       })*/
                         .on("end", function () {
                             ffmpeg(targetStream)
-                                .preset("divx")
+                                //.preset("divx")
+                                .format("webm")
+                                .withVideoCodec('libvpx')
+                                .addOptions(['-qmin 0', '-qmax 50', '-crf 5'])
+                                .withVideoBitrate(1024)
+                                .withAudioCodec('libvorbis')
                                 .withFpsInput(fps)
                                 .outputOptions([`-vf scale=${width}:${height},setsar=1`])
                                 .on("progress", progress => {
@@ -189,20 +202,20 @@ router.post("/merge", upload.none(), (req, res) => {
                                         .mergeAdd(path2_tmp)
                                         .addOutputOption(
                                             [
-                                                '-f avi'
+                                                '-f webm'
                                             ])
                                         .on("progress", progress => {
                                             console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
                                         })
                                         .on("error", function (err) {
-                                            // fs.unlink(path1_tmp, err => {
-                                            //     if (err)
-                                            //         console.log("Could not remove Merge1 tmp file:" + err);
-                                            // });
-                                            // fs.unlink(path2_tmp, err => {
-                                            //     if (err)
-                                            //         console.log("Could not remove Merge2 tmp file:" + err);
-                                            // });
+                                            fs.unlink(path1_tmp, err => {
+                                                if (err)
+                                                    console.log("Could not remove Merge1 tmp file:" + err);
+                                            });
+                                            fs.unlink(path2_tmp, err => {
+                                                if (err)
+                                                    console.log("Could not remove Merge2 tmp file:" + err);
+                                            });
                                             res.json("An error occurred [MergeCombine]: " + err.message);
                                         })
                                         .on('stderr', function (stderrLine) {
