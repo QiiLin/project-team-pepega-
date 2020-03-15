@@ -7,16 +7,16 @@ const ItemSchema = new Schema({
     type: Schema.Types.ObjectId,
     required: true
   },
-  gfs_id: {
-    type: Schema.Types.ObjectId,
+  filename: {
+    type: String,
     required: true
   },
   originalname: {
     type: String,
     required: true
   },
-  thumbnail: {
-    type: Buffer,
+  duration: {
+    type: Number,
     required: true
   },  
   date: {
