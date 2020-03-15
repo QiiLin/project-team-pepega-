@@ -31,49 +31,79 @@ router.post("/:id/caption", (req, res) => {
         temp += curr.text + "\n";
         result += temp;
     });
-
+    const fname = crypto.randomBytes(16).toString('hex') + ".webm";
     // TODO Change path according the database
     let sub_path = path
-        .join(__dirname, "/../../temp/subtitle/", req.params.id + "_sub.srt")
+        .join(__dirname, "/../../temp/subtitle/",  "t_sub.srt")
         .replace(/\\/g, "\\\\\\\\")
         .replace(":", "\\\\:");
 
     let srt_path =
-        __dirname + "/../../temp/subtitle/" + req.params.id + "_sub.srt";
+        __dirname + "/../../temp/subtitle/" + "t_sub.srt";
     let input_path = path.join(__dirname + "/../../temp/video/test.mp4");
-
     let out_path = path.join(__dirname + "/../../temp/video/out.mp4");
+    console.log(srt_path);
+    console.log(sub_path);
     fs.writeFile(srt_path, result, function (err) {
         if (err) throw err;
         console.log("Saved!");
-        ffmpeg()
-            .input(input_path)
-            .outputOptions([`-vf subtitles=${sub_path}`])
-            .output(out_path)
-            .on("progress", progress => {
-                console.log(`[Caption]: ${JSON.stringify(progress)}`);
-            })
-            .on("error", function (err) {
-                fs.unlink(srt_path, err => {
-                    if (err) console.log("Could not remove srt file:" + err);
+        gfs_prim.then(function (gfs) {
+            // get read stream from DB
+            let resultFile = gfs.createWriteStream({
+                filename: fname,
+                mode: 'w',
+                contentType: "video/webm"
+            });
+            let currentItem = retrivePromise(req.params.id, gfs);
+            let currentItemCopy = retrivePromise(req.params.id, gfs);
+            Promise.all([currentItem,currentItemCopy ]).then((Items) =>{
+                let currStream = Items[0];
+                let readItem = Items[1];
+                ffmpeg.ffprobe(currStream, function (err, metadata) {
+                    let width = metadata.streams[0].width || 640;
+                    let height = metadata.streams[0].height || 360;
+                    let fps = metadata.streams[0].r_frame_rate || 30;
+                    console.log(width);
+                    console.log(height);
+                    console.log(fps);
+                    // adding caption
+                    ffmpeg()
+                        .input(readItem)
+                        .format("webm")
+                        .withVideoCodec('libvpx')
+                        .addOptions(['-qmin 0', '-qmax 50', '-crf 5'])
+                        .withVideoBitrate(1024)
+                        .withAudioCodec('libvorbis')
+                        .withFpsInput(fps)
+                        .outputOptions([`-vf scale=${width}:${height},setsar=1`, `-vf subtitles=${sub_path}`])
+                        .on("progress", progress => {
+                            console.log(`[Caption]: ${JSON.stringify(progress)}`);
+                        })
+                        .on("error", function (err) {
+                            // fs.unlink(srt_path, err => {
+                            //     if (err) console.log("Could not remove srt file:" + err);
+                            // });
+                            return res.status(500).json("An error occurred [Caption]: " + err.message);
+                        })
+                        .on('stderr', function(stderrLine) {
+                            console.log('Stderr output [Subtitle]:: ' + stderrLine);
+                        })
+                        .on("end", function () {
+                            fs.unlink(srt_path, err => {
+                                if (err) console.log("Could not remove srt file:" + err);
+                            });
+                            // TODO return data with path to access the file in the database
+                            return res.status(200).end("Caption is added");
+                        })
+                        .writeToStream(resultFile);
                 });
-                res.status(500).json("An error occurred [Caption]: " + err.message);
-            })
-            // .on('stderr', function(stderrLine) {
-            //   console.log('Stderr output [Subtitle]:: ' + stderrLine);
-            // })
-            .on("end", function () {
-                fs.unlink(srt_path, err => {
-                    if (err) console.log("Could not remove srt file:" + err);
-                });
-                // TODO return data with path to access the file in the database
-                return res.status(200).end("Caption is added");
-            })
-            .run();
+            });
+        });
     });
 });
 
 function retrivePromise(id, gfs) {
+    console.log(id, "Eeeeeeeeeeeeeeeeeeeeeeeeeee");
     return new Promise(function (resolve, reject) {
         gfs.files.findOne({filename: id}, (err, file) => {
             // Check if file
@@ -220,10 +250,10 @@ router.post("/merge", upload.none(), (req, res) => {
                                                 if (err)
                                                     console.log("Could not remove Merge2 tmp file:" + err);
                                             });
-                                            fs.createReadStream(pathOut_path).pipe(result);
+                                            // fs.createReadStream(pathOut_path).pipe(result);
                                             return res.status(200).json("did");
                                         })
-                                        .mergeToFile(pathOut_path, pathOut_tmp);
+                                        .mergeToFile(result, pathOut_tmp);
                                 })
                                 .save(path2_tmp);
                         })
