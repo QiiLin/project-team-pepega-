@@ -24,6 +24,7 @@ class ItemModal extends Component {
   }
 
   static propTypes = {
+    user: PropTypes.object,
     isAuthenticated: PropTypes.bool
   };
 
@@ -50,7 +51,7 @@ class ItemModal extends Component {
     let bodyFormData = new FormData();
     // bodyFormData.set("video", this.state.video);
     bodyFormData.append("video", this.state.video);
-
+    bodyFormData.append("uploader_id", this.props.user._id);
     // Add video through add item action
     this.props.addItem(bodyFormData);
     // Close modal
@@ -111,6 +112,7 @@ class ItemModal extends Component {
 
 const mapStateToProps = state => ({
   item: state.item,
+  user: state.auth.user,
   isAuthenticated: state.auth.isAuthenticated
 });
 

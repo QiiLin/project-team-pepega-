@@ -3,14 +3,22 @@ const Schema = mongoose.Schema;
 
 // Create schema
 const ItemSchema = new Schema({
-  file_name: {
+  uploader_id: {
+    type: Schema.Types.ObjectId,
+    required: true
+  },
+  gfs_id: {
+    type: Schema.Types.ObjectId,
+    required: true
+  },
+  originalname: {
     type: String,
     required: true
   },
-  file_path: {
-    type: String,
+  thumbnail: {
+    type: Buffer,
     required: true
-  },
+  },  
   date: {
     type: Date,
     default: Date.now

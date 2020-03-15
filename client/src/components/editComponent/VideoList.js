@@ -6,15 +6,20 @@ import {
     NavItem,
     NavLink,
     Card,
-    Button,
     CardTitle,
     CardText,
     Row,
-    Col
+    Col,
+    ButtonGroup
 } from 'reactstrap';
+import { Button  }  from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
+import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 import {connect} from "react-redux";
-import {deleteItem, getItems ,setSelectItem,getSelectItem } from "../../actions/itemActions";
+import {deleteItem, getItems ,setSelectItemOne,setSelectItemTwo } from "../../actions/itemActions";
 import PropTypes from "prop-types";
+const path = require("path");
+
 class VideoList extends Component {
     static propTypes = {
         getItems: PropTypes.func.isRequired,
@@ -39,13 +44,10 @@ class VideoList extends Component {
             }));
         }
     };
-
+    //<Button onClick={ () => {this.props.setSelectItemOne(file_name + path.extname(file_path))}}>Load to player one</Button>
     render() {
         const {items} = this.props.item;
-        if (items.length !== 0) {
-            // init default view video
-            console.log(items[0].file_name);
-        }
+        console.timeLog(items);
         return (
             <div>
                 <Nav tabs>
@@ -68,32 +70,58 @@ class VideoList extends Component {
                 </Nav>
                 <TabContent activeTab={this.state.selectTab}>
                     <TabPane tabId="1">
-                        {items.map(({ _id, file_name }) => (
-                            <Col sm="6">
-                                <Card body onClick={ () => {this.props.setSelectItem(file_name)}}>
-                                    <CardTitle>{file_name}</CardTitle>
-                                    <CardText>This is video image and make sure add event listener</CardText>
-                                    <Button>Make sure we update router to prevent this from display</Button>
+                        <Row>
+                        {items.map(({ _id, filename}) => (
+                            <Col sm="6" key={_id}>
+                                <Card body >
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    startIcon={<DeleteIcon/>}
+                                    onClick={() => {this.props.deleteItem(_id)}}
+                                >
+                                    Delete
+                                </Button>
+                                    <CardTitle>{filename}</CardTitle>
+                                    <CardText  >
+                                        This is video image and make sure add event listener</CardText>
+                                    <ButtonGroup vertical>
+                                        <Button 
+                                        variant="contained"
+                                        color="primary"
+                                        endIcon={<VideoLibraryIcon/>}
+                                        onClick={ () => {this.props.setSelectItemOne(filename)}}>
+                                            Load to player one
+                                        </Button>
+                                        <Button 
+                                        variant="contained"
+                                        color="primary"
+                                        endIcon={<VideoLibraryIcon/>}
+                                        onClick={ () => {this.props.setSelectItemTwo(filename)}}>
+                                            Load to player two
+                                        </Button>
+                                    </ButtonGroup>
                                 </Card>
                             </Col>
                         ))}
+                        </Row>
                     </TabPane>
                     <TabPane tabId="2">
                         <Row>
-                            <Col sm="6">
-                                <Card body>
-                                    <CardTitle>Special Title Treatment</CardTitle>
-                                    <CardText>With supporting text below as a natural lead-in to additional content.</CardText>
-                                    <Button>Go somewhere</Button>
-                                </Card>
-                            </Col>
-                            <Col sm="6">
-                                <Card body>
-                                    <CardTitle>Special Title Treatment</CardTitle>
-                                    <CardText>With supporting text below as a natural lead-in to additional content.</CardText>
-                                    <Button>Go somewhere</Button>
-                                </Card>
-                            </Col>
+                            {/*<Col sm="6">*/}
+                                {/*<Card body>*/}
+                                    {/*<CardTitle>Special Title Treatment</CardTitle>*/}
+                                    {/*<CardText>With supporting text below as a natural lead-in to additional content.</CardText>*/}
+                                    {/*<Button>Go somewhere</Button>*/}
+                                {/*</Card>*/}
+                            {/*</Col>*/}
+                            {/*<Col sm="6">*/}
+                                {/*<Card body>*/}
+                                    {/*<CardTitle>Special Title Treatment</CardTitle>*/}
+                                    {/*<CardText>With supporting text below as a natural lead-in to additional content.</CardText>*/}
+                                    {/*<Button>Go somewhere</Button>*/}
+                                {/*</Card>*/}
+                            {/*</Col>*/}
                         </Row>
                     </TabPane>
                 </TabContent>
@@ -108,4 +136,4 @@ const mapStateToProps = state => ({
     isAuthenticated: state.auth.isAuthenticated
 });
 
-export default connect(mapStateToProps, { getItems, deleteItem, setSelectItem ,getSelectItem })(VideoList);
+export default connect(mapStateToProps, { getItems, deleteItem, setSelectItemOne ,setSelectItemTwo })(VideoList);
