@@ -17,6 +17,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 import {connect} from "react-redux";
 import {deleteItem, getItems ,setSelectItemOne,setSelectItemTwo } from "../../actions/itemActions";
+import { Player, Shortcut, ControlBar, BigPlayButton } from "video-react";
 import PropTypes from "prop-types";
 const path = require("path");
 
@@ -31,6 +32,7 @@ class VideoList extends Component {
         // Don't call this.setState() here!
         this.state = { selectTab: '1' };
         this.toggle = this.toggle.bind(this);
+        this.pause = this.pause.bind(this);
     }
     // Run when making an api request (or calling an actions)
     componentDidMount() {
@@ -44,9 +46,13 @@ class VideoList extends Component {
             }));
         }
     };
-    //<Button onClick={ () => {this.props.setSelectItemOne(file_name + path.extname(file_path))}}>Load to player one</Button>
+
+    pause() {
+        this.player.pause();
+    }
+
     render() {
-        const {items} = this.props.item;
+        const { items } = this.props.item;
         console.timeLog(items);
         return (
             <div>
@@ -83,8 +89,13 @@ class VideoList extends Component {
                                     Delete
                                 </Button>
                                     <CardTitle>{filename}</CardTitle>
-                                    <CardText  >
-                                        This is video image and make sure add event listener</CardText>
+                                    <Player 
+                                      key={filename}>
+                                        <source src={"api/items/" + filename}/>
+                                        <Shortcut clickable={false} dblclickable={false} disabled/>
+                                        <ControlBar disabled/>
+                                        <BigPlayButton  disabled/>
+                                    </Player>
                                     <ButtonGroup vertical>
                                         <Button 
                                         variant="contained"
