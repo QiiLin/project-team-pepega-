@@ -1,4 +1,4 @@
 module.exports = {
   mongoURI:
-    "mongodb+srv://harrison:harrison@magicvideocluster-ejxrg.mongodb.net/test?retryWrites=true&w=majority"
+    "mongodb://Qi:Qi@magicvideocluster-shard-00-00-ejxrg.mongodb.net:27017,magicvideocluster-shard-00-01-ejxrg.mongodb.net:27017,magicvideocluster-shard-00-02-ejxrg.mongodb.net:27017/test?replicaSet=MagicVideoCluster-shard-0&ssl=true&authSource=admin"
 };
