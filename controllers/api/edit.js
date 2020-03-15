@@ -289,11 +289,11 @@ router.post("/trim/:id/", (req, res) => {
         let itemOne = retrivePromise(req.params.id, gfs);
         let itemOneCopy = retrivePromise(req.params.id, gfs);
         let itemCopy_One = retrivePromise(req.params.id, gfs);
-        const fname = crypto.randomBytes(16).toString('hex') + ".webm";
+        const fname = crypto.randomBytes(16).toString('hex') + ".mp4";
         let result = gfs.createWriteStream({
             filename: fname,
             mode: 'w',
-            contentType: "video/webm"
+            contentType: "video/mp4"
         });
         Promise.all([itemOne, itemOneCopy, itemCopy_One]).then((resultItem) => {
             let itemOneStream = resultItem[0];
@@ -323,7 +323,7 @@ router.post("/trim/:id/", (req, res) => {
                 console.log("vidoe duration", duration, req.body.timestampStart, req.body.timestampEnd);
                 ffmpeg(itemCopyStream)
                     .setStartTime(0) //Can be in "HH:MM:SS" format also
-                    .setDuration(req.body.timestampStart)
+                    .setDuration(3)
                     .on("progress", progress => {
                         console.log(`[Trim1]: ${JSON.stringify(progress)}`);
                     })
@@ -334,8 +334,8 @@ router.post("/trim/:id/", (req, res) => {
                         res.json("An error occurred [Trim1]: " + err.message);
                     })
                     .on("end", function () {
-                        ffmpeg({source: itemCopyOneStream})
-                            .setStartTime(req.body.timestampEnd)
+                        ffmpeg(path1)
+                            .setStartTime(0)
                             .setDuration(7)
                             .on("progress", progress => {
                                 console.log(`[Trim2]: ${JSON.stringify(progress)}`);
@@ -382,9 +382,9 @@ router.post("/trim/:id/", (req, res) => {
                                     })
                                     .mergeToFile(result, pathOut_tmp);
                             })
-                            .save(path2_tmp);
+                            .saveToFile(path2_tmp);
                     })
-                    .save(path1_tmp);
+                    .saveToFile(path1_tmp);
             });
         });
     });
