@@ -12,6 +12,7 @@ import {
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
+import Download from "@axetroy/react-download";
 
 export const getItems = () => dispatch => {
   dispatch(setItemsLoading());
@@ -96,8 +97,9 @@ export const setVideoTwoRange = range => {
 
 export const downloadFile = id => dispatch => {
   dispatch(setItemsLoading());
+  console.log("downloadFile filename: ", id);
   axios
-    .get("/api/files/" + id)
+    .get("/api/items/" + id)
     .then(res => {
       console.log(res.data);
       dispatch({ type: DOWNLOAD_FILE, payload: res.data });
