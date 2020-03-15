@@ -2,40 +2,24 @@ const express = require("express");
 const router = express.Router();
 
 const {gfs_prim, upload} = require('../../middleware/gridSet');
-const ffmpeg = require("../../controllers/ff_path");
-const mongoose = require("mongoose");
 const auth = require("../../middleware/auth");
 
 // @route POST /upload
 // @desc  Uploads file to DB
 router.post('/upload', upload.single('video'), (req, res) => {
-  gfs_prim.then(function (gfs) {
-    gfs.files.findOne({ filename: req.file.filename }, (err, file) => {
-      // Check if file
-      if (!file || file.length === 0) {
-        return res.status(404).json({
-          err: 'No file exists'
-        });
-      }
-      const readstream = gfs.createReadStream(file.filename);
-      ffmpeg.ffprobe(readstream, function (err, metadata) {
-        let duration = metadata.streams[0].duration || 100;
-        const newItem = new Item({
-          uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
-          filename: req.file.filename,
-          originalname: req.file.originalname,
-          file_path: req.file.path,
-          duration: duration
-        });
-        newItem.save().then(item => res.json(item));
-      });
-    });
+  let uploaded_file = req.file;
+  console.log("Uploaded file: ", uploaded_file);
+  const newItem = new Item({
+    uploader_id: req.body.uploader_id,
+    originalname: uploaded_file.originalname,
+    file_name: uploaded_file.filename,
+    file_path: uploaded_file.path 
   });
-  return res.json({...req.file, _id: req.file.id});
+  res.json({ file: req.file });
 });
 
 
-// @route GET /api/items
+// @route GET /files
 // @desc  Display all files in JSON
 router.get('/', (req, res) => {
   gfs_prim.then(function (gfs) {
@@ -52,7 +36,7 @@ router.get('/', (req, res) => {
   });
 });
 
-// @route GET /api/items/:filename
+// @route GET /files/:filename
 // @desc  Display single file object
 router.get('/:filename', (req, res) => {
   // gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
