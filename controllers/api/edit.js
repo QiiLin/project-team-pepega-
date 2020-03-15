@@ -10,8 +10,8 @@ const Item = require("../../models/Item");
 // import stream from 'stream';
 const {gfs_prim} = require('../../middleware/gridSet');
 const upload = multer();
+const crypto = require('crypto');
 const {StreamInput, StreamOutput} = require('fluent-ffmpeg-multistream')
-
 const {PassThrough, Duplex} = require('stream');
 
 // @route  POST /api/caption
@@ -21,7 +21,6 @@ router.post("/:id/caption", (req, res) => {
     if (!req.body.data) {
         return res.status(400).end("Bad argument: Missing data");
     }
-
 
     let result = "";
     req.body.data.forEach(function (curr, index) {
@@ -85,8 +84,6 @@ function retrivePromise(id, gfs) {
     });
 }
 
-const crypto = require('crypto');
-
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
@@ -94,19 +91,11 @@ router.post("/merge", upload.none(), (req, res) => {
     if (!req.body.curr_vid_id || !req.body.merge_vid_id)
         return res.status(400).end("video id for merging required");
 
-    // let path_curr = getItem(req.body.curr_vid_id)
-    //     .catch(function(err){
-    //         return res.status(404).end("current video id not found: " + err);
-    //     });
-    // let path_merge = getItem(req.body.merge_vid_id)
-    //     .catch(function(err){
-    //         return res.status(404).end("merge video id not found: " + err);
-    //     });
     gfs_prim.then(function (gfs) {
         const curr_vid_id = req.body.curr_vid_id;
         const merge_vid_id = req.body.merge_vid_id;
         let itemOne = retrivePromise(curr_vid_id, gfs);
-        let itemOneCopy = retrivePromise(curr_vid_id, gfs);
+        let itemOneCopy = retrivePromise("f6100fb2316f0635b27570bcddbd9def.mp4", gfs);
         let itemTwo = retrivePromise(merge_vid_id, gfs);
         // let tempWriteOne = gfs.createWriteStream({ filename: 'my_1_file'});
         // let tempWriteTwo = gfs.createWriteStream({ filename: 'my_2_file'});
@@ -142,18 +131,17 @@ router.post("/merge", upload.none(), (req, res) => {
                     path1_base + ".webm"
                 );
 
-                console.log(path1_tmp);
-                console.log(path2_tmp);
-                console.log (pathOut_path);
+                // console.log(path1_tmp);
+                // console.log(path2_tmp);
+                // console.log (pathOut_path);
 
                 ffmpeg.ffprobe(currStream, function (err, metadata) {
-                    // if (err) res.json("An error occurred [MergeResolution]: " + err.message);
-                    // let width = metadata.streams[0].width;
-                    // let height = metadata.streams[0].height;
-                    let fps = 30 || metadata.streams[0].r_frame_rate;
-                    let width = 640 || metadata.streams[0].width;
-                    let height = 360 || metadata.streams[0].height;
-                    console.log(fps);
+                     let width = metadata.streams[0].width || 640;
+                     let height = metadata.streams[0].height || 360;
+                     let fps = metadata.streams[0].r_frame_rate || 30;
+                    // console.log(width);
+                    // console.log(height);
+                    // console.log(fps);
 
                     ffmpeg(currStreamCopy)
                         //.preset("divx")
@@ -240,8 +228,7 @@ router.post("/merge", upload.none(), (req, res) => {
                         .save(path1_tmp);
                 });
             });
-    });
-});
+        });
 
 // @route  POST /api/edit/cut/:id/
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
@@ -348,6 +335,7 @@ router.post("/trim/:id/", auth, (req, res) => {
                     .save(path2_tmp);
             })
             .save(path1_tmp);
+        });
     });
 
     /*ffmpeg({ source: path1 })
