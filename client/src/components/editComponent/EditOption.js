@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from "react";
 import { Grid, Select, Button, InputLabel, MenuItem } from '@material-ui/core';
 import MergeTypeIcon from '@material-ui/icons/MergeType';
-import {mergeClip, set_sync, trimClip} from "../../actions/editActions";
+import {addCapation, captionClip, mergeClip, set_sync, trimClip} from "../../actions/editActions";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
+import CaptionListView from "../CaptionListView";
 
 class EditOption extends React.Component {
 
@@ -12,6 +13,8 @@ class EditOption extends React.Component {
         this.state = {
           merge_dropdownValue: '',
         };
+        this.addCaption = this.addCaption.bind(this);
+        this.burnVideo = this.burnVideo.bind(this);
     }
 
     static propTypes = {
@@ -38,6 +41,25 @@ class EditOption extends React.Component {
         })
     };
 
+    addCaption = () => {
+        const {videoOneSelection} = this.props.item;
+        const {captionValue} = this.props.edit;
+        let curr = {
+            start_time: "00:00:0" + videoOneSelection[0] + ",000",
+            end_time: "00:00:0" + videoOneSelection[1] + ",000",
+            text: captionValue
+        };
+        this.props.addCapation(curr);
+    };
+
+
+
+    burnVideo = () => {
+        // getting stuff for
+        const {selectItemOne} = this.props.item;
+        const {captions} = this.props.edit;
+        this.props.captionClip(selectItemOne, captions);
+    };
     render() {
         console.log(this.props.item);
         const { items, selectItemOne } = this.props.item;
@@ -72,15 +94,27 @@ class EditOption extends React.Component {
                     onClick={() => (this.props.set_sync())}>
                     Sync range selector
                 </Button>
+                <Button
+                    onClick={() => (this.addCaption())}>
+                    Add to Caption
+                </Button>
+                <Button
+                    onClick={() => (this.burnVideo())}>
+                    Burn it into video
+                </Button>
+                <CaptionListView/>
             </div>
         )
     }
+
+
 }
 
 const mapStateToProps = state => ({
     item: state.item,
+    edit: state.edit,
     user: state.auth.user,
     isAuthenticated: state.auth.isAuthenticated
   });
   
-export default connect(mapStateToProps, { mergeClip, trimClip, set_sync })(EditOption);
+export default connect(mapStateToProps, { mergeClip, trimClip, set_sync, addCapation, captionClip })(EditOption);

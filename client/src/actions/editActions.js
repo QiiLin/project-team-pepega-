@@ -1,5 +1,5 @@
 import axios from "axios";
-import {MERGE_CLIP, TRIM_CLIP, SET_SYNC, SET_DURATION, ADD_CAPTION} from "./types";
+import {MERGE_CLIP, TRIM_CLIP, SET_SYNC, SET_DURATION, ADD_CAPTION, SET_CAPTION, RESET_CAPTION} from "./types";
 import { tokenConfig2} from "./authActions";
 import { returnErrors } from "./errorActions";
 
@@ -27,12 +27,24 @@ export const mergeClip = ids => (dispatch, getState) => {
     });
 };
 
-export const captionClip = ids => (dispatch, getState) => {
-
+export const captionClip = (id, data) => (dispatch, getState) => {
+    axios
+    // Attach token to request in the header
+        .post("/api/edit/caption/" + id, {
+            data: data
+        }, tokenConfig2(getState))
+        .then(res =>
+            dispatch({
+                type: MERGE_CLIP,
+                payload: res.data
+            })
+        )
+        .catch((err) => {
+            dispatch(returnErrors(err.response.data, err.response.status))
+        });
 };
 
 export const trimClip = () => dispatch => {
-
 };
 
 export const set_sync = () => {
@@ -50,8 +62,22 @@ export const set_duration =  (video_length) => {
 };
 
 export const addCapation = (item) => {
+    console.log(item);
   return {
       type: ADD_CAPTION,
       payload: item
+  }
+};
+
+export const setCaption = (item) => {
+    console.log(item);
+    return {
+        type: SET_CAPTION,
+        payload: item
+    }
+};
+export const resetCaptions = (cap) => {
+  return {
+      type: RESET_CAPTION
   }
 };
