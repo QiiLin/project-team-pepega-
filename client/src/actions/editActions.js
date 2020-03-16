@@ -44,15 +44,16 @@ export const captionClip = (id, data) => (dispatch, getState) => {
         });
 };
 
-export const trimClip = (ids) => (dispatch, getState) => {
+export const trimClip = (id, body) => (dispatch, getState) => {
   console.log("trimClip called");
-  for (var pair of ids.entries()) {
+  for (var pair of body.entries()) {
     console.log(pair[0]+ ', ' + pair[1]); 
   }
+  console.log(id);
 
   axios
     // Attach token to request in the header
-    .post(`/api/edit/trim/${pair[0]}`, ids, tokenConfig2(getState), {
+    .post(`/api/edit/trim/${id}`, body, tokenConfig2(getState), {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
