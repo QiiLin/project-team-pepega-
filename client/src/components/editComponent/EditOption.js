@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
-import { Grid, Select, Button, InputLabel, MenuItem } from '@material-ui/core';
+import { Grid, Select, Button, InputLabel, MenuItem, Box } from '@material-ui/core';
 import MergeTypeIcon from '@material-ui/icons/MergeType';
+import EjectIcon from '@material-ui/icons/Eject';
 import {mergeClip, set_sync, trimClip} from "../../actions/editActions";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
@@ -17,7 +18,17 @@ class EditOption extends React.Component {
     static propTypes = {
         item: PropTypes.object.isRequired,
         user: PropTypes.object,
+        duration: PropTypes.number,
         isAuthenticated: PropTypes.bool
+    };
+
+    trim_Submit = (selectItemOne) => {
+        const { videoOneSelection } = this.props.item;
+        let bodyFormData = new FormData();  
+        bodyFormData.append("timestampStart", videoOneSelection[0]);
+        bodyFormData.append("timestampEnd", videoOneSelection[1]);
+
+        this.props.trimClip(selectItemOne, bodyFormData);
     };
 
     merge_dropdownSubmit = (selectItemOne) => {
@@ -40,6 +51,7 @@ class EditOption extends React.Component {
 
     render() {
         console.log(this.props.item);
+        console.log(this.props.item.videoOneSelection);
         const { items, selectItemOne } = this.props.item;
         return(
             <div>
@@ -50,7 +62,11 @@ class EditOption extends React.Component {
                       justify="flex-start"
                       alignItems="flex-start"
                     >
-                        <Grid>
+                        <Grid 
+                          container 
+                          direction="column"
+                          justify="flex-start"
+                          alignItems="flex-start">
                             <InputLabel>Select a video to merge</InputLabel>
                             <Select className="edit-dropdown" style={{minWidth: 180}} value={this.state.merge_dropdownValue} onChange={this.merge_dropdownChanged}>                
                             {items.map(({ _id, filename }) => (                
@@ -65,15 +81,30 @@ class EditOption extends React.Component {
                             Merge
                             </Button>
                         </Grid>
+                        <Box m={2} />
+                        <Grid
+                          container 
+                          direction="column"
+                          justify="flex-start"
+                          alignItems="flex-start">
+                        <InputLabel>Trim Video</InputLabel>
+                            <Button 
+                            variant="contained"
+                            color="primary"
+                            endIcon={<EjectIcon/>}
+                            onClick={this.trim_Submit.bind(this,selectItemOne)}>
+                            Trim
+                            </Button>
+                        </Grid>
                     </Grid>
                     <Grid>
                     </Grid>
                 </Grid>
-                <Button
+                {/*<Button
                     color="primary"
                     onClick={() => (this.props.set_sync())}>
                     Sync range selector
-                </Button>
+                </Button>*/}
             </div>
         )
     }
@@ -82,6 +113,7 @@ class EditOption extends React.Component {
 const mapStateToProps = state => ({
     item: state.item,
     user: state.auth.user,
+    duration: state.edit.duration,
     isAuthenticated: state.auth.isAuthenticated
   });
   
