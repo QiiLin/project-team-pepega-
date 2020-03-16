@@ -1,4 +1,5 @@
 import {
+  ADD_CAPTION,
   MERGE_CLIP, SET_DURATION, SET_SYNC,
   TRIM_CLIP
 } from "../actions/types";
@@ -6,7 +7,8 @@ import {
   const initialState = {
     items: [],
     sync: false,
-    duration: 0.
+    duration: 0,
+    captions: []
   };
   
   export default function(state = initialState, action) {
@@ -31,6 +33,11 @@ import {
         ...state,
         duration: action.payload
       };
+      case ADD_CAPTION:
+        return {
+          ...state,
+          captions:  [action.payload, ...state.captions]
+        };
       default:
         return state;
     }
