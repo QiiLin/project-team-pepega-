@@ -12,11 +12,12 @@ import {
     Col,
     ButtonGroup
 } from 'reactstrap';
-import { Button  }  from '@material-ui/core';
+import { Button, Box }  from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 import {connect} from "react-redux";
 import {deleteItem, getItems ,setSelectItemOne,setSelectItemTwo } from "../../actions/itemActions";
+import { Player, Shortcut, ControlBar, BigPlayButton } from "video-react";
 import PropTypes from "prop-types";
 const path = require("path");
 
@@ -31,6 +32,7 @@ class VideoList extends Component {
         // Don't call this.setState() here!
         this.state = { selectTab: '1' };
         this.toggle = this.toggle.bind(this);
+        this.pause = this.pause.bind(this);
     }
     // Run when making an api request (or calling an actions)
     componentDidMount() {
@@ -44,9 +46,13 @@ class VideoList extends Component {
             }));
         }
     };
-    //<Button onClick={ () => {this.props.setSelectItemOne(file_name + path.extname(file_path))}}>Load to player one</Button>
+
+    pause() {
+        this.player.pause();
+    }
+
     render() {
-        const {items} = this.props.item;
+        const { items } = this.props.item;
         console.timeLog(items);
         return (
             <div>
@@ -68,23 +74,31 @@ class VideoList extends Component {
                         </NavLink>
                     </NavItem>
                 </Nav>
-                <TabContent activeTab={this.state.selectTab}>
+
+                <TabContent activeTab={this.state.selectTab} style={{maxHeight: 600, maxWidth: 800, overflow: 'auto'}}>
                     <TabPane tabId="1">
                         <Row>
                         {items.map(({ _id, filename}) => (
                             <Col sm="6" key={_id}>
                                 <Card body >
-                                <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    startIcon={<DeleteIcon/>}
-                                    onClick={() => {this.props.deleteItem(_id)}}
-                                >
-                                    Delete
-                                </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        startIcon={<DeleteIcon/>}
+                                        onClick={() => {this.props.deleteItem(_id)}}
+                                    >
+                                        Delete
+                                    </Button>
+                                    <Box m={0.5}/> 
                                     <CardTitle>{filename}</CardTitle>
-                                    <CardText  >
-                                        This is video image and make sure add event listener</CardText>
+                                    <Player 
+                                      key={filename}>
+                                        <source src={"api/items/" + filename}/>
+                                        <Shortcut clickable={false} dblclickable={false} disabled/>
+                                        <ControlBar disabled/>
+                                        <BigPlayButton  disabled/>
+                                    </Player>
+                                    <Box m={0.5}/> 
                                     <ButtonGroup vertical>
                                         <Button 
                                         variant="contained"
@@ -93,6 +107,7 @@ class VideoList extends Component {
                                         onClick={ () => {this.props.setSelectItemOne(filename)}}>
                                             Load to player one
                                         </Button>
+                                        <Box m={0.5}/>                                        
                                         <Button 
                                         variant="contained"
                                         color="primary"

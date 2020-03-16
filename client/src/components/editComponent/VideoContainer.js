@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from "react";
-import {Player} from "video-react";
+import { Player, ControlBar } from 'video-react';
 import {connect} from "react-redux";
 import {getSelectItem} from "../../actions/itemActions";
 import {
@@ -10,6 +10,7 @@ import {
     TabContent,
     TabPane
 } from "reactstrap";
+import {set_duration} from "../../actions/editActions";
 
 class VideoContainer extends Component {
     constructor(props) {
@@ -17,8 +18,9 @@ class VideoContainer extends Component {
         // Don't call this.setState() here!
         this.state = {selectTab: '1'};
         this.toggle = this.toggle.bind(this);
+        this.changeCurrentTime = this.changeCurrentTime.bind(this);
     }
-    
+
     toggle = tab => {
         if (tab !== this.state.selectTab) {
             this.setState(state => ({
@@ -27,10 +29,35 @@ class VideoContainer extends Component {
         }
     };
 
+    componentDidUpdate() {
+        // subscribe state change
+        this.player.subscribeToStateChange(this.handleStateChange.bind(this));
+    }
+
+
+    changeCurrentTime(seconds) {
+        return () => {
+            this.player.seek(seconds);
+        };
+    }
+
+    handleStateChange(state) {
+        // copy player state to this component's state
+        this.setState({
+            player: state
+        });
+        console.log("weqweqweqwe");
+        const { player } = this.player.getState();
+        this.props.set_duration(player.duration);
+    }
     render() {
         // Note selectedFile is from VideoList
         // TODO: Update the placeholder for video
-        const {selectItemOne, selectItemTwo} = this.props.item;
+        const {selectItemOne, selectItemTwo, videoOneSelection, videoTwoSelection} = this.props.item;
+        const { sync } = this.props.edit;
+        if (sync && videoOneSelection.length !== 0) {
+            this.changeCurrentTime(videoOneSelection[0])
+        }
         return (
             <div>
                 <Nav tabs>
@@ -58,9 +85,20 @@ class VideoContainer extends Component {
                 <TabContent activeTab={this.state.selectTab}>
                     <TabPane tabId="1">
                         <Row>
-                            {selectItemOne ? (<Player key={selectItemOne}>
-                                <source src={"api/items/" + selectItemOne}/>
-                            </Player>) : (<p> No video </p>)}
+                            {selectItemOne ?
+                                (<Player key={selectItemOne}
+                                         ref={ player => {
+                                             this.player = player;
+                                         }}>
+                                    <source src={"api/items/" + selectItemOne}/>
+                                </Player>) : (
+                                    <Player key={selectItemOne}
+                                            ref={player => {
+                                                this.player = player;
+                                            }}>
+                                        <source src={"http://www.w3schools.com/html/mov_bbb.mp4"}/>
+                                    </Player>
+                                )}
                         </Row>
                     </TabPane>
                     <TabPane tabId="2">
@@ -80,6 +118,7 @@ class VideoContainer extends Component {
 const mapStateToProps = state => ({
     // item because we called it that in reducers/index.js (root reducer)
     item: state.item,
+    edit: state.edit,
     isAuthenticated: state.auth.isAuthenticated
 });
-export default connect(mapStateToProps, {})(VideoContainer);
+export default connect(mapStateToProps, {set_duration})(VideoContainer);

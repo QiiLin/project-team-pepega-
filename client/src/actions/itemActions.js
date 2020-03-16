@@ -6,10 +6,10 @@ import {
 import {tokenConfig, tokenConfig2} from "./authActions";
 import {returnErrors} from "./errorActions";
 
-export const getItems = () => dispatch => {
+export const getItems = () => (dispatch, getState) => {
     dispatch(setItemsLoading());
     axios
-        .get("/api/items")
+        .get("/api/items", tokenConfig2(getState))
         .then(res => {
             console.log(res.data);
             dispatch({type: GET_ITEMS, payload: res.data});
@@ -76,6 +76,7 @@ export const setSelectItemTwo = (id) => {
 };
 
 export const setVideoOneRange = (range) => {
+    console.log(range);
     return {
         type: SET_ITEM_ONE_RANGE,
         payload: range
@@ -83,6 +84,7 @@ export const setVideoOneRange = (range) => {
 
 };
 export const setVideoTwoRange = (range) => {
+    console.log(range);
     return {
         type: SET_ITEM_TWO_RANGE,
         payload: range

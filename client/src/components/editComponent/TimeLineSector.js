@@ -2,6 +2,8 @@ import React from "react";
 import {makeStyles} from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
+import connect from "react-redux/es/connect/connect";
+import {set_duration} from "../../actions/editActions";
 
 
 const useStyles = ({
@@ -23,8 +25,14 @@ class TimeLineSector extends React.Component {
         this.handleChange = this.handleChange.bind(this);
     }
 
+    componentDidMount() {
+        const {duration} = this.props.currentEdit;
+        this.setState(state => ({
+            newValue: [0, duration]
+        }));
+    }
+
     handleChange = (event, newValue) => {
-        console.log(newValue);
         this.setState(state => ({
             newValue: newValue
         }));
@@ -33,6 +41,8 @@ class TimeLineSector extends React.Component {
 
     render() {
         // const classes = useStyles();
+        const {duration} = this.props.currentEdit;
+
         return (
             <div className={useStyles.root}>
                 <Typography id="range-slider" gutterBottom>
@@ -40,6 +50,8 @@ class TimeLineSector extends React.Component {
                 </Typography>
                 <Slider
                     value={this.state.newValue}
+                    min = {0}
+                    max = {duration}
                     onChange={this.handleChange}
                     valueLabelDisplay="auto"
                     aria-labelledby="range-slider"
@@ -50,4 +62,12 @@ class TimeLineSector extends React.Component {
     }
 }
 
-export default TimeLineSector;
+
+// Mapping a redux state to a component property
+const mapStateToProps = state => ({
+    // item because we called it that in reducers/index.js (root reducer)
+    item: state.item,
+    currentEdit: state.edit,
+    isAuthenticated: state.auth.isAuthenticated
+});
+export default connect(mapStateToProps, {})(TimeLineSector);
