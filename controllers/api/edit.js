@@ -252,7 +252,7 @@ router.post("/merge", upload.none(), (req, res) => {
                                                     console.log("Could not remove Merge2 tmp file:" + err);
                                             });
                                             // fs.createReadStream(pathOut_path).pipe(result);
-                                            return res.status(200).json("did");
+                                            return(res.status(200).end("Merging is completed"));
                                         })
                                         .mergeToFile(result, pathOut_tmp);
                                 })
@@ -269,7 +269,7 @@ router.post("/merge", upload.none(), (req, res) => {
 router.post("/cut/:id", (req, res) => {
     if (
         !req.body.timestampOldStart ||
-        !req.body.timestampDruation
+        !req.body.timestampDuration
     )
         return res.status(400).end("timestamp required");
     gfs_prim.then((gfs) => {
@@ -283,7 +283,7 @@ router.post("/cut/:id", (req, res) => {
         itemOne.then((item) => {
             ffmpeg(item)
                 .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
-                .setDuration(req.body.timestampDruation)
+                .setDuration(req.body.timestampDuration)
                 .addOutputOption(
                     [
                         '-f webm'
@@ -310,7 +310,7 @@ router.post("/cut/:id", (req, res) => {
 // @route  POST /api/edit/trim/:id/
 // @desc   Remove video section at timestampStart & timestampEnd from body
 // @access Private
-router.post("/trim/:id/", (req, res) => {
+router.post("/trim/:id/", upload.none(), (req, res) => {
     let timestampStart = req.body.timestampStart;
     let timestampEnd = req.body.timestampEnd;
     if (!timestampStart || !timestampEnd)
@@ -425,7 +425,7 @@ router.post("/trim/:id/", (req, res) => {
                                             if (err)
                                                 console.log("Could not remove Trim2 tmp file:" + err);
                                         });
-                                        res.json("Merging finished !");
+                                        return(res.status(200).end("Trimming is completed"));
                                     })
                                     .mergeToFile(result, pathOut_tmp);
                             })
