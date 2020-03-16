@@ -23,6 +23,13 @@ class TimeLineSector extends React.Component {
         this.handleChange = this.handleChange.bind(this);
     }
 
+    componentDidMount() {
+        const {duration} = this.props.currentEdit;
+        this.setState(state => ({
+            newValue: [0, duration]
+        }));
+    }
+
     handleChange = (event, newValue) => {
         console.log(newValue);
         this.setState(state => ({

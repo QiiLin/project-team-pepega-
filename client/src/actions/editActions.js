@@ -44,7 +44,28 @@ export const captionClip = (id, data) => (dispatch, getState) => {
         });
 };
 
-export const trimClip = () => dispatch => {
+export const trimClip = (ids) => (dispatch, getState) => {
+  console.log("trimClip called");
+  for (var pair of ids.entries()) {
+    console.log(pair[0]+ ', ' + pair[1]); 
+  }
+
+  axios
+    // Attach token to request in the header
+    .post(`/api/edit/trim/${pair[0]}`, ids, tokenConfig2(getState), {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    .then(res =>
+      dispatch({
+        type: TRIM_CLIP,
+        payload: res.data
+      })
+    )
+    .catch((err) => {
+      dispatch(returnErrors(err.response.data, err.response.status))
+    });
 };
 
 export const set_sync = () => {

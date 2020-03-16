@@ -269,7 +269,7 @@ router.post("/merge", upload.none(), (req, res) => {
 router.post("/cut/:id", (req, res) => {
     if (
         !req.body.timestampOldStart ||
-        !req.body.timestampDruation
+        !req.body.timestampDuration
     )
         return res.status(400).end("timestamp required");
     gfs_prim.then((gfs) => {
@@ -283,7 +283,7 @@ router.post("/cut/:id", (req, res) => {
         itemOne.then((item) => {
             ffmpeg(item)
                 .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
-                .setDuration(req.body.timestampDruation)
+                .setDuration(req.body.timestampDuration)
                 .addOutputOption(
                     [
                         '-f webm'
