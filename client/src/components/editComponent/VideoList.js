@@ -25,7 +25,7 @@ import {
 } from "../../actions/itemActions";
 import { Player, Shortcut, ControlBar, BigPlayButton } from "video-react";
 import PropTypes from "prop-types";
-import Download from "@axetroy/react-download";
+// import Download from "@axetroy/react-download";
 const path = require("path");
 
 class VideoList extends Component {
