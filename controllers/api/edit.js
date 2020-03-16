@@ -266,13 +266,45 @@ router.post("/merge", upload.none(), (req, res) => {
 // @route  POST /api/edit/cut/:id/
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
-router.post("/cut/:id", auth, (req, res) => {
+router.post("/cut/:id", (req, res) => {
     if (
         !req.body.timestampOldStart ||
-        !req.body.timestampOldEnd ||
-        !req.body.timestampNewStart
+        !req.body.timestampDruation
     )
         return res.status(400).end("timestamp required");
+    gfs_prim.then((gfs) => {
+        const fname = crypto.randomBytes(16).toString('hex') + ".webm";
+        let result = gfs.createWriteStream({
+            filename: fname,
+            mode: 'w',
+            contentType: "video/webm"
+        });
+        let itemOne = retrivePromise(req.params.id, gfs);
+        itemOne.then((item) => {
+            ffmpeg(item)
+                .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
+                .setDuration(req.body.timestampDruation)
+                .addOutputOption(
+                    [
+                        '-f webm'
+                    ])
+                .on("progress", progress => {
+                    console.log(`[Cut1]: ${JSON.stringify(progress)}`);
+                })
+                .on('stderr', function (stderrLine) {
+                    console.log('Stderr output [Cut1]: ' + stderrLine);
+                })
+                .on("error", function (err) {
+                    return res.status(500).json("An error occurred [Cut1]: " + err.message);
+                })
+                .on("end", function () {
+                    return res.status(200).json("Operation Complete");
+                })
+                .writeToStream(result);
+        });
+    });
+
+
 });
 
 // @route  POST /api/edit/trim/:id/

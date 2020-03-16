@@ -17,7 +17,16 @@ class EditView extends React.Component {
         // Don't call this.setState() here!
         // this.state = { counter: 0 };
         // this.handleClick = this.handleClick.bind(this);
+        this.setOneRange = this.setOneRange.bind(this);
+        this.setTwoRange = this.setTwoRange.bind(this);
     }
+
+    setOneRange = (value) => {
+        this.props.setVideoOneRange(value);
+    };
+    setTwoRange = (value) => {
+        this.props.setVideoTwoRange(value);
+    };
 
     render() {
         return (
@@ -39,10 +48,10 @@ class EditView extends React.Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col> <TimeLineSector title="Video One Selector" callback = {this.props.setVideoOneRange}/> </Col>
+                    <Col> <TimeLineSector title="Video One Selector" callback = {this.setOneRange}/> </Col>
                 </Row>
                 <Row>
-                    <Col> <TimeLineSector  title="Video Two Selector" callback = {this.props.setVideoTwoRange}/> </Col>
+                    <Col> <TimeLineSector  title="Video Two Selector" callback = {this.setTwoRange}/> </Col>
                 </Row>
             </Container>
         );
@@ -51,7 +60,6 @@ class EditView extends React.Component {
 
 const mapStateToProps = state => ({
     // item because we called it that in reducers/index.js (root reducer)
-    item: state.item,
     isAuthenticated: state.auth.isAuthenticated
 });
 

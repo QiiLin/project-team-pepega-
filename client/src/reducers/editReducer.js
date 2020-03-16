@@ -1,10 +1,12 @@
 import {
-    MERGE_CLIP,
-    TRIM_CLIP
-  } from "../actions/types";
+  MERGE_CLIP, SET_DURATION, SET_SYNC,
+  TRIM_CLIP
+} from "../actions/types";
   
   const initialState = {
-    items: []
+    items: [],
+    sync: false,
+    duration: 0.
   };
   
   export default function(state = initialState, action) {
@@ -19,6 +21,16 @@ import {
           ...state,
           items: action.payload
         };
+      case SET_SYNC:
+        return {
+          ...state,
+          sync: !state.sync
+        };
+      case SET_DURATION:
+        return {
+        ...state,
+        duration: action.payload
+      };
       default:
         return state;
     }
