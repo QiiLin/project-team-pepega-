@@ -81,7 +81,7 @@ class EditOption extends React.Component {
                             Merge
                             </Button>
                         </Grid>
-                        <Box m={2} />
+                        <Box m={2}/>
                         <Grid
                           container 
                           direction="column"
