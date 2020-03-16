@@ -28,7 +28,7 @@ class EditOption extends React.Component {
         // Add video through add item action
         this.props.mergeClip(bodyFormData);
     };
-      
+    
     
     merge_dropdownChanged = event => {
         this.setState(() => {
@@ -50,19 +50,21 @@ class EditOption extends React.Component {
                       justify="flex-start"
                       alignItems="flex-start"
                     >
-                        <InputLabel>Select a video to merge</InputLabel>
-                        <Select className="edit-dropdown" style={{minWidth: 180}} value={this.state.merge_dropdownValue} onChange={this.merge_dropdownChanged}>                
-                        {items.map(({ _id, filename }) => (                
-                            <MenuItem className="edit-dropdown-item" key={_id} value={filename}>{filename}</MenuItem>                  
-                        ))}
-                        </Select>
-                        <Button 
-                        variant="contained"
-                        color="primary"
-                        endIcon={<MergeTypeIcon/>}
-                        onClick={this.merge_dropdownSubmit.bind(this,selectItemOne)}>
-                        Merge
-                        </Button>
+                        <Grid>
+                            <InputLabel>Select a video to merge</InputLabel>
+                            <Select className="edit-dropdown" style={{minWidth: 180}} value={this.state.merge_dropdownValue} onChange={this.merge_dropdownChanged}>                
+                            {items.map(({ _id, filename }) => (                
+                                <MenuItem className="edit-dropdown-item" key={_id} value={filename}>{filename}</MenuItem>                  
+                            ))}
+                            </Select>
+                            <Button 
+                            variant="contained"
+                            color="primary"
+                            endIcon={<MergeTypeIcon/>}
+                            onClick={this.merge_dropdownSubmit.bind(this,selectItemOne)}>
+                            Merge
+                            </Button>
+                        </Grid>
                     </Grid>
                     <Grid>
                     </Grid>
