@@ -40,6 +40,8 @@ class TimeLineSector extends React.Component {
 
     render() {
         // const classes = useStyles();
+        const {duration} = this.props.currentEdit;
+
         return (
             <div className={useStyles.root}>
                 <Typography id="range-slider" gutterBottom>
@@ -47,6 +49,8 @@ class TimeLineSector extends React.Component {
                 </Typography>
                 <Slider
                     value={this.state.newValue}
+                    min = {0}
+                    max = {duration}
                     onChange={this.handleChange}
                     valueLabelDisplay="auto"
                     aria-labelledby="range-slider"

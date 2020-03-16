@@ -29,7 +29,7 @@ class VideoContainer extends Component {
         }
     };
 
-    componentDidMount() {
+    componentDidUpdate() {
         // subscribe state change
         this.player.subscribeToStateChange(this.handleStateChange.bind(this));
     }
@@ -46,6 +46,7 @@ class VideoContainer extends Component {
         this.setState({
             player: state
         });
+        console.log("weqweqweqwe");
         const { player } = this.player.getState();
         this.props.set_duration(player.duration);
     }
@@ -86,7 +87,7 @@ class VideoContainer extends Component {
                         <Row>
                             {selectItemOne ?
                                 (<Player key={selectItemOne}
-                                         ref={player => {
+                                         ref={ player => {
                                              this.player = player;
                                          }}>
                                     <source src={"api/items/" + selectItemOne}/>

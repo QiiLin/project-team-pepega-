@@ -23,3 +23,6 @@ export const TRIM_CLIP = "TRIM_CLIP";
 export const SET_SYNC = "SET_SYNC";
 export const SET_DURATION = "SET_DURATION";
 
+export const ADD_CAPTION = "Result";
+
+
