@@ -1,16 +1,20 @@
 import React from 'react';
 import { InputGroup, Input } from 'reactstrap';
 import './style/VideoCaptionStyle.css';
+import {connect} from "react-redux";
+import {mergeClip, set_sync, setCaption, trimClip} from "../actions/editActions";
 
 class VideoCaptionInput extends React.Component {
 
 
     constructor(props) {
         super(props);
+        this.state = {value: ''};
         this.handleChange = this.handleChange.bind(this);
     }
     handleChange(event) {
         // this.setState({value: event.target.value});
+        this.props.setCaption(event.target.value)
     }
 
 
@@ -26,4 +30,12 @@ class VideoCaptionInput extends React.Component {
     };
 }
 
-export default VideoCaptionInput;
+
+
+const mapStateToProps = state => ({
+    item: state.item,
+    user: state.auth.user,
+    isAuthenticated: state.auth.isAuthenticated
+});
+
+export default connect(mapStateToProps, { setCaption })(VideoCaptionInput);
