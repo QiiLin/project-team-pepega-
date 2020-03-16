@@ -1,5 +1,5 @@
 import axios from "axios";
-import {MERGE_CLIP, TRIM_CLIP, SET_SYNC, SET_DURATION} from "./types";
+import {MERGE_CLIP, TRIM_CLIP, SET_SYNC, SET_DURATION, ADD_CAPTION} from "./types";
 import { tokenConfig2} from "./authActions";
 import { returnErrors } from "./errorActions";
 
@@ -62,9 +62,16 @@ export const set_sync = () => {
 };
 
 export const set_duration =  (video_length) => {
+    console.log("testtt", video_length);
     return {
         type: SET_DURATION,
         payload: video_length,
     };
 };
 
+export const addCapation = (item) => {
+  return {
+      type: ADD_CAPTION,
+      payload: item
+  }
+};
