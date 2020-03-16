@@ -2,7 +2,6 @@ import React, { Component, Fragment } from "react";
 import { Grid, Select, Button, InputLabel, MenuItem, Box } from '@material-ui/core';
 import MergeTypeIcon from '@material-ui/icons/MergeType';
 import EjectIcon from '@material-ui/icons/Eject';
-import {mergeClip, set_sync, trimClip} from "../../actions/editActions";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
@@ -103,7 +102,7 @@ class EditOption extends React.Component {
                             Merge
                             </Button>
                         </Grid>
-                        <Box m={2} />
+                        <Box m={2}/>
                         <Grid
                           container 
                           direction="column"
@@ -122,11 +121,20 @@ class EditOption extends React.Component {
                     <Grid>
                     </Grid>
                 </Grid>
-                {/*<Button
+                <Button
                     color="primary"
                     onClick={() => (this.props.set_sync())}>
                     Sync range selector
-                </Button>*/}
+                </Button>
+                <Button
+                    onClick={() => (this.addCaption())}>
+                    Add to Caption
+                </Button>
+                <Button
+                    onClick={() => (this.burnVideo())}>
+                    Burn it into video
+                </Button>
+                <CaptionListView/>
             </div>
         )
     }

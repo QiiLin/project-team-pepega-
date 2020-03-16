@@ -12,7 +12,7 @@ import {
     Col,
     ButtonGroup
 } from 'reactstrap';
-import { Button  }  from '@material-ui/core';
+import { Button, Box }  from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 import {connect} from "react-redux";
@@ -80,14 +80,15 @@ class VideoList extends Component {
                         {items.map(({ _id, filename}) => (
                             <Col sm="6" key={_id}>
                                 <Card body >
-                                <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    startIcon={<DeleteIcon/>}
-                                    onClick={() => {this.props.deleteItem(_id)}}
-                                >
-                                    Delete
-                                </Button>
+                                    <Button
+                                        variant="contained"
+                                        color="secondary"
+                                        startIcon={<DeleteIcon/>}
+                                        onClick={() => {this.props.deleteItem(_id)}}
+                                    >
+                                        Delete
+                                    </Button>
+                                    <Box m={0.5}/> 
                                     <CardTitle>{filename}</CardTitle>
                                     <Player 
                                       key={filename}>
@@ -96,6 +97,7 @@ class VideoList extends Component {
                                         <ControlBar disabled/>
                                         <BigPlayButton  disabled/>
                                     </Player>
+                                    <Box m={0.5}/> 
                                     <ButtonGroup vertical>
                                         <Button 
                                         variant="contained"
@@ -104,6 +106,7 @@ class VideoList extends Component {
                                         onClick={ () => {this.props.setSelectItemOne(filename)}}>
                                             Load to player one
                                         </Button>
+                                        <Box m={0.5}/>                                        
                                         <Button 
                                         variant="contained"
                                         color="primary"
