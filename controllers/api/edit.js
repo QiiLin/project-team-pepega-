@@ -548,15 +548,30 @@ router.post("/transition/:id", auth, (req, res) => {
                 res.json("An error occurred [Transition2]: " + err.message);
               })
               .on("end", function() {
-                fs.unlink(path1_tmp, err => {
-                  if (err)
-                    console.log(
-                      "Could not remove Transition1 tmp file: " + err
-                    );
-                });
-                return res.status(200).end("Transition is complete");
+                ffmpeg({ source: path1_tmp })
+                  .addOutputOption(["-f webm"])
+                  .mergeAdd(path2_tmp)
+                  .on("progress", progress => {
+                    console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
+                  })
+                  .on("error", function(err) {
+                    fs.unlink(path1_tmp, err => {
+                      if (err)
+                        console.log(
+                          "Could not remove Transition1 tmp file:" + err
+                        );
+                    });
+                    fs.unlink(path2_tmp, err => {
+                      if (err)
+                        console.log(
+                          "Could not remove Transition2 tmp file" + err
+                        );
+                    });
+                    return res.status(200).end("Transition completed!");
+                  })
+                  .mergeToFile(result, pathOut_tmp);
               })
-              .mergeToFile(result, pathOut_tmp);
+              .saveToFile(path2_tmp);
           })
           .saveToFile(path1_tmp);
       });
