@@ -36,12 +36,7 @@ class TimeLineSector extends React.Component {
         }));
         this.props.callback(newValue);
     };
-
-    initDuration = (duration) => {
-        if(isNaN) return 0;
-        return duration;
-    }
-
+    
     render() {
         // const classes = useStyles();
         const {duration} = this.props.currentEdit;
@@ -54,7 +49,7 @@ class TimeLineSector extends React.Component {
                 <Slider
                     value={this.state.newValue}
                     min = {0}
-                    max = {this.initDuration(duration)}
+                    max = {duration}
                     onChange={this.handleChange}
                     valueLabelDisplay="auto"
                     aria-labelledby="range-slider"
