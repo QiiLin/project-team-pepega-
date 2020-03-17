@@ -7,8 +7,8 @@ class CaptionListView extends React.Component {
         const { captions } = this.props.edit;
         return (
             <ListGroup>
-                {captions.map(({start_time, end_time, text}) => (
-                    <ListGroupItem>{start_time} {end_time} {text}</ListGroupItem>
+                {captions.map(({start_time, end_time, text}, index) => (
+                    <ListGroupItem key={index}>{start_time} {end_time} {text}</ListGroupItem>
                 ))}
             </ListGroup>
         );

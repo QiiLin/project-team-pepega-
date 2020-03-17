@@ -21,7 +21,7 @@ const {PassThrough, Duplex} = require('stream');
 // @desc   Create caption for the selected video
 // @access Private
 router.post("/caption/:id", (req, res) => {
-
+    res.set('Content-Type', 'text/plain');
     console.log(req.body.data);
     if (!req.body.data) {
         return res.status(400).end("Bad argument: Missing data");
@@ -123,6 +123,7 @@ function retrivePromise(id, gfs) {
 // @desc   Append video from idMerge to video from id
 // @access Private
 router.post("/merge", upload.none(), (req, res) => {
+    res.set('Content-Type', 'text/plain');
     if (!req.body.curr_vid_id || !req.body.merge_vid_id)
         return res.status(400).end("video id for merging required");
 
@@ -171,9 +172,14 @@ router.post("/merge", upload.none(), (req, res) => {
                 // console.log (pathOut_path);
 
                 ffmpeg.ffprobe(currStream, function (err, metadata) {
-                    let width = metadata.streams[0].width || 640;
-                    let height = metadata.streams[0].height || 360;
-                    let fps = metadata.streams[0].r_frame_rate || 30;
+                    let width = 640;
+                    let height = 360;
+                    let fps = 30;
+                    if(metadata != undefined){
+                        let width = metadata.streams[0].width;
+                        let height = metadata.streams[0].height;
+                        let fps = metadata.streams[0].r_frame_rate;
+                    }
                     console.log(width);
                     console.log(height);
                     console.log(fps);
@@ -269,6 +275,7 @@ router.post("/merge", upload.none(), (req, res) => {
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
 router.post("/cut/:id", (req, res) => {
+    res.set('Content-Type', 'text/plain');
     if (
         !req.body.timestampOldStart ||
         !req.body.timestampDuration
@@ -318,8 +325,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
     if (!timestampStart || !timestampEnd)
       return res.status(400).end("timestamp required");
     if(timestampStart === "0" || timestampStart === "00:00:00.000") //starting at 0 not allowed by library
-      timestampStart = "00:00:00.001"; 
-    
+      timestampStart = "00:00:00.001";
     gfs_prim.then(function (gfs) {
         let itemOne = retrivePromise(req.params.id, gfs);
         let itemOneCopy = retrivePromise(req.params.id, gfs);
@@ -354,8 +360,8 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
             let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
 
             ffmpeg.ffprobe(itemOneStream, function (err, metadata) {
-                let duration = metadata.streams[0].duration;
-                console.log("video duration", duration, req.body.timestampStart, req.body.timestampEnd);
+                let duration = 5;
+                if(metadata != undefined) duration = metadata.streams[0].duration; //vid duration in timebase unit
                 ffmpeg(itemCopyStream)
                     .format("webm")
                     .withVideoCodec('libvpx')
@@ -373,7 +379,6 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
                         res.json("An error occurred [Trim1]: " + err.message);
                     })
                     .on("end", function () {
-                      console.log("test", itemCopyOneStream);
                         ffmpeg(itemCopyOneStream)
                             .format("webm")
                             .withVideoCodec('libvpx')
@@ -386,7 +391,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
                                 console.log(`[Trim2]: ${JSON.stringify(progress)}`);
                             })
                             .on('stderr', function (stderrLine) {
-                                console.log('Stderr output [Trim1]: ' + stderrLine);
+                                console.log('Stderr output [Trim2]: ' + stderrLine);
                             })
                             .on("error", function (err) {
                                 fs.unlink(path1_tmp, err => {
@@ -419,14 +424,14 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
                                         console.log('Stderr output [MergeCombine]:: ' + stderrLine);
                                     })
                                     .on("end", function () {
-                                        fs.unlink(path1_tmp, err => {
+                                        /*fs.unlink(path1_tmp, err => {
                                             if (err)
                                                 console.log("Could not remove Trim1 tmp file:" + err);
                                         });
                                         fs.unlink(path2_tmp, err => {
                                             if (err)
                                                 console.log("Could not remove Trim2 tmp file:" + err);
-                                        });
+                                        });*/
                                         return(res.status(200).end("Trimming is completed"));
                                     })
                                     .mergeToFile(result, pathOut_tmp);
@@ -463,6 +468,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
 router.post("/transition/:id", auth, (req, res) => {
+    res.set('Content-Type', 'text/plain');
     let timestampStart = req.body.timestampStart;
     let transitionType = req.body.transitionType;
     if (!timestampStart || !transitionType)
@@ -492,7 +498,8 @@ router.post("/transition/:id", auth, (req, res) => {
     let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
 
     ffmpeg.ffprobe(path1, function (err, metadata) {
-        let duration = metadata.streams[0].duration; //vid duration in timebase unit
+        let duration = 5;
+        if(metadata != undefined) duration = metadata.streams[0].duration; //vid duration in timebase unit
         console.log(metadata.streams[0]);
         ffmpeg({source: path1})
             .inputOptions([`-ss 0`, `-to ${timestampStart}`])

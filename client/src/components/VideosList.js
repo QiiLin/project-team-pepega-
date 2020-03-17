@@ -75,7 +75,6 @@ class VideosList extends Component {
                       &times;
                     </Button>
 
-                    <span></span>
 
                     <Button
                       className="edit-btn"
