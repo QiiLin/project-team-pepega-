@@ -6,15 +6,19 @@ import {
 import {tokenConfig, tokenConfig2} from "./authActions";
 import {returnErrors} from "./errorActions";
 
-export const getItems = () => dispatch => {
+
+
+export const getItems = () => (dispatch, getState) => {
+    console.log("invoke");
     dispatch(setItemsLoading());
     axios
         .get("/api/items")
         .then(res => {
-            console.log(res.data);
-            dispatch({type: GET_ITEMS, payload: res.data});
-            console.log("did");}
-)
+                console.log(res.data);
+                dispatch({type: GET_ITEMS, payload: res.data});
+                console.log("did");
+            }
+        )
         .catch(err =>
             dispatch(returnErrors(err.response.data, err.response.status))
         );
@@ -33,7 +37,7 @@ export const addItem = item => (dispatch, getState) => {
                     type: ADD_ITEM,
                     payload: res.data
                 });
-        }
+            }
         )
         .catch(err =>
             dispatch(returnErrors(err.response.data, err.response.status))

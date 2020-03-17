@@ -1,5 +1,5 @@
 import React from 'react';
-import {ButtonGroup, Card, CardTitle, Col, ListGroup, ListGroupItem, Row} from 'reactstrap';
+import { ListGroup, ListGroupItem} from 'reactstrap';
 import {connect} from "react-redux";
 
 class CaptionListView extends React.Component {

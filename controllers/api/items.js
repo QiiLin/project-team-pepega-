@@ -30,6 +30,7 @@ router.get('/', (req, res) => {
           err: 'No files exist'
         });
       }
+      console.log("get item is called");
       // Files exist
       return res.json(files);
     });

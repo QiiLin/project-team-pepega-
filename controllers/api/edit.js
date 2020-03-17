@@ -20,7 +20,9 @@ const {PassThrough, Duplex} = require('stream');
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
 // @access Private
-router.post("/caption/:id", upload.none(), (req, res) => {
+router.post("/caption/:id", (req, res) => {
+
+    console.log(req.body.data);
     if (!req.body.data) {
         return res.status(400).end("Bad argument: Missing data");
     }
