@@ -1,6 +1,7 @@
 import React from "react";
 import { Grid, Select, Button, InputLabel, MenuItem, Box } from '@material-ui/core';
 import MergeTypeIcon from '@material-ui/icons/MergeType';
+import {addCapation, captionClip, mergeClip, set_sync, trimClip} from "../../actions/editActions";
 import EjectIcon from '@material-ui/icons/Eject';
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";

@@ -100,7 +100,7 @@ class VideosList extends Component {
     );
   }
 }
-
+//<source src={file_name + path.extname(file_path) } />
 // Mapping a redux state to a component property
 const mapStateToProps = state => ({
   // item because we called it that in reducers/index.js (root reducer)

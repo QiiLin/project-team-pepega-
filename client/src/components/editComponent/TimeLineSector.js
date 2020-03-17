@@ -31,7 +31,6 @@ class TimeLineSector extends React.Component {
     }
 
     handleChange = (event, newValue) => {
-        console.log(newValue);
         this.setState(state => ({
             newValue: newValue
         }));
@@ -62,4 +61,11 @@ class TimeLineSector extends React.Component {
 }
 
 
-export default TimeLineSector;
+// Mapping a redux state to a component property
+const mapStateToProps = state => ({
+    // item because we called it that in reducers/index.js (root reducer)
+    item: state.item,
+    currentEdit: state.edit,
+    isAuthenticated: state.auth.isAuthenticated
+});
+export default connect(mapStateToProps, {})(TimeLineSector);

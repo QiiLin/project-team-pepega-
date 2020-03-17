@@ -13,15 +13,12 @@ export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
 export const REGISTER_FAIL = "REGISTER_FAIL";
 export const GET_ERRORS = "GET_ERRORS";
 export const CLEAR_ERRORS = "ITEMS_LOADING";
-
 export const SET_SELECTED_ITEM_ONE = "SET_SELECTED_ITEM_ONE";
 export const SET_SELECTED_ITEM_TWO = "SET_SELECTED_ITEM_TWO";
-
 export const SET_ITEM_ONE_RANGE= "SET_ITEM_ONE_RANGE";
 export const SET_ITEM_TWO_RANGE= "SET_ITEM_TWO_RANGE";
 export const MERGE_CLIP = "MERGE_CLIP";
 export const TRIM_CLIP = "TRIM_CLIP";
-
 
 export const SET_SYNC = "SET_SYNC";
 export const SET_DURATION = "SET_DURATION";
@@ -29,6 +26,4 @@ export const SET_DURATION = "SET_DURATION";
 export const ADD_CAPTION = "Result";
 export const SET_CAPTION = "SET_CAPTION";
 export const RESET_CAPTION = "RESET_CAPTION";
-
-
 

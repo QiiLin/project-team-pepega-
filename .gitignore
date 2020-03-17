@@ -6,3 +6,5 @@ node_modules/fluent-ffmpeg/lib/*
 !node_modules/fluent-ffmpeg/lib/ffprobe.js
 *-lock.json
 .idea
+client/public
+
