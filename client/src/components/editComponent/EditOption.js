@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React from "react";
 import { Grid, Select, Button, InputLabel, MenuItem, Box } from '@material-ui/core';
 import MergeTypeIcon from '@material-ui/icons/MergeType';
 import {addCapation, captionClip, mergeClip, set_sync, trimClip} from "../../actions/editActions";
@@ -72,8 +72,8 @@ class EditOption extends React.Component {
         this.props.captionClip(selectItemOne, captions);
     };
     render() {
-        console.log(this.props.item);
-        console.log(this.props.item.videoOneSelection);
+        // console.log(this.props.item);
+        // console.log(this.props.item.videoOneSelection);
         const { items, selectItemOne } = this.props.item;
         return(
             <div>

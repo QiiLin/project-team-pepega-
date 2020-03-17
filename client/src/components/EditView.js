@@ -30,6 +30,9 @@ class EditView extends React.Component {
 
     render() {
         return (
+            <div>
+            { this.props.isAuthenticated?
+
             <Container>
                 <Row>
                     <Col>
@@ -53,7 +56,8 @@ class EditView extends React.Component {
                 <Row>
                     <Col> <TimeLineSector  title="Video Two Selector" callback = {this.setTwoRange}/> </Col>
                 </Row>
-            </Container>
+            </Container>: <div> </div>}
+            </div>
         );
     }
 }
