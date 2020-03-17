@@ -1,5 +1,14 @@
 import axios from "axios";
-import {MERGE_CLIP, TRIM_CLIP, SET_SYNC, SET_DURATION, ADD_CAPTION, SET_CAPTION, RESET_CAPTION} from "./types";
+import {
+    MERGE_CLIP,
+    TRIM_CLIP,
+    SET_SYNC,
+    SET_DURATION,
+    ADD_CAPTION,
+    SET_CAPTION,
+    RESET_CAPTION,
+    DELETE_CAPTION
+} from "./types";
 import {tokenConfig, tokenConfig2} from "./authActions";
 import {returnErrors} from "./errorActions";
 import {getItems} from "./itemActions";
@@ -86,7 +95,7 @@ export const addCapation = (item) => {
     return {
         type: ADD_CAPTION,
         payload: item
-    }
+    };
 };
 
 export const setCaption = (item) => {
@@ -94,10 +103,17 @@ export const setCaption = (item) => {
     return {
         type: SET_CAPTION,
         payload: item
-    }
+    };
 };
 export const resetCaptions = (cap) => {
     return {
         type: RESET_CAPTION
-    }
+    };
+};
+
+export const deleteCaption = (index) => {
+  return {
+    type: DELETE_CAPTION,
+    payload: index
+  };
 };

@@ -89,7 +89,7 @@ class VideoList extends Component {
                                     <Box m={0.5}/> 
                                     <CardTitle>{filename}</CardTitle>
                                     <Player 
-                                      key={filename}>
+                                      key={filename} >
                                         <source src={"api/items/" + filename}/>
                                         <Shortcut clickable={false} dblclickable={false} disabled/>
                                         <ControlBar disabled/>

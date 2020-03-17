@@ -1,5 +1,5 @@
 import {
-    ADD_CAPTION,
+    ADD_CAPTION, DELETE_CAPTION,
     MERGE_CLIP, RESET_CAPTION, SET_CAPTION, SET_DURATION, SET_SYNC,
     TRIM_CLIP
 } from "../actions/types";
@@ -16,19 +16,20 @@ const initialState = {
     sync: false,
     duration: 0,
     captions:
-        [{
-            start_time: "00:00:01,000",
-            end_time: "00:00:04,000",
-            text: "1---------------4"
-        }, {
-            start_time: "000:00:06,000",
-            end_time: "00:00:10,000",
-            text: "6 ---------10"
-        }, {
-            start_time: "00:00:12,000",
-            end_time: "00:00:17,000",
-            text: "12 ------17"
-        }
+        [
+        //     {
+        //     start_time: "00:00:01,000",
+        //     end_time: "00:00:04,000",
+        //     text: "1---------------4"
+        // }, {
+        //     start_time: "000:00:06,000",
+        //     end_time: "00:00:10,000",
+        //     text: "6 ---------10"
+        // }, {
+        //     start_time: "00:00:12,000",
+        //     end_time: "00:00:17,000",
+        //     text: "12 ------17"
+        // }
         ],
     captionValue: ""
 };
@@ -70,6 +71,12 @@ export default function (state = initialState, action) {
                 ...state,
                 captions: []
             };
+        case DELETE_CAPTION: {
+            return {
+                ...state,
+                captions: state.captions.filter(item => item.index !== action.payload)
+            };
+        }
         default:
             return state;
     }

@@ -63,9 +63,9 @@ router.post("/caption/:id", (req, res) => {
                 let currStream = Items[0];
                 let readItem = Items[1];
                 ffmpeg.ffprobe(currStream, function (err, metadata) {
-                    let width = metadata.streams[0].width || 640;
-                    let height = metadata.streams[0].height || 360;
-                    let fps = metadata.streams[0].r_frame_rate || 30;
+                    let width = metadata ? metadata.streams[0].width : 640;
+                    let height = metadata ? metadata.streams[0].height : 360;
+                    let fps = metadata ?  metadata.streams[0].r_frame_rate : 30;
                     console.log(width);
                     console.log(height);
                     console.log(fps);
@@ -106,7 +106,6 @@ router.post("/caption/:id", (req, res) => {
 });
 
 function retrivePromise(id, gfs) {
-    console.log(id, "Eeeeeeeeeeeeeeeeeeeeeeeeeee");
     return new Promise(function (resolve, reject) {
         gfs.files.findOne({filename: id}, (err, file) => {
             // Check if file
