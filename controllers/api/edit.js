@@ -423,14 +423,14 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
                                         console.log('Stderr output [MergeCombine]:: ' + stderrLine);
                                     })
                                     .on("end", function () {
-                                        /*fs.unlink(path1_tmp, err => {
+                                        fs.unlink(path1_tmp, err => {
                                             if (err)
                                                 console.log("Could not remove Trim1 tmp file:" + err);
                                         });
                                         fs.unlink(path2_tmp, err => {
                                             if (err)
                                                 console.log("Could not remove Trim2 tmp file:" + err);
-                                        });*/
+                                        });
                                         return(res.status(200).end("Trimming is completed"));
                                     })
                                     .mergeToFile(result, pathOut_tmp);
