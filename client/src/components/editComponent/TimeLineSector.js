@@ -1,9 +1,7 @@
 import React from "react";
-import {makeStyles} from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 import connect from "react-redux/es/connect/connect";
-import {set_duration} from "../../actions/editActions";
 
 
 const useStyles = ({
