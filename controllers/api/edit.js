@@ -592,56 +592,57 @@ router.post("/transition/:id", auth, (req, res) => {
   let transitionType = req.body.transitionType;
   if (!req.body.transitionType)
     return res.status(400).end("transition type required");
-  gfs_prim.then(gfs => {
-    const fname = crypto.randomBytes(16).toString("hex") + ".webm";
-    let result = gfs.createWriteStream({
-      filename: fname,
-      mode: "w",
-      contentType: "video/webm"
-    });
-    let itemOne = retrivePromise(req.params.id, gfs);
-    itemOne.then(item => {
-      ffmpeg(item)
-        .videoFilters(transitionType)
-        .addOutputOption(["-f webm"])
-        .on("progress", progress => {
-          console.log(`[Transition1]: ${JSON.stringify(progress)}`);
-        })
-        .on("stderr", function(stderrLine) {
-          console.log("Stderr output [Transition1]: " + stderrLine);
-        })
-        .on("error", function(err) {
-          return res
-            .status(500)
-            .json("An error occurred [Transition1]: " + err.message);
-        })
-        .on("end", function() {
-          return res.status(200).json("Operation Complete");
-        })
-        .writeToStream(result);
+
+    gfs_prim.then(function(gfs) {        
+        const fname = crypto.randomBytes(16).toString("hex") + ".webm";
+        let result = gfs.createWriteStream({
+            filename: fname,
+            mode: "w",
+            contentType: "video/webm"
+        });
+        retrivePromise(req.params.id, gfs).then(function(itm) {
+            let item = itm;
+            let path1_tmp = path.join(
+                __dirname,
+                "../../video_input/tmp",
+                "path1_tmp.webm"
+            ); //temp file loc
+            let path2_tmp = path.join(
+                __dirname,
+                "../../video_input/tmp",
+                "path2_tmp.webm"
+            );
+            console.log(itm);
+            ffmpeg.ffprobe(item, function(err, metadata) {
+                let duration = metadata.streams[0].duration;
+                console.log(
+                    "video duration",
+                    duration
+                );
+                ffmpeg(itemCopyStream)
+                .format("webm")
+                .withVideoCodec("libvpx")
+                .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+                .withVideoBitrate(1024)
+                .withAudioCodec("libvorbis")
+                .videoFilters(transitionType)
+                .on("progress", progress => {
+                    console.log(`[Transition1]: ${JSON.stringify(progress)}`);
+                })
+                .on("stderr", function(stderrLine) {
+                    console.log("Stderr output [Transition1]: " + stderrLine);
+                })
+                .on("error", function(err) {
+                    res.json("An error occurred [Transition1]: ", err.message);
+                })
+                .on("end", function() {
+
+                })
+                .saveToFile(result);
+            });
+        });
+      
     });
   });
-  let itemOne = retrivePromise(req.params.id, gfs);
-  itemOne.then(item => {
-    ffmpeg(item)
-      .videoFilters(transitionType)
-      .addOutputOption(["-f webm"])
-      .on("progress", progress => {
-        console.log(`[Transition1]: ${JSON.stringify(progress)}`);
-      })
-      .on("stderr", function(stderrLine) {
-        console.log("Stderr output [Transition1]: " + stderrLine);
-      })
-      .on("error", function(err) {
-        return res
-          .status(500)
-          .json("An error occurred [Transition1]: " + err.message);
-      })
-      .on("end", function() {
-        return res.status(200).json("Operation Complete");
-      })
-      .writeToStream(result);
-  });
-});
 
 module.exports = router;
