@@ -27,4 +27,6 @@ export const ADD_CAPTION = "Result";
 export const SET_CAPTION = "SET_CAPTION";
 export const RESET_CAPTION = "RESET_CAPTION";
 
+export const DELETE_CAPTION = "DELETE_CAPTION";
+
 

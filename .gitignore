@@ -7,3 +7,4 @@ node_modules/fluent-ffmpeg/lib/*
 *-lock.json
 .idea
 client/public
+

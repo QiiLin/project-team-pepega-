@@ -1,4 +1,4 @@
-import React, { Component, Fragment, useState  } from "react";
+import React, { Component  } from "react";
 import {
     TabContent,
     TabPane,
@@ -7,7 +7,6 @@ import {
     NavLink,
     Card,
     CardTitle,
-    CardText,
     Row,
     Col,
     ButtonGroup
@@ -19,7 +18,6 @@ import {connect} from "react-redux";
 import {deleteItem, getItems ,setSelectItemOne,setSelectItemTwo } from "../../actions/itemActions";
 import { Player, Shortcut, ControlBar, BigPlayButton } from "video-react";
 import PropTypes from "prop-types";
-const path = require("path");
 
 class VideoList extends Component {
     static propTypes = {
@@ -53,7 +51,6 @@ class VideoList extends Component {
 
     render() {
         const { items } = this.props.item;
-        console.timeLog(items);
         return (
             <div>
                 <Nav tabs>
@@ -92,7 +89,7 @@ class VideoList extends Component {
                                     <Box m={0.5}/> 
                                     <CardTitle>{filename}</CardTitle>
                                     <Player 
-                                      key={filename}>
+                                      key={filename} >
                                         <source src={"api/items/" + filename}/>
                                         <Shortcut clickable={false} dblclickable={false} disabled/>
                                         <ControlBar disabled/>

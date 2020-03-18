@@ -2,7 +2,7 @@ import React from 'react';
 import { InputGroup, Input } from 'reactstrap';
 import './style/VideoCaptionStyle.css';
 import {connect} from "react-redux";
-import {mergeClip, set_sync, setCaption, trimClip} from "../actions/editActions";
+import {setCaption} from "../actions/editActions";
 
 class VideoCaptionInput extends React.Component {
 

@@ -1,7 +1,6 @@
-import React, {Component, Fragment} from "react";
-import { Player, ControlBar } from 'video-react';
+import React, {Component} from "react";
+import { Player } from 'video-react';
 import {connect} from "react-redux";
-import {getSelectItem} from "../../actions/itemActions";
 import {
     Nav,
     NavItem,
@@ -29,7 +28,7 @@ class VideoContainer extends Component {
         }
     };
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState, snapshot) {
         // subscribe state change
         this.player.subscribeToStateChange(this.handleStateChange.bind(this));
     }
@@ -39,6 +38,10 @@ class VideoContainer extends Component {
         return () => {
             this.player.seek(seconds);
         };
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return  nextProps.item.selectItemOne !==this.props.item.selectItemOne;
     }
 
     handleStateChange(state) {
@@ -53,11 +56,7 @@ class VideoContainer extends Component {
     render() {
         // Note selectedFile is from VideoList
         // TODO: Update the placeholder for video
-        const {selectItemOne, selectItemTwo, videoOneSelection, videoTwoSelection} = this.props.item;
-        const { sync } = this.props.edit;
-        if (sync && videoOneSelection.length !== 0) {
-            this.changeCurrentTime(videoOneSelection[0])
-        }
+        const {selectItemOne, selectItemTwo} = this.props.item;
         return (
             <div>
                 <Nav tabs>
@@ -118,7 +117,6 @@ class VideoContainer extends Component {
 const mapStateToProps = state => ({
     // item because we called it that in reducers/index.js (root reducer)
     item: state.item,
-    edit: state.edit,
     isAuthenticated: state.auth.isAuthenticated
 });
 export default connect(mapStateToProps, {set_duration})(VideoContainer);

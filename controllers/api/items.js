@@ -30,6 +30,7 @@ router.get('/', auth, (req, res) => {
           err: 'No files exist'
         });
       }
+      console.log("get item is called");
       // Files exist
       return res.json(files);
     });
@@ -49,6 +50,7 @@ router.get('/:filename', (req, res) => {
   //     // File exists
   //     return res.json(file);
   // });
+  console.log("start getting ", req.params.filename );
   gfs_prim.then(function (gfs) {
     gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
       // Check if file
@@ -58,11 +60,15 @@ router.get('/:filename', (req, res) => {
         });
       }
 
+      console.log("mid getting");
+
       // Check if image
       // if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
       // Read output to browser
       const readstream = gfs.createReadStream(file.filename);
       readstream.pipe(res);
+      console.log("done getting");
+      return;
       // } else {
       //     res.status(404).json({
       //         err: 'Not an image'
