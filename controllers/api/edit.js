@@ -477,39 +477,44 @@ router.post("/transition/:id", auth, (req, res) => {
   if (!req.body.transitionType)
     return res.status(400).end("transition type required required");
   console.log("outside gfs_prim");
-  gfs_prim.then(gfs => {
-    const fname = crypto.randomBytes(16).toString("hex") + ".webm";
-    console.log(fname);
-    let result = gfs.createWriteStream({
-      filename: fname,
-      mode: "w",
-      contentType: "video/webm"
+  gfs_prim
+    .then(gfs => {
+      const fname = crypto.randomBytes(16).toString("hex") + ".webm";
+      console.log(fname);
+      let result = gfs.createWriteStream({
+        filename: fname,
+        mode: "w",
+        contentType: "video/webm"
+      });
+      console.log(req.params.id);
+      let itemOne = retrivePromise(req.params.id, gfs);
+      console.log("itemOne: ", itemOne);
+      console.log("inside gfs_prim");
+      itemOne.then(item => {
+        console.log("inside then");
+        ffmpeg(item)
+          .videoFilters(req.body.transitionType)
+          .addOutputOption(["-f webm"])
+          .on("progress", progress => {
+            console.log(`[Cut1]: ${JSON.stringify(progress)}`);
+          })
+          .on("stderr", function(stderrLine) {
+            console.log("Stderr output [Cut1]: " + stderrLine);
+          })
+          .on("error", function(err) {
+            return res
+              .status(500)
+              .json("An error occurred [Cut1]: " + err.message);
+          })
+          .on("end", function() {
+            return res.status(200).json("Operation Complete");
+          })
+          .writeToStream(result);
+      });
+    })
+    .catch(err => {
+      console.log(err);
     });
-    let itemOne = retrivePromise(req.params.id, gfs);
-    console.log("itemOne: ", itemOne);
-    console.log("inside gfs_prim");
-    itemOne.then(item => {
-      console.log("inside then");
-      ffmpeg(item)
-        .videoFilters(req.body.transitionType)
-        .addOutputOption(["-f webm"])
-        .on("progress", progress => {
-          console.log(`[Cut1]: ${JSON.stringify(progress)}`);
-        })
-        .on("stderr", function(stderrLine) {
-          console.log("Stderr output [Cut1]: " + stderrLine);
-        })
-        .on("error", function(err) {
-          return res
-            .status(500)
-            .json("An error occurred [Cut1]: " + err.message);
-        })
-        .on("end", function() {
-          return res.status(200).json("Operation Complete");
-        })
-        .writeToStream(result);
-    });
-  });
 });
 
 module.exports = router;
