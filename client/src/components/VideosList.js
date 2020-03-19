@@ -8,7 +8,6 @@ import EditModal from "./EditModal";
 import PropTypes from "prop-types";
 import { Player } from "video-react";
 
-const path = require("path");
 
 class VideosList extends Component {
   constructor(props) {
@@ -76,7 +75,6 @@ class VideosList extends Component {
                       &times;
                     </Button>
 
-                    <span></span>
 
                     <Button
                       className="edit-btn"

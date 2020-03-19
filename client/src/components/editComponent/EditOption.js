@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React from "react";
 import { Grid, Select, Button, InputLabel, MenuItem, Box } from '@material-ui/core';
 import MergeTypeIcon from '@material-ui/icons/MergeType';
 import {addCapation, captionClip, mergeClip, set_sync, trimClip} from "../../actions/editActions";
@@ -6,6 +6,19 @@ import EjectIcon from '@material-ui/icons/Eject';
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
+
+
+String.prototype.toHHMMSS = function () {
+    var sec_num = parseInt(this, 10); // don't forget the second param
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    return hours+':'+minutes+':'+seconds;
+};
 
 class EditOption extends React.Component {
 
@@ -54,11 +67,14 @@ class EditOption extends React.Component {
 
     addCaption = () => {
         const {videoOneSelection} = this.props.item;
-        const {captionValue} = this.props.edit;
+        const {captionValue, captions} = this.props.edit;
+        let startTime = parseInt(videoOneSelection[0], 10) + "";
+        let endTime = parseInt(videoOneSelection[1], 10) + "";
         let curr = {
-            start_time: "00:00:0" + videoOneSelection[0] + ",000",
-            end_time: "00:00:0" + videoOneSelection[1] + ",000",
-            text: captionValue
+            start_time: startTime.toHHMMSS()+  ",000",
+            end_time: endTime.toHHMMSS()  + ",000",
+            text: captionValue,
+            index: captions.length + 1
         };
         this.props.addCapation(curr);
     };
@@ -72,8 +88,8 @@ class EditOption extends React.Component {
         this.props.captionClip(selectItemOne, captions);
     };
     render() {
-        console.log(this.props.item);
-        console.log(this.props.item.videoOneSelection);
+        // console.log(this.props.item);
+        // console.log(this.props.item.videoOneSelection);
         const { items, selectItemOne } = this.props.item;
         return(
             <div>
