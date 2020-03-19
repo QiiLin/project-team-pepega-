@@ -17,6 +17,19 @@ const crypto = require('crypto');
 const {StreamInput, StreamOutput} = require('fluent-ffmpeg-multistream')
 const {PassThrough, Duplex} = require('stream');
 
+function retrivePromise(id, gfs) {
+    return new Promise(function (resolve, reject) {
+        gfs.files.findOne({filename: id}, (err, file) => {
+            // Check if file
+            if (!file || file.length === 0) {
+                return reject("fail fetch", id);
+            }
+            const readstream = gfs.createReadStream(file.filename);
+            return resolve(readstream);
+        });
+    });
+}
+
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
 // @access Private
@@ -104,19 +117,6 @@ router.post("/caption/:id", (req, res) => {
         });
     });
 });
-
-function retrivePromise(id, gfs) {
-    return new Promise(function (resolve, reject) {
-        gfs.files.findOne({filename: id}, (err, file) => {
-            // Check if file
-            if (!file || file.length === 0) {
-                return reject("fail fetch", id);
-            }
-            const readstream = gfs.createReadStream(file.filename);
-            return resolve(readstream);
-        });
-    });
-}
 
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
@@ -467,199 +467,43 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
 router.post("/transition/:id", auth, (req, res) => {
-    res.set('Content-Type', 'text/plain');
-    let timestampStart = req.body.timestampStart;
+    res.set("Content-Type", "text/plain");
     let transitionType = req.body.transitionType;
-    if (!timestampStart || !transitionType)
-        return res
-            .status(400)
-            .end("Both timestamp and transition type are required");
+    console.log
+    if (!req.body.transitionType)
+      return res.status(400).end("transition type required");
+  
+      gfs_prim.then(function(gfs) {        
+          const fname = crypto.randomBytes(16).toString("hex") + ".webm";
+          let result = gfs.createWriteStream({
+              filename: fname,
+              mode: "w",
+              contentType: "video/webm"
+          });
+          retrivePromise(req.params.id, gfs).then(function(itm) {
+            ffmpeg(itm)
+                .format("webm")
+                .withVideoCodec("libvpx")
+                .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+                .withVideoBitrate(1024)
+                .withAudioCodec("libvorbis")
+                .videoFilters(transitionType)
+                .on("progress", progress => {
+                    console.log(`[Transition1]: ${JSON.stringify(progress)}`);
+                })
+                .on("stderr", function(stderrLine) {
+                    console.log("Stderr output [Transition1]: " + stderrLine);
+                })
+                .on("error", function(err) {
+                    res.json("An error occurred [Transition1]: ", err.message);
+                })
+                .on("end", function() {
 
-    path1 = path.join(__dirname, "../../video_input/test1.mp4");
-
-
-    let path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
-    let path1_tmp = path.join(
-        path.dirname(path1),
-        "tmp",
-        path1_base + "_1" + path.extname(path1)
-    ); //temp file loc
-    let path2_tmp = path.join(
-        path.dirname(path1),
-        "tmp",
-        path1_base + "_2" + path.extname(path1)
-    );
-    let pathOut_path = path.join(
-        __dirname,
-        "../../video_output/",
-        path.basename(path1)
-    );
-    let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
-
-    ffmpeg.ffprobe(path1, function (err, metadata) {
-        let duration = 5;
-        if(metadata != undefined) duration = metadata.streams[0].duration; //vid duration in timebase unit
-        console.log(metadata.streams[0]);
-        ffmpeg({source: path1})
-            .inputOptions([`-ss 0`, `-to ${timestampStart}`])
-            .on("progress", progress => {
-                console.log(`[Transition1]: ${JSON.stringify(progress)}`);
-            })
-            .on("error", function (err) {
-                res.json("An error occurred [Transition1]: " + err.message);
-            })
-            .on("end", function () {
-                ffmpeg({source: path1})
-                    .videoFilters(createJSONfilter(transitionType))
-                    .on("progress", progress => {
-                        console.log(`[Transition1]: ${JSON.stringify(progress)}`);
-                    })
-                    .on("error", function (err) {
-                        fs.unlink(path1_tmp, err => {
-                            if (err)
-                                console.log("Could not remove Transition2 tmp file:" + err);
-                        });
-                        res.json("An error occurred [Transition2]: " + err.message);
-                    })
-                    .on("end", function () {
-                        ffmpeg({source: path1_tmp})
-                            .mergeAdd(transition_temp)
-                            .on("progress", progress => {
-                                console.log(
-                                    `[TransitionMergeCombine]: ${JSON.stringify(progress)}`
-                                );
-                            })
-                            .on("error", function (err) {
-                                fs.unlink(path1_tmp, err => {
-                                    if (err)
-                                        console.log("Could not remove Transition1 tmp file:" + err);
-                                });
-                                fs.unlink(path2_tmp, err => {
-                                    if (err)
-                                        console.log("Could not remove Transition2 tmp file:" + err);
-                                });
-                                res.json(
-                                    "An error occurred [TransitionCombine]: " + err.message
-                                );
-                            })
-                            .on("end", function () {
-                                fs.unlink(path1_tmp, err => {
-                                    if (err)
-                                        console.log("Could not remove Transition1 tmp file:" + err);
-                                });
-                                fs.unlink(path2_tmp, err => {
-                                    if (err)
-                                        console.log("Could not remove Transition2 tmp file:" + err);
-                                });
-                                res.json("Merging finished !");
-                            })
-                            .mergeToFile(pathOut_path, pathOut_tmp);
-                    })
-                    .save(path2_tmp);
-            })
-            .save(path1_tmp);
+                })
+                .saveToFile(result);
+        });
+        
+      });
     });
-});
-
-// @route  POST /api/edit/transition/:id/
-// @desc   Add transition effects in a video at a timestamp
-// @access Private
-router.post("/transition/:id", auth, (req, res) => {
-    let timestampStart = req.body.timestampStart;
-    let transitionType = req.body.transitionType;
-    if (!timestampStart || !transitionType)
-        return res
-            .status(400)
-            .end("Both timestamp and transition type are required");
-
-    path1 = path.join(__dirname, "../../video_input/test1.mp4");
-    let path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
-    let path1_tmp = path.join(
-        path.dirname(path1),
-        "tmp",
-        path1_base + "_1" + path.extname(path1)
-    ); //temp file loc
-    let path2_tmp = path.join(
-        path.dirname(path1),
-        "tmp",
-        path1_base + "_2" + path.extname(path1)
-    );
-    let pathOut_path = path.join(
-        __dirname,
-        "../../video_output/",
-        path.basename(path1)
-    );
-    let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
-
-    ffmpeg.ffprobe(path1, function (err, metadata) {
-        let duration = metadata.streams[0].duration; //vid duration in timebase unit
-        console.log(metadata.streams[0]);
-
-        console.log("path1: ", path1);
-
-        ffmpeg({source: path1})
-            .inputOptions([`-ss 0`, `-to ${req.body.timestampStart}`])
-            .on("progress", progress => {
-                console.log(`[Transition1]: ${JSON.stringify(progress)}`);
-            })
-            .on("stderr", function (stderrLine) {
-                console.log("Stderr output [Transition]: " + stderrLine);
-            })
-            .on("error", function (err) {
-                console.log();
-                res.json("An error occurred [Transition1]: " + err.message);
-            })
-            .on("end", function () {
-                ffmpeg({source: path1})
-                    .videoFilters(createJSONfilter(transitionType))
-                    .on("progress", progress => {
-                        console.log(`[Transition1]: ${JSON.stringify(progress)}`);
-                    })
-                    .on("error", function (err) {
-                        fs.unlink(path1_tmp, err => {
-                            if (err)
-                                console.log("Could not remove Transition2 tmp file:" + err);
-                        });
-                        res.json("An error occurred [Transition2]: " + err.message);
-                    })
-                    .on("end", function () {
-                        ffmpeg({source: path1_tmp})
-                            .mergeAdd(transition_temp)
-                            .on("progress", progress => {
-                                console.log(
-                                    `[TransitionMergeCombine]: ${JSON.stringify(progress)}`
-                                );
-                            })
-                            .on("error", function (err) {
-                                fs.unlink(path1_tmp, err => {
-                                    if (err)
-                                        console.log("Could not remove Transition1 tmp file:" + err);
-                                });
-                                fs.unlink(path2_tmp, err => {
-                                    if (err)
-                                        console.log("Could not remove Transition2 tmp file:" + err);
-                                });
-                                res.json(
-                                    "An error occurred [TransitionCombine]: " + err.message
-                                );
-                            })
-                            .on("end", function () {
-                                fs.unlink(path1_tmp, err => {
-                                    if (err)
-                                        console.log("Could not remove Transition1 tmp file:" + err);
-                                });
-                                fs.unlink(path2_tmp, err => {
-                                    if (err)
-                                        console.log("Could not remove Transition2 tmp file:" + err);
-                                });
-                                res.json("Merging finished !");
-                            })
-                            .mergeToFile(pathOut_path, pathOut_tmp);
-                    })
-                    .save(path2_tmp);
-            })
-            .save(path1_tmp);
-    });
-});
 
 module.exports = router;
