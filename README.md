@@ -60,5 +60,4 @@
 
 To run, Type the following in the terminal:
 
-- npm run nodemon-debug
 - npm run dev
