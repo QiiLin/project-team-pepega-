@@ -45,13 +45,14 @@ class VideoContainer extends Component {
   }
 
   handleStateChange(state) {
-    // copy player state to this component's state
-    this.setState({
-      player: state
-    });
-    console.log("weqweqweqwe");
     const { player } = this.player.getState();
     console.log("Current time: ", player.currentTime);
+    // copy player state to this component's state
+    this.setState({
+      player: state,
+      currentTime: player.currentTime
+    });
+    console.log("weqweqweqwe");
     this.props.set_duration(player.duration);
     this.props.setCurrProgress(player.currentTime);
   }
@@ -134,7 +135,7 @@ class VideoContainer extends Component {
 const mapStateToProps = state => ({
   // item because we called it that in reducers/index.js (root reducer)
   item: state.item,
-  //   progress: state.VideoContainer.progress,
+  progress: state.edit.progress,
   isAuthenticated: state.auth.isAuthenticated
 });
 export default connect(mapStateToProps, { set_duration, setCurrProgress })(

@@ -84,7 +84,9 @@ class EditView extends React.Component {
 
 const mapStateToProps = state => ({
   // item because we called it that in reducers/index.js (root reducer)
-  isAuthenticated: state.auth.isAuthenticated
+  isAuthenticated: state.auth.isAuthenticated,
+  progress: state.edit.progress,
+  duration: state.edit.duration
 });
 
 export default connect(mapStateToProps, {
