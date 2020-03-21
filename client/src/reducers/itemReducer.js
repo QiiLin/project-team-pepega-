@@ -49,7 +49,7 @@ export default function(state = initialState, action) {
       };
 
     case SET_SELECTED_ITEM_TWO:
-      console.log(action.payload);
+      // console.log(action.payload);
       return {
         ...state,
         selectItemTwo: action.payload

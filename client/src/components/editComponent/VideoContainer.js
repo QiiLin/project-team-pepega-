@@ -32,7 +32,6 @@ class VideoContainer extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     // subscribe state change
     this.player.subscribeToStateChange(this.handleStateChange.bind(this));
-    this.player2.subscribeToStateChange(this.handlePlayerTwoChange.bind(this));
   }
 
   changeCurrentTime(seconds) {
@@ -61,14 +60,13 @@ class VideoContainer extends Component {
     });
     const { player2 } = this.player2.getState();
     this.props.set_duration_player2(player2.duration);
-    console.log(this.state.player2);
+    // console.log(this.state.player2);
   }
 
   render() {
     // Note selectedFile is from VideoList
     // TODO: Update the placeholder for video
     const { selectItemOne, selectItemTwo } = this.props.item;
-    console.log("videocontainer selectitemtwo: ", selectItemTwo);
     return (
       <div>
         <Nav tabs>
@@ -96,48 +94,48 @@ class VideoContainer extends Component {
         <TabContent activeTab={this.state.selectTab}>
           <TabPane tabId="1">
             <Row>
-              {selectItemOne ? (
-                <Player
-                  key={selectItemOne}
-                  ref={player => {
-                    this.player = player;
-                  }}
-                >
-                  <BigPlayButton position="center" />
-                  <LoadingSpinner />
-                  <ControlBar>
-                    <ReplayControl seconds={5} order={2.1} />
-                    <ForwardControl seconds={5} order={3.1} />
-                  </ControlBar>
-                  <source src={"api/items/" + selectItemOne} />
-                </Player>
-              ) : (
-                <Player
-                  key={selectItemTwo}
-                  ref={player => {
-                    this.player = player;
-                  }}
-                >
-                  <BigPlayButton position="center" />
-                  <LoadingSpinner />
-                  <ControlBar>
-                    <ReplayControl seconds={5} order={2.1} />
-                    <ForwardControl seconds={5} order={3.1} />
-                  </ControlBar>
-                  <source src={"http://www.w3schools.com/html/mov_bbb.mp4"} />
-                </Player>
-              )}
+              {/* {selectItemOne ? ( */}
+              <Player
+                key={selectItemOne}
+                ref={player => {
+                  this.player = player;
+                }}
+              >
+                <BigPlayButton position="center" />
+                <LoadingSpinner />
+                <ControlBar>
+                  <ReplayControl seconds={5} order={2.1} />
+                  <ForwardControl seconds={5} order={3.1} />
+                </ControlBar>
+                <source src={"api/items/" + selectItemOne} />
+              </Player>
+              {/* ) : ( */}
+              <Player
+                key={selectItemTwo}
+                ref={player => {
+                  this.player = player;
+                }}
+              >
+                <BigPlayButton position="center" />
+                <LoadingSpinner />
+                <ControlBar>
+                  <ReplayControl seconds={5} order={2.1} />
+                  <ForwardControl seconds={5} order={3.1} />
+                </ControlBar>
+                <source src={"api/items/" + selectItemTwo} />
+              </Player>
+              {/* )} */}
             </Row>
           </TabPane>
           {/* <TabPane tabId="2"> */}
           <Row>
-            {selectItemTwo ? (
-              <Player key={selectItemTwo}>
+            {/* {selectItemTwo ? (
+               <Player key={selectItemTwo}>
                 <source src={"api/items/" + selectItemTwo} />
               </Player>
             ) : (
               <p> No video </p>
-            )}
+            )}  */}
           </Row>
           {/* </TabPane> */}
         </TabContent>
@@ -152,4 +150,6 @@ const mapStateToProps = state => ({
   item: state.item,
   isAuthenticated: state.auth.isAuthenticated
 });
-export default connect(mapStateToProps, { set_duration })(VideoContainer);
+export default connect(mapStateToProps, { set_duration, set_duration_player2 })(
+  VideoContainer
+);
