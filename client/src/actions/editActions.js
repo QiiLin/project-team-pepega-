@@ -86,12 +86,12 @@ export const set_duration = video_length => {
   };
 };
 
-export const set_duration_player2 = video_length => {
-  return {
-    type: SET_DURATION_2,
-    payload: video_length
-  };
-};
+// export const set_duration_player2 = video_length => {
+//   return {
+//     type: SET_DURATION_2,
+//     payload: video_length
+//   };
+// };
 
 export const addCapation = item => {
   return {

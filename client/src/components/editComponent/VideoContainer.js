@@ -9,7 +9,7 @@ import {
 } from "video-react";
 import { connect } from "react-redux";
 import { Nav, NavItem, NavLink, Row, TabContent, TabPane } from "reactstrap";
-import { set_duration, set_duration_player2 } from "../../actions/editActions";
+import { set_duration } from "../../actions/editActions";
 
 class VideoContainer extends Component {
   constructor(props) {
@@ -32,7 +32,7 @@ class VideoContainer extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     // subscribe state change
     this.player.subscribeToStateChange(this.handleStateChange.bind(this));
-    this.player2.subscribeToStateChange(this.handlePlayerTwoChange.bind(this));
+    // this.player2.subscribeToStateChange(this.handlePlayerTwoChange.bind(this));
   }
 
   changeCurrentTime(seconds) {
@@ -41,9 +41,10 @@ class VideoContainer extends Component {
     };
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.item.selectItemOne !== this.props.item.selectItemOne;
-  }
+  //   shouldComponentUpdate(nextProps, nextState) {
+  //     console.log("nextProps: ", nextProps);
+  //     return nextProps.item.selectItemOne !== this.props.item.selectItemOne;
+  //   }
 
   handleStateChange(state) {
     // copy player state to this component's state
@@ -55,14 +56,14 @@ class VideoContainer extends Component {
     this.props.set_duration(player.duration);
   }
 
-  handlePlayerTwoChange(state) {
-    this.setState({
-      player2: state
-    });
-    const { player2 } = this.player2.getState();
-    this.props.set_duration_player2(player2.duration);
-    console.log(this.state.player2);
-  }
+  //   handlePlayerTwoChange(state) {
+  //     this.setState({
+  //       player2: state
+  //     });
+  //     const { player2 } = this.player2.getState();
+  //     this.props.set_duration_player2(player2.duration);
+  //     console.log(this.state.player2);
+  //   }
 
   render() {
     // Note selectedFile is from VideoList

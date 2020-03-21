@@ -60,11 +60,11 @@ export default function(state = initialState, action) {
         ...state,
         duration: action.payload
       };
-    case SET_DURATION_2:
-      return {
-        ...state,
-        duration: action.payload
-      };
+    // case SET_DURATION_2:
+    //   return {
+    //     ...state,
+    //     duration: action.payload
+    //   };
     case ADD_CAPTION:
       return {
         ...state,
