@@ -31,31 +31,6 @@ class EditView extends React.Component {
           <Container>
             <Row>
               <Col>
-                <VideoList />
-              </Col>
-              <Col>
-                <Container>
-                  <Row>
-                    <Col>
-                      {" "}
-                      <VideoContainer />{" "}
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col>
-                      {" "}
-                      <VideoCaptionInput />{" "}
-                    </Col>
-                  </Row>
-                  <Row>
-                    {" "}
-                    <EditOption />{" "}
-                  </Row>
-                </Container>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
                 {" "}
                 <TimeLineSector
                   title="Video One Selector"
@@ -70,6 +45,31 @@ class EditView extends React.Component {
                   title="Video Two Selector"
                   callback={this.setTwoRange}
                 />{" "}
+              </Col>
+            </Row>
+            <Row>
+              {/* <Col> */}
+              <Container>
+                <Row>
+                  <Col>
+                    {" "}
+                    <VideoContainer />{" "}
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    {" "}
+                    <VideoCaptionInput />{" "}
+                  </Col>
+                </Row>
+                <Row>
+                  {" "}
+                  <EditOption />{" "}
+                </Row>
+              </Container>
+              {/* </Col> */}
+              <Col>
+                <VideoList />
               </Col>
             </Row>
           </Container>

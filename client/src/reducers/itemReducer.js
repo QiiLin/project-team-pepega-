@@ -12,8 +12,8 @@ import {
 const initialState = {
   selectItemOne: null,
   selectItemTwo: null,
-  videoOneSelection:[],
-  videoTwoSelection:[],
+  videoOneSelection: [],
+  videoTwoSelection: [],
   items: [],
   loading: false
 };
@@ -49,6 +49,7 @@ export default function(state = initialState, action) {
       };
 
     case SET_SELECTED_ITEM_TWO:
+      console.log(action.payload);
       return {
         ...state,
         selectItemTwo: action.payload
@@ -56,15 +57,15 @@ export default function(state = initialState, action) {
     case SET_ITEM_ONE_RANGE:
       return {
         ...state,
-        videoOneSelection : action.payload
+        videoOneSelection: action.payload
       };
     case SET_ITEM_TWO_RANGE:
       return {
         ...state,
-        videoTwoSelection : action.payload
+        videoTwoSelection: action.payload
       };
 
-      // doesn't need
+    // doesn't need
     // case GET_SELECTED_ITEM:
     //   return {
     //     ...state

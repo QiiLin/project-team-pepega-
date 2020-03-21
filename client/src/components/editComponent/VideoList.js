@@ -83,12 +83,12 @@ class VideoList extends Component {
 
         <TabContent
           activeTab={this.state.selectTab}
-          style={{ maxHeight: 600, maxWidth: 800, overflow: "auto" }}
+          style={{ maxHeight: 600, overflow: "auto" }}
         >
           <TabPane tabId="1">
             <Row>
               {items.map(({ _id, filename }) => (
-                <Col sm="12" key={_id}>
+                <Col sm="6" key={_id}>
                   <Card body>
                     <Button
                       variant="contained"

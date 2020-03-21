@@ -1,8 +1,15 @@
 import React, { Component } from "react";
-import { Player } from "video-react";
+import {
+  Player,
+  BigPlayButton,
+  LoadingSpinner,
+  ControlBar,
+  ReplayControl,
+  ForwardControl
+} from "video-react";
 import { connect } from "react-redux";
 import { Nav, NavItem, NavLink, Row, TabContent, TabPane } from "reactstrap";
-import { set_duration } from "../../actions/editActions";
+import { set_duration, set_duration_player2 } from "../../actions/editActions";
 
 class VideoContainer extends Component {
   constructor(props) {
@@ -19,11 +26,13 @@ class VideoContainer extends Component {
         selectTab: tab
       }));
     }
+    console.log("state toggle: ", this.getState);
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     // subscribe state change
     this.player.subscribeToStateChange(this.handleStateChange.bind(this));
+    this.player2.subscribeToStateChange(this.handlePlayerTwoChange.bind(this));
   }
 
   changeCurrentTime(seconds) {
@@ -41,14 +50,25 @@ class VideoContainer extends Component {
     this.setState({
       player: state
     });
-    console.log("weqweqweqwe");
+    console.log(this.state.player);
     const { player } = this.player.getState();
     this.props.set_duration(player.duration);
   }
+
+  handlePlayerTwoChange(state) {
+    this.setState({
+      player2: state
+    });
+    const { player2 } = this.player2.getState();
+    this.props.set_duration_player2(player2.duration);
+    console.log(this.state.player2);
+  }
+
   render() {
     // Note selectedFile is from VideoList
     // TODO: Update the placeholder for video
     const { selectItemOne, selectItemTwo } = this.props.item;
+    console.log("videocontainer selectitemtwo: ", selectItemTwo);
     return (
       <div>
         <Nav tabs>
@@ -83,31 +103,43 @@ class VideoContainer extends Component {
                     this.player = player;
                   }}
                 >
+                  <BigPlayButton position="center" />
+                  <LoadingSpinner />
+                  <ControlBar>
+                    <ReplayControl seconds={5} order={2.1} />
+                    <ForwardControl seconds={5} order={3.1} />
+                  </ControlBar>
                   <source src={"api/items/" + selectItemOne} />
                 </Player>
               ) : (
                 <Player
-                  key={selectItemOne}
+                  key={selectItemTwo}
                   ref={player => {
                     this.player = player;
                   }}
                 >
+                  <BigPlayButton position="center" />
+                  <LoadingSpinner />
+                  <ControlBar>
+                    <ReplayControl seconds={5} order={2.1} />
+                    <ForwardControl seconds={5} order={3.1} />
+                  </ControlBar>
                   <source src={"http://www.w3schools.com/html/mov_bbb.mp4"} />
                 </Player>
               )}
             </Row>
           </TabPane>
-          <TabPane tabId="2">
-            <Row>
-              {selectItemTwo ? (
-                <Player key={selectItemOne}>
-                  <source src={"api/items/" + selectItemTwo} />
-                </Player>
-              ) : (
-                <p> No video </p>
-              )}
-            </Row>
-          </TabPane>
+          {/* <TabPane tabId="2"> */}
+          <Row>
+            {selectItemTwo ? (
+              <Player key={selectItemTwo}>
+                <source src={"api/items/" + selectItemTwo} />
+              </Player>
+            ) : (
+              <p> No video </p>
+            )}
+          </Row>
+          {/* </TabPane> */}
         </TabContent>
       </div>
     );
