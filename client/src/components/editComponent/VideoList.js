@@ -30,7 +30,6 @@ class VideoList extends Component {
         // Don't call this.setState() here!
         this.state = { selectTab: '1' };
         this.toggle = this.toggle.bind(this);
-        this.pause = this.pause.bind(this);
     }
     // Run when making an api request (or calling an actions)
     componentDidMount() {
@@ -44,10 +43,6 @@ class VideoList extends Component {
             }));
         }
     };
-
-    pause() {
-        this.player.pause();
-    }
 
     render() {
         const { items } = this.props.item;
