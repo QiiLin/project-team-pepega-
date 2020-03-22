@@ -10,77 +10,73 @@ import {
     RESET_CAPTION,
     DELETE_CAPTION
 } from "./types";
-import {tokenConfig, tokenConfig2} from "./authActions";
-import {returnErrors} from "./errorActions";
-import {getItems} from "./itemActions";
+import { tokenConfig, tokenConfig2 } from "./authActions";
+import { returnErrors } from "./errorActions";
+import { getItems } from "./itemActions";
 
 export const mergeClip = ids => (dispatch, getState) => {
-    console.log("mergeItem called");
-    for (var pair of ids.entries()) {
-        console.log(pair[0] + ', ' + pair[1]);
-    }
+  console.log("mergeItem called");
+  for (var pair of ids.entries()) {
+    console.log(pair[0] + ", " + pair[1]);
+  }
 
-    axios
+  axios
     // Attach token to request in the header
-        .post("/api/edit/merge", ids, tokenConfig2(getState), {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        })
-        .then(res =>
-            dispatch(getItems())
-        )
-        .catch((err) => {
-            dispatch(returnErrors(err.response.data, err.response.status))
-        });
+    .post("/api/edit/merge", ids, tokenConfig2(getState), {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+    .then(res => dispatch(getItems()))
+    .catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
 };
 
 export const captionClip = (id, data) => (dispatch, getState) => {
-    let body = {
-        data: data
-    };
-    axios
+  let body = {
+    data: data
+  };
+  axios
     // Attach token to request in the header
-        .post("/api/edit/caption/" + id, body, tokenConfig(getState))
-        .then(res => {
-            // reset the caption list
-            dispatch({
-                type: RESET_CAPTION,
-                payload: res.data
-            });
-            dispatch(getItems());
-        })
-        .catch((err) => {
-            dispatch(returnErrors(err.response.data, err.response.status))
-        });
+    .post("/api/edit/caption/" + id, body, tokenConfig(getState))
+    .then(res => {
+      // reset the caption list
+      dispatch({
+        type: RESET_CAPTION,
+        payload: res.data
+      });
+      dispatch(getItems());
+    })
+    .catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
 };
 
 export const trimClip = (id, body) => (dispatch, getState) => {
-    // console.log("trimClip called");
-    // for (var pair of body.entries()) {
-    //   console.log(pair[0]+ ', ' + pair[1]);
-    // }
-    // console.log(id);
+  // console.log("trimClip called");
+  // for (var pair of body.entries()) {
+  //   console.log(pair[0]+ ', ' + pair[1]);
+  // }
+  // console.log(id);
 
-    axios
+  axios
     // Attach token to request in the header
-        .post(`/api/edit/trim/${id}`, body, tokenConfig2(getState), {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        })
-        .then(res =>
-            dispatch(getItems())
-        )
-        .catch((err) => {
-            dispatch(returnErrors(err.response.data, err.response.status))
-        });
+    .post(`/api/edit/trim/${id}`, body, tokenConfig2(getState), {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+    .then(res => dispatch(getItems()))
+    .catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
 };
 
 export const set_sync = () => {
-    return {
-        type: SET_SYNC,
-    };
+  return {
+    type: SET_SYNC
+  };
 };
 
 export const setDurationOne = (video_length) => {
@@ -99,28 +95,26 @@ export const setDurationTwo = (video_length) => {
     };
 };
 
-export const addCapation = (item) => {
-
-    return {
-        type: ADD_CAPTION,
-        payload: item
-    };
+export const addCapation = item => {
+  return {
+    type: ADD_CAPTION,
+    payload: item
+  };
 };
 
-export const setCaption = (item) => {
-
-    return {
-        type: SET_CAPTION,
-        payload: item
-    };
+export const setCaption = item => {
+  return {
+    type: SET_CAPTION,
+    payload: item
+  };
 };
-export const resetCaptions = (cap) => {
-    return {
-        type: RESET_CAPTION
-    };
+export const resetCaptions = cap => {
+  return {
+    type: RESET_CAPTION
+  };
 };
 
-export const deleteCaption = (index) => {
+export const deleteCaption = index => {
   return {
     type: DELETE_CAPTION,
     payload: index

@@ -1,6 +1,4 @@
-import React, {Component} from "react";
-import { Player } from 'video-react';
-import {connect} from "react-redux";
+import React, { Component } from "react";
 import {
     AppBar,
     Tabs,
@@ -8,14 +6,23 @@ import {
     Box
 } from '@material-ui/core/';
 import {setDurationOne, setDurationTwo} from "../../actions/editActions";
+import {
+  Player,
+  BigPlayButton,
+  LoadingSpinner,
+  ControlBar,
+  ReplayControl,
+  ForwardControl
+} from "video-react";
+import { connect } from "react-redux";
 
 class VideoContainer extends Component {
-    constructor(props) {
-        super(props);
-        // Don't call this.setState() here!
-        this.state = {selectTab: '1'};
-        this.changeCurrentTime = this.changeCurrentTime.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    // Don't call this.setState() here!
+    this.state = { selectTab: "1" };
+    this.changeCurrentTime = this.changeCurrentTime.bind(this);
+  }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         // subscribe state change
@@ -104,8 +111,8 @@ class VideoContainer extends Component {
 
 // Mapping a redux state to a component property
 const mapStateToProps = state => ({
-    // item because we called it that in reducers/index.js (root reducer)
-    item: state.item,
-    isAuthenticated: state.auth.isAuthenticated
+  // item because we called it that in reducers/index.js (root reducer)
+  item: state.item,
+  isAuthenticated: state.auth.isAuthenticated
 });
 export default connect(mapStateToProps, {setDurationOne, setDurationTwo})(VideoContainer);

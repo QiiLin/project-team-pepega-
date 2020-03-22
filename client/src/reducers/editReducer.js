@@ -4,7 +4,6 @@ import {
     TRIM_CLIP
 } from "../actions/types";
 
-
 /*
 1
 00:00:00,000 --> 00:00:10,000
@@ -87,4 +86,3 @@ export default function (state = initialState, action) {
             return state;
     }
 }
-  
