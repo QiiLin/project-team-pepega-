@@ -8,10 +8,7 @@ const ffmpeg = require("../../controllers/ff_path");
 // Item model
 const Item = require("../../models/Item");
 
-let createJSONfilter = transitionType => {
-
-};
-
+let createJSONfilter = transitionType => {};
 // import stream from 'stream';
 const { gfs_prim } = require("../../middleware/gridSet");
 const upload = multer();
@@ -19,7 +16,7 @@ const crypto = require("crypto");
 const { StreamInput, StreamOutput } = require("fluent-ffmpeg-multistream");
 const { PassThrough, Duplex } = require("stream");
 
-function retrievePromise(id, gfs) {
+function retrivePromise(id, gfs) {
   return new Promise(function(resolve, reject) {
     gfs.files.findOne({ filename: id }, (err, file) => {
       // Check if file
@@ -71,8 +68,8 @@ router.post("/caption/:id", (req, res) => {
         mode: "w",
         contentType: "video/webm"
       });
-      let currentItem = retrievePromise(req.params.id, gfs);
-      let currentItemCopy = retrievePromise(req.params.id, gfs);
+      let currentItem = retrivePromise(req.params.id, gfs);
+      let currentItemCopy = retrivePromise(req.params.id, gfs);
       Promise.all([currentItem, currentItemCopy]).then(Items => {
         let currStream = Items[0];
         let readItem = Items[1];
@@ -135,9 +132,9 @@ router.post("/merge", upload.none(), (req, res) => {
   gfs_prim.then(function(gfs) {
     const curr_vid_id = req.body.curr_vid_id;
     const merge_vid_id = req.body.merge_vid_id;
-    let itemOne = retrievePromise(curr_vid_id, gfs);
-    let itemOneCopy = retrievePromise(curr_vid_id, gfs);
-    let itemTwo = retrievePromise(merge_vid_id, gfs);
+    let itemOne = retrivePromise(curr_vid_id, gfs);
+    let itemOneCopy = retrivePromise(curr_vid_id, gfs);
+    let itemTwo = retrivePromise(merge_vid_id, gfs);
     // let tempWriteOne = gfs.createWriteStream({ filename: 'my_1_file'});
     // let tempWriteTwo = gfs.createWriteStream({ filename: 'my_2_file'});
 
@@ -170,9 +167,14 @@ router.post("/merge", upload.none(), (req, res) => {
       // console.log (pathOut_path);
 
       ffmpeg.ffprobe(currStream, function(err, metadata) {
-        let width = metadata ? metadata.streams[0].width : 640;
-        let height = metadata ? metadata.streams[0].height : 360;
-        let fps = metadata ? metadata.streams[0].r_frame_rate : 30;
+        let width = 640;
+        let height = 360;
+        let fps = 30;
+        if (metadata != undefined) {
+          let width = metadata.streams[0].width;
+          let height = metadata.streams[0].height;
+          let fps = metadata.streams[0].r_frame_rate;
+        }
         console.log(width);
         console.log(height);
         console.log(fps);
@@ -278,7 +280,7 @@ router.post("/cut/:id", (req, res) => {
       mode: "w",
       contentType: "video/webm"
     });
-    let itemOne = retrievePromise(req.params.id, gfs);
+    let itemOne = retrivePromise(req.params.id, gfs);
     itemOne.then(item => {
       ffmpeg(item)
         .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
@@ -315,9 +317,9 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
     //starting at 0 not allowed by library
     timestampStart = "00:00:00.001";
   gfs_prim.then(function(gfs) {
-    let itemOne = retrievePromise(req.params.id, gfs);
-    let itemOneCopy = retrievePromise(req.params.id, gfs);
-    let itemCopy_One = retrievePromise(req.params.id, gfs);
+    let itemOne = retrivePromise(req.params.id, gfs);
+    let itemOneCopy = retrivePromise(req.params.id, gfs);
+    let itemCopy_One = retrivePromise(req.params.id, gfs);
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
@@ -467,7 +469,7 @@ router.post("/transition/:id", auth, (req, res) => {
       mode: "w",
       contentType: "video/webm"
     });
-    retrievePromise(req.params.id, gfs).then(function(itm) {
+    retrivePromise(req.params.id, gfs).then(function(itm) {
       ffmpeg(itm)
         .format("webm")
         .withVideoCodec("libvpx")

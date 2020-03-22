@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { AppBar, Tabs, Tab, Box } from "@material-ui/core/";
 import {
   Player,
   BigPlayButton,
@@ -33,6 +32,7 @@ class VideoContainer extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     // subscribe state change
     this.player.subscribeToStateChange(this.handleStateChange.bind(this));
+    // this.player2.subscribeToStateChange(this.handlePlayerTwoChange.bind(this));
   }
 
   changeCurrentTime(seconds) {
@@ -40,6 +40,11 @@ class VideoContainer extends Component {
       this.player.seek(seconds);
     };
   }
+
+  //   shouldComponentUpdate(nextProps, nextState) {
+  //     console.log("nextProps: ", nextProps);
+  //     return nextProps.item.selectItemOne !== this.props.item.selectItemOne;
+  //   }
 
   handleStateChange(state) {
     // copy player state to this component's state
@@ -51,15 +56,20 @@ class VideoContainer extends Component {
     this.props.set_duration(player.duration);
   }
 
-  handleTabClick = (event, value) => {
-    this.setState({ selectTab: value });
-  };
+  //   handlePlayerTwoChange(state) {
+  //     this.setState({
+  //       player2: state
+  //     });
+  //     const { player2 } = this.player2.getState();
+  //     this.props.set_duration_player2(player2.duration);
+  //     console.log(this.state.player2);
+  //   }
 
   render() {
     // Note selectedFile is from VideoList
     // TODO: Update the placeholder for video
     const { selectItemOne, selectItemTwo } = this.props.item;
-    // console.log("videocontainer selectitemtwo: ", selectItemTwo);
+    console.log("videocontainer selectitemtwo: ", selectItemTwo);
     return (
       <div>
         <Nav tabs>

@@ -13,18 +13,20 @@ import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 
 export const getItems = () => (dispatch, getState) => {
-  console.log("invoke");
-  dispatch(setItemsLoading());
-  axios
-    .get("/api/items", tokenConfig2(getState))
-    .then(res => {
-      console.log(res.data);
-      dispatch({ type: GET_ITEMS, payload: res.data });
-      console.log("did");
-    })
-    .catch(err =>
-      dispatch(returnErrors(err.response.data, err.response.status))
-    );
+  setTimeout(function() {
+    console.log("invoke");
+    dispatch(setItemsLoading());
+    axios
+      .get("/api/items", tokenConfig2(getState))
+      .then(res => {
+        console.log(res.data);
+        dispatch({ type: GET_ITEMS, payload: res.data });
+        console.log("did");
+      })
+      .catch(err =>
+        dispatch(returnErrors(err.response.data, err.response.status))
+      );
+  }, 500);
 };
 
 export const addItem = item => (dispatch, getState) => {
