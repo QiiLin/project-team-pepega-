@@ -1,6 +1,6 @@
 import {
     ADD_CAPTION, DELETE_CAPTION,
-    MERGE_CLIP, RESET_CAPTION, SET_CAPTION, SET_DURATION, SET_SYNC,
+    MERGE_CLIP, RESET_CAPTION, SET_CAPTION, SET_DURATION_ONE, SET_DURATION_TWO, SET_SYNC,
     TRIM_CLIP
 } from "../actions/types";
 
@@ -14,7 +14,8 @@ This is test file
 const initialState = {
     items: [],
     sync: false,
-    duration: 0,
+    durationVideoOne: 0,
+    durationVideoTwo: 0,
     captions:
         [
         //     {
@@ -51,10 +52,15 @@ export default function (state = initialState, action) {
                 ...state,
                 sync: !state.sync
             };
-        case SET_DURATION:
+        case SET_DURATION_ONE:
             return {
                 ...state,
-                duration: action.payload
+                durationVideoOne: action.payload
+            };
+        case SET_DURATION_TWO:
+            return {
+                ...state,
+                durationVideoTwo: action.payload
             };
         case ADD_CAPTION:
             return {

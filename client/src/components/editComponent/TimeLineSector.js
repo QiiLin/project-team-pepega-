@@ -24,9 +24,9 @@ class TimeLineSector extends React.Component {
     }
 
     componentDidMount() {
-        const {duration} = this.props.currentEdit;
+        const {durationVideoOne, durationVideoTwo} = this.props.currentEdit;
         this.setState(state => ({
-            newValue: [0, duration]
+            newValue: [0, this.props.videoReference === '1' ? durationVideoOne : durationVideoTwo]
         }));
     }
 
@@ -39,24 +39,25 @@ class TimeLineSector extends React.Component {
     
     render() {
         // const classes = useStyles();
-        const {duration} = this.props.currentEdit;
+        const {durationVideoOne, durationVideoTwo} = this.props.currentEdit;
 
-        return (
-            <div className={useStyles.root}>
-                <Typography id="range-slider" gutterBottom>
-                   {this.props.title}
-                </Typography>
-                <Slider
-                    value={this.state.newValue}
-                    min = {0}
-                    max = {duration}
-                    onChange={this.handleChange}
-                    valueLabelDisplay="auto"
-                    aria-labelledby="range-slider"
-                    getAriaValueText={valuetext}
-                />
-            </div>
-        );
+            return (
+                <div className={useStyles.root}>
+                    <Typography id="range-slider" gutterBottom>
+                    {this.props.title}
+                    </Typography>
+                    <Slider
+                        value={this.state.newValue}
+                        min = {0}
+                        max = {this.props.videoReference === '1' ? durationVideoOne : durationVideoTwo}
+                        onChange={this.handleChange}
+                        valueLabelDisplay="auto"
+                        aria-labelledby="range-slider"
+                        getAriaValueText={valuetext}
+                    />
+                </div>
+            );
+        
     }
 }
 

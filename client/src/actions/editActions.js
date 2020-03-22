@@ -3,7 +3,8 @@ import {
     MERGE_CLIP,
     TRIM_CLIP,
     SET_SYNC,
-    SET_DURATION,
+    SET_DURATION_ONE,
+    SET_DURATION_TWO,
     ADD_CAPTION,
     SET_CAPTION,
     RESET_CAPTION,
@@ -82,10 +83,18 @@ export const set_sync = () => {
     };
 };
 
-export const set_duration = (video_length) => {
+export const setDurationOne = (video_length) => {
 
     return {
-        type: SET_DURATION,
+        type: SET_DURATION_ONE,
+        payload: video_length,
+    };
+};
+
+export const setDurationTwo = (video_length) => {
+
+    return {
+        type: SET_DURATION_TWO,
         payload: video_length,
     };
 };

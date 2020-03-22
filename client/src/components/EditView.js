@@ -51,10 +51,10 @@ class EditView extends React.Component {
                     </Col>
                 </Row>
                 <Row>
-                    <Col> <TimeLineSector title="Video One Selector" callback = {this.setOneRange}/> </Col>
+                    <Col> <TimeLineSector title="Video One Selector" callback = {this.setOneRange} videoReference = "1"/> </Col>
                 </Row>
                 <Row>
-                    <Col> <TimeLineSector  title="Video Two Selector" callback = {this.setTwoRange}/> </Col>
+                    <Col> <TimeLineSector  title="Video Two Selector" callback = {this.setTwoRange} videoReference = "2"/> </Col>
                 </Row>
             </Container>: <div> </div>}
             </div>

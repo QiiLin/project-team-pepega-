@@ -21,7 +21,8 @@ export const MERGE_CLIP = "MERGE_CLIP";
 export const TRIM_CLIP = "TRIM_CLIP";
 
 export const SET_SYNC = "SET_SYNC";
-export const SET_DURATION = "SET_DURATION";
+export const SET_DURATION_ONE = "SET_DURATION_ONE";
+export const SET_DURATION_TWO = "SET_DURATION_TWO";
 
 export const ADD_CAPTION = "Result";
 export const SET_CAPTION = "SET_CAPTION";

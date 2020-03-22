@@ -7,7 +7,7 @@ import {
     Tab,
     Box
 } from '@material-ui/core/';
-import {set_duration} from "../../actions/editActions";
+import {setDurationOne, setDurationTwo} from "../../actions/editActions";
 
 class VideoContainer extends Component {
     constructor(props) {
@@ -19,23 +19,34 @@ class VideoContainer extends Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         // subscribe state change
-        this.player.subscribeToStateChange(this.handleStateChange.bind(this));
+        this.player1.subscribeToStateChange(this.handleStateChangeOne.bind(this));
+        this.player2.subscribeToStateChange(this.handleStateChangeTwo.bind(this));
     }
 
     changeCurrentTime(seconds) {
         return () => {
-            this.player.seek(seconds);
+            this.player1.seek(seconds);
         };
     }
 
-    handleStateChange(state) {
+    handleStateChangeOne(state) {
         // copy player state to this component's state
         this.setState({
-            player: state
+            player1: state
         });
         console.log("weqweqweqwe");
-        const { player } = this.player.getState();
-        this.props.set_duration(player.duration);
+        const { player } = this.player1.getState();
+        this.props.setDurationOne(player.duration);
+    }
+
+    handleStateChangeTwo(state) {
+        // copy player state to this component's state
+        this.setState({
+            player2: state
+        });
+        console.log("weqweqweqwe2");
+        const { player } = this.player2.getState();
+        this.props.setDurationTwo(player.duration);
     }
 
     handleTabClick = (event, value) => {
@@ -57,14 +68,14 @@ class VideoContainer extends Component {
                 <Box display={this.state.selectTab === '1' ? "block" : "none"} value='1'>
                     {selectItemOne ?
                         (<Player key={selectItemOne}
-                                    ref={ player => {
-                                        this.player = player;
+                                    ref={player => {
+                                        this.player1 = player;
                                     }}>
                             <source src={"api/items/" + selectItemOne}/>
                         </Player>) : (
                             <Player key={selectItemOne}
                                     ref={player => {
-                                        this.player = player;
+                                        this.player1 = player;
                                     }}>
                                 <source src={"http://www.w3schools.com/html/mov_bbb.mp4"}/>
                             </Player>
@@ -74,13 +85,13 @@ class VideoContainer extends Component {
                     {selectItemTwo ?
                         (<Player key={selectItemTwo}
                                     ref={ player => {
-                                        this.player = player;
+                                        this.player2 = player;
                                     }}>
                             <source src={"api/items/" + selectItemTwo}/>
                         </Player>) : (
                             <Player key={selectItemTwo}
                                     ref={player => {
-                                        this.player = player;
+                                        this.player2 = player;
                                     }}>
                                 <source src={"http://techslides.com/demos/sample-videos/small.webm"}/>
                             </Player>
@@ -97,4 +108,4 @@ const mapStateToProps = state => ({
     item: state.item,
     isAuthenticated: state.auth.isAuthenticated
 });
-export default connect(mapStateToProps, {set_duration})(VideoContainer);
+export default connect(mapStateToProps, {setDurationOne, setDurationTwo})(VideoContainer);
