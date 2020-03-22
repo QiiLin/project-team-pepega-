@@ -54,7 +54,7 @@ class VideoContainer extends Component {
     const { selectItemOne, selectItemTwo } = this.props.item;
     return (
       <div>
-        <AppBar position="static">
+        <AppBar position="sticky">
           <Tabs value={this.state.selectTab} onChange={this.handleTabClick}>
             <Tab label="Player One" value="1" />
             <Tab label="Player Two" value="2" />

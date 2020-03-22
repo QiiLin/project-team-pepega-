@@ -24,39 +24,61 @@ class EditView extends React.Component {
     this.props.setVideoTwoRange(value);
   };
 
-
-  
-
   render() {
     return (
-        <div>
-        { this.props.isAuthenticated?
-
-        <Container>
+      <div>
+        {this.props.isAuthenticated ? (
+          <Container>
             <Row>
-                <Col>
-                    <VideoList/>
-                </Col>
-                <Col>
-                    <Container>
-                        <Row>
-                            <Col> <VideoContainer/> </Col>
-                        </Row>
-                        <Row>
-                            <Col> <VideoCaptionInput/> </Col>
-                        </Row>
-                        <Row> <EditOption/> </Row>
-                    </Container>
-                </Col>
+              <Col>
+                <VideoList />
+              </Col>
+              <Col>
+                <Container>
+                  <Row>
+                    <Col>
+                      {" "}
+                      <VideoContainer />{" "}
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col>
+                      {" "}
+                      <VideoCaptionInput />{" "}
+                    </Col>
+                  </Row>
+                  <Row>
+                    {" "}
+                    <EditOption />{" "}
+                  </Row>
+                </Container>
+              </Col>
             </Row>
             <Row>
-                <Col> <TimeLineSector title="Video One Selector" callback = {this.setOneRange} videoReference = "1"/> </Col>
+              <Col>
+                {" "}
+                <TimeLineSector
+                  title="Video One Selector"
+                  callback={this.setOneRange}
+                  videoReference="1"
+                />{" "}
+              </Col>
             </Row>
             <Row>
-                <Col> <TimeLineSector  title="Video Two Selector" callback = {this.setTwoRange} videoReference = "2"/> </Col>
+              <Col>
+                {" "}
+                <TimeLineSector
+                  title="Video Two Selector"
+                  callback={this.setTwoRange}
+                  videoReference="2"
+                />{" "}
+              </Col>
             </Row>
-        </Container>: <div> </div>}
-        </div>
+          </Container>
+        ) : (
+          <div> </div>
+        )}
+      </div>
     );
   }
 }
