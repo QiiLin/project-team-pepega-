@@ -32,7 +32,7 @@ function retrivePromise(id, gfs) {
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
 // @access Private
-router.post("/caption/:id", (req, res) => {
+router.post("/caption/:id", atuh, (req, res) => {
   res.set("Content-Type", "text/plain");
   console.log(req.body.data);
   if (!req.body.data) {
@@ -124,7 +124,7 @@ router.post("/caption/:id", (req, res) => {
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
-router.post("/merge", upload.none(), (req, res) => {
+router.post("/merge", upload.none(), auth, (req, res) => {
   res.set("Content-Type", "text/plain");
   if (!req.body.curr_vid_id || !req.body.merge_vid_id)
     return res.status(400).end("video id for merging required");
@@ -269,7 +269,7 @@ router.post("/merge", upload.none(), (req, res) => {
 // @route  POST /api/edit/cut/:id/
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
-router.post("/cut/:id", (req, res) => {
+router.post("/cut/:id", auth, (req, res) => {
   res.set("Content-Type", "text/plain");
   if (!req.body.timestampOldStart || !req.body.timestampDuration)
     return res.status(400).end("timestamp required");
@@ -308,7 +308,7 @@ router.post("/cut/:id", (req, res) => {
 // @route  POST /api/edit/trim/:id/
 // @desc   Remove video section at timestampStart & timestampEnd from body
 // @access Private
-router.post("/trim/:id/", upload.none(), (req, res) => {
+router.post("/trim/:id/", upload.none(), auth, (req, res) => {
   let timestampStart = req.body.timestampStart;
   let timestampEnd = req.body.timestampEnd;
   if (!timestampStart || !timestampEnd)
@@ -455,7 +455,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
 // @route  POST /api/edit/transition/:id/
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
-router.post("/transition/:id", upload.none(), (req, res) => {
+router.post("/transition/:id", upload.none(), auth, (req, res) => {
   // console.log("Got to transition backend");
   console.log("req.body.transitionType", req.body.transitionType);
   res.set("Content-Type", "text/plain");
