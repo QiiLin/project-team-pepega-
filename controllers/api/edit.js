@@ -456,18 +456,8 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
 router.post("/transition/:id", upload.none(), (req, res) => {
-  // console.log("Got to transition backend");
-  console.log("req.body.transitionType", req.body.transitionType);
-  console.log("req.body.transitionStartFrame: ", req.body.transitionStartFrame);
-  console.log("req.body.transitionEndFrame: ", req.body.transitionEndFrame);
   res.set("Content-Type", "text/plain");
-  let transitionType =
-    req.body.transitionType +
-    ":" +
-    req.body.transitionStartFrame +
-    ":" +
-    req.body.transitionEndFrame;
-  console.log(transitionType);
+  let transitionType = `${req.body.transitionType}:${req.body.transitionStartFrame}:${req.body.transitionEndFrame}`;
   if (
     !req.body.transitionType ||
     !req.body.transitionStartFrame ||

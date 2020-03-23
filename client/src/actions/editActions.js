@@ -53,14 +53,6 @@ export const captionClip = (id, data) => (dispatch, getState) => {
 };
 
 export const trimClip = (id, body) => (dispatch, getState) => {
-  // console.log("trimClip called");
-  // for (var pair of body.entries()) {
-  //   console.log(pair[0]+ ', ' + pair[1]);
-  // }
-  // console.log(id);
-
-  console.log("id: ", id);
-  console.log("body: ", body);
   axios
     // Attach token to request in the header
     .post(`/api/edit/trim/${id}`, body, tokenConfig2(getState), {
@@ -75,10 +67,6 @@ export const trimClip = (id, body) => (dispatch, getState) => {
 };
 
 export const transitionClip = (id, data) => (dispatch, getState) => {
-  console.log("id: ", id);
-  console.log("data: ", data.get("transitionType"));
-  console.log("data: ", data.get("transitionStartFrame"));
-  console.log("data: ", data.get("transitionEndFrame"));
   axios
     .post(`/api/edit/transition/${id}`, data, tokenConfig2(getState), {
       headers: {
