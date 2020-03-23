@@ -19,6 +19,7 @@ export const SET_ITEM_ONE_RANGE = "SET_ITEM_ONE_RANGE";
 export const SET_ITEM_TWO_RANGE = "SET_ITEM_TWO_RANGE";
 export const MERGE_CLIP = "MERGE_CLIP";
 export const TRIM_CLIP = "TRIM_CLIP";
+export const TRANSITION_CLIP = "TRANSITION_CLIP";
 
 export const SET_SYNC = "SET_SYNC";
 export const SET_DURATION_ONE = "SET_DURATION_ONE";
