@@ -53,6 +53,7 @@ export default function(state = initialState, action) {
         items: action.payload
       };
     case TRANSITION_CLIP:
+      console.log("editReducer transition: ", action.payload);
       return {
         ...state,
         items: action.payload

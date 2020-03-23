@@ -456,12 +456,14 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
 router.post("/transition/:id", auth, (req, res) => {
+  // console.log("Got to transition backend");
+  console.log("req.body.transitionType", req.body.transitionType);
   res.set("Content-Type", "text/plain");
   let transitionType = req.body.transitionType;
-  console.log;
-  if (!req.body.transitionType)
+  if (!req.body.transitionType) {
+    console.log(req.body.transitionType);
     return res.status(400).end("transition type required");
-
+  }
   gfs_prim.then(function(gfs) {
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({

@@ -87,7 +87,9 @@ class EditOption extends React.Component {
   transition_dropdownSubmit = selectItemOne => {
     let bodyFormData = new FormData();
     bodyFormData.append("vid_id", selectItemOne);
-    bodyFormData.append("transition_type", this.state.transition_dropdownValue);
+    // console.log(this.state.transition_dropdownValue);
+    bodyFormData.append("transitionType", this.state.transition_dropdownValue);
+    console.log(bodyFormData.get("transitionType"));
 
     // Add transition effects through an item action
     this.props.transitionClip(selectItemOne, bodyFormData);
