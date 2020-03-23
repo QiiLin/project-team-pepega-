@@ -48,6 +48,7 @@ export default function(state = initialState, action) {
         items: action.payload
       };
     case TRIM_CLIP:
+      console.log("editReducer trimclip: ", action.payload);
       return {
         ...state,
         items: action.payload

@@ -5,7 +5,9 @@ import {
   Button,
   InputLabel,
   MenuItem,
-  Box
+  Box,
+  Input,
+  Tooltip
 } from "@material-ui/core";
 import MergeTypeIcon from "@material-ui/icons/MergeType";
 import {
@@ -17,6 +19,7 @@ import {
   transitionClip
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
+import { HelpIcon } from "@material-ui/icons/Help";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
@@ -40,12 +43,22 @@ String.prototype.toHHMMSS = function() {
   return hours + ":" + minutes + ":" + seconds;
 };
 
+let createStringOptions = () => {
+  let options = [];
+  for (let i = 0; i < 100; i++) {
+    options.push(i.toString());
+  }
+  return options;
+};
+
 class EditOption extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       merge_dropdownValue: "",
-      transition_dropdownValue: ""
+      transition_dropdownValue: "",
+      transition_startFrame: "",
+      transition_endFrame: ""
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
@@ -89,7 +102,11 @@ class EditOption extends React.Component {
     bodyFormData.append("vid_id", selectItemOne);
     // console.log(this.state.transition_dropdownValue);
     bodyFormData.append("transitionType", this.state.transition_dropdownValue);
-    // console.log(bodyFormData.get("transitionType"));
+    bodyFormData.append(
+      "transitionStartFrame",
+      this.state.transition_startFrame
+    );
+    bodyFormData.append("transitionEndFrame", this.state.transition_endFrame);
 
     // Add transition effects through an item action
     this.props.transitionClip(selectItemOne, bodyFormData);
@@ -99,6 +116,22 @@ class EditOption extends React.Component {
     this.setState(() => {
       return {
         transition_dropdownValue: event.target.value
+      };
+    });
+  };
+
+  transition_startFrameChanged = event => {
+    this.setState(() => {
+      return {
+        transition_startFrame: event.target.value
+      };
+    });
+  };
+
+  transition_endFrameChanged = event => {
+    this.setState(() => {
+      return {
+        transition_endFrame: event.target.value
       };
     });
   };
@@ -177,9 +210,12 @@ class EditOption extends React.Component {
               alignItems="flex-start"
             >
               <InputLabel>Add Transition Effect</InputLabel>
+              {/* <Tooltip title="To add a transition effect, indicate the start and end frame in the format of dd (eg. 00, 30)"> */}
+              {/* <HelpIcon /> */}
+              {/* </Tooltip> */}
               <Select
                 className="transition-dropdown"
-                style={{ minWidth: 180 }}
+                style={{ minWidth: 180, marginBottom: 10 }}
                 value={this.state.transition_dropdownValue}
                 onChange={this.transition_dropdownChanged}
               >
@@ -193,6 +229,37 @@ class EditOption extends React.Component {
                   </MenuItem>
                 ))}
               </Select>
+              {this.state.transition_dropdownValue ? (
+                <div>
+                  <InputLabel>Add Transition Start Frame</InputLabel>
+                  <Select
+                    id="startFrame"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_startFrame}
+                    onChange={this.transition_startFrameChanged}
+                  >
+                    {createStringOptions().map(option => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <InputLabel>Add Transition End Frame</InputLabel>
+                  <Select
+                    id="endFrame"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_endFrame}
+                    onChange={this.transition_endFrameChanged}
+                  >
+                    {createStringOptions().map(option => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </div>
+              ) : null}
+
               <Button
                 variant="contained"
                 color="primary"
