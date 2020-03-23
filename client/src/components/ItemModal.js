@@ -65,7 +65,7 @@ class ItemModal extends Component {
         {this.props.isAuthenticated ? (
           <Button
             color="dark"
-            style={{ marginBottom: "2rem" }}
+            style={{ marginBottom: "150px" }}
             onClick={this.toggle}
           >
             Add Video
