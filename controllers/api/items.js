@@ -2,24 +2,46 @@ const express = require("express");
 const router = express.Router();
 
 const {gfs_prim, upload} = require('../../middleware/gridSet');
+const mongoose = require("mongoose");
 const auth = require("../../middleware/auth");
+const Item = require("../../models/Item");
+const _ = require("underscore");
 
 // @route POST /upload
 // @desc  Uploads file to DB
 router.post('/upload', upload.single('video'), auth, (req, res) => {
-  let uploaded_file = req.file;
-  console.log("Uploaded file: ", uploaded_file);
+  console.log("Uploaded file: ", req.file);
+
+  /*gfs_prim.then(function (gfs) {
+    gfs.files.findOne({ filename: req.file.filename }, (err, file) => {
+      // Check if file
+      if (!file || file.length === 0) {
+        return res.status(404).json({
+          err: 'No file exists'
+        });
+      }
+    });
+  });*/
+  console.log(req.body.uploader_id, typeof(req.body.uploader_id), mongoose.Types.ObjectId(req.body.uploader_id))
   const newItem = new Item({
-    uploader_id: req.body.uploader_id,
-    originalname: uploaded_file.originalname,
-    file_name: uploaded_file.filename,
-    file_path: uploaded_file.path 
+    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
+    gfs_id: mongoose.Types.ObjectId(req.file.id),
+    originalname: req.file.originalname,
+    file_path: req.file.path 
   });
-  res.json({ file: req.file });
+  newItem.save();
+  const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
+  return res.json({"_id": id,
+    "uploadDate": uploadDate,
+    "filename": filename,
+    "md5": md5,
+    "contentType": contentType,
+    "uploader_id": mongoose.Types.ObjectId(req.body.uploader_id),
+    "originalname": originalname});
 });
 
 
-// @route GET /files
+// @route GET /api/items
 // @desc  Display all files in JSON
 router.get('/', auth, (req, res) => {
   gfs_prim.then(function (gfs) {
@@ -31,15 +53,28 @@ router.get('/', auth, (req, res) => {
         });
       }
       console.log("get item is called");
-      // Files exist
-      return res.json(files);
+      // Files 
+      
+      Item.find({}, function(err, filesMetadata){
+        let itm = _.map(files, function(file){ 
+          let metadata = _.find(filesMetadata, function(fileMetadataRes){ //match gfs_id of metadata collection to _id of gridfs collection
+            return fileMetadataRes.gfs_id.toString() === file._id.toString(); //toString gets rid of mongoose objectid type
+          });
+          //add fields from metadata collection
+          file.uploader_id = metadata ? metadata.uploader_id : '';
+          file.originalname = metadata ? metadata.originalname : '';
+          return file; 
+        });
+        return res.json(itm);
+      });
+      //return res.json(files);
     });
   });
 });
 
-// @route GET /files/:filename
+// @route GET /api/items/:id
 // @desc  Display single file object
-router.get('/:filename', (req, res) => {
+router.get('/:id', (req, res) => {
   // gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
   //     // Check if file
   //     if (!file || file.length === 0) {
@@ -47,12 +82,22 @@ router.get('/:filename', (req, res) => {
   //             err: 'No file exists'
   //         });
   //     }
+  // // Check if image
+  // // if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
+  // // Read output to browser
+  // // } else {
+  // //     res.status(404).json({
+  // //         err: 'Not an image'
+  // //     });
+  // // }
   //     // File exists
   //     return res.json(file);
   // });
-  console.log("start getting ", req.params.filename );
+  //console.log("start getting ", req.params.id, req.params._id, mongoose.Types.ObjectId(req.params.id), mongoose.Types.ObjectId(req.params._id), req.params.filename  );
   gfs_prim.then(function (gfs) {
-    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+    //gfs.files.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }, (err, file) => {
+    console.log(req.params.id, "B");
+    gfs.files.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
         return res.status(404).json({
@@ -62,19 +107,16 @@ router.get('/:filename', (req, res) => {
 
       console.log("mid getting");
 
-      // Check if image
-      // if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
-      // Read output to browser
       const readstream = gfs.createReadStream(file.filename);
       readstream.pipe(res);
+      readstream.on('end', function() {
+        const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
+        readstreamMetadata.pipe(res);
+      });
       console.log("done getting");
       return;
-      // } else {
-      //     res.status(404).json({
-      //         err: 'Not an image'
-      //     });
-      // }
     });
+    
 
 
     // TODO:  TRY THIS the below doesn't work
@@ -101,14 +143,20 @@ router.get('/:filename', (req, res) => {
 // @route DELETE /files/:id
 // @desc  Delete file
 router.delete('/:id', (req, res) => {
+  console.log(req.params.id, typeof(req.params.id), "f");
   gfs_prim.then(function (gfs) {
-    gfs.remove({ _id: req.params.id, root: 'fs' }, (err, gridStore) => {
+    gfs.remove({ _id: mongoose.Types.ObjectId(req.params.id), root: 'fs' }, (err, gridStore) => {
       if (err) {
         return res.status(404).json({ err: err });
       }
-      return res.status(200).json("delete done");
+
+      Item.deleteOne({ gfs_id : mongoose.Types.ObjectId(req.params.id)})
+      .then(() => {
+        return res.status(200).json("delete done");
+      }).catch(err => res.status(404).json({ err: err }));;      
     });
-  });
+  }); 
+  
 });
 
 
