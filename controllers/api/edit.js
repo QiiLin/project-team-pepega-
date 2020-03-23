@@ -455,7 +455,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
 // @route  POST /api/edit/transition/:id/
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
-router.post("/transition/:id", auth, (req, res) => {
+router.post("/transition/:id", upload.none(), (req, res) => {
   // console.log("Got to transition backend");
   console.log("req.body.transitionType", req.body.transitionType);
   res.set("Content-Type", "text/plain");
