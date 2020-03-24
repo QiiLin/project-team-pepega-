@@ -107,10 +107,10 @@ class EditOption extends React.Component {
     // console.log(this.state.transition_dropdownValue);
     bodyFormData.append("transitionType", this.state.transition_dropdownValue);
     bodyFormData.append(
-      "transition_startFrame",
+      "transitionStartFrame",
       this.state.transition_startFrame
     );
-    bodyFormData.append("transition_endFrame", this.state.transition_endFrame);
+    bodyFormData.append("transitionEndFrame", this.state.transition_endFrame);
     bodyFormData.append(
       "transition_paddingVidWidth",
       this.state.transition_paddingVidWidth
