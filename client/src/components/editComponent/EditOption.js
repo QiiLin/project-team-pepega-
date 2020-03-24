@@ -261,7 +261,62 @@ class EditOption extends React.Component {
               ) : null}
 
               {this.state.transition_dropdownValue.includes("pad") ? (
-                <div></div>
+                <div>
+                  <InputLabel>Add Video Width</InputLabel>
+                  <Input
+                    id="padVidWidth"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_paddingVidWidth}
+                    onChange={this.transition_paddingVidWidthChanged}
+                  ></Input>
+
+                  <InputLabel>Add Video Height</InputLabel>
+                  <Input
+                    id="padVidHeight"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_paddingVidHeight}
+                    onChange={this.transition_paddingVidHeightChanged}
+                  ></Input>
+                  <InputLabel>Add Row</InputLabel>
+                  <Select
+                    id="row"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_paddingVidRow}
+                    onChange={this.transition_paddingVidRowChanged}
+                  >
+                    {createStringOptions().map(option => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <InputLabel>Add Column</InputLabel>
+                  <Select
+                    id="col"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.transition_paddingVidCol}
+                    onChange={this.transition_paddingVidColChanged}
+                  >
+                    {createStringOptions().map(option => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <InputLabel>Add Color</InputLabel>
+                  <Select
+                    id="color"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_paddingColor}
+                    onChange={this.transition_paddingColorChanged}
+                  >
+                    {colors.map(color => (
+                      <MenuItem key={color} value={color}>
+                        {color}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </div>
               ) : null}
 
               <Button
