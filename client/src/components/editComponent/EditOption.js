@@ -58,7 +58,12 @@ class EditOption extends React.Component {
       merge_dropdownValue: "",
       transition_dropdownValue: "",
       transition_startFrame: "",
-      transition_endFrame: ""
+      transition_endFrame: "",
+      transition_paddingVidWidth: "",
+      transition_paddingVidHeight: "",
+      transition_paddingVidRow: "",
+      transition_paddingVidCol: "",
+      transition_paddingColor: ""
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
@@ -107,6 +112,26 @@ class EditOption extends React.Component {
       this.state.transition_startFrame
     );
     bodyFormData.append("transitionEndFrame", this.state.transition_endFrame);
+    bodyFormData.append(
+      "transition_paddingVidWidth",
+      this.state.transition_paddingVidWidth
+    );
+    bodyFormData.append(
+      "transition_paddingVidHeight",
+      this.state.transition_paddingVidHeight
+    );
+    bodyFormData.append(
+      "transition_paddingColor",
+      this.state.transition_paddingColor
+    );
+    bodyFormData.append(
+      "transition_paddingVidRow",
+      this.state.transition_paddingVidRow
+    );
+    bodyFormData.append(
+      "transition_paddingVidCol",
+      this.state.transition_paddingVidCol
+    );
 
     // Add transition effects through an item action
     this.props.transitionClip(selectItemOne, bodyFormData);
@@ -136,6 +161,51 @@ class EditOption extends React.Component {
     });
   };
 
+  transition_paddingVidWidthChanged = event => {
+    event.persist();
+    this.setState(() => {
+      return {
+        transition_paddingVidWidth: event.target.value
+      };
+    });
+  };
+
+  transition_paddingVidHeightChanged = event => {
+    event.persist();
+    this.setState(() => {
+      return {
+        transition_paddingVidHeight: event.target.value
+      };
+    });
+  };
+
+  transition_paddingColorChanged = event => {
+    event.persist();
+    this.setState(() => {
+      return {
+        transition_paddingColor: event.target.value
+      };
+    });
+  };
+
+  transition_paddingVidColChanged = event => {
+    console.log(event);
+    this.setState(() => {
+      return {
+        transition_paddingVidCol: event.target.value
+      };
+    });
+  };
+
+  transition_paddingVidRowChanged = event => {
+    console.log(event);
+    this.setState(() => {
+      return {
+        transition_paddingVidRow: event.target.value
+      };
+    });
+  };
+
   addCaption = () => {
     const { videoOneSelection } = this.props.item;
     const { captionValue, captions } = this.props.edit;
@@ -156,11 +226,22 @@ class EditOption extends React.Component {
     const { captions } = this.props.edit;
     this.props.captionClip(selectItemOne, captions);
   };
+
   render() {
     // console.log(this.props.item);
     // console.log(this.props.item.videoOneSelection);
     const { items, selectItemOne } = this.props.item;
     const transitionTypes = ["fade=in", "fade=out", "pad"];
+    const colors = [
+      "red",
+      "green",
+      "blue",
+      "yellow",
+      "violet",
+      "black",
+      "white",
+      "cyans"
+    ];
     return (
       <div>
         <Grid key="merge_grid" container>
@@ -229,7 +310,8 @@ class EditOption extends React.Component {
                   </MenuItem>
                 ))}
               </Select>
-              {this.state.transition_dropdownValue ? (
+              {/* If the user chose fade=in or fade=out */}
+              {this.state.transition_dropdownValue.includes("fade") ? (
                 <div>
                   <InputLabel>Add Transition Start Frame</InputLabel>
                   <Select
@@ -260,6 +342,65 @@ class EditOption extends React.Component {
                 </div>
               ) : null}
 
+              {/* If the user chooses pad */}
+              {this.state.transition_dropdownValue.includes("pad") ? (
+                <div>
+                  <InputLabel>Add Video Width</InputLabel>
+                  <Input
+                    id="padVidWidth"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_paddingVidWidth}
+                    onChange={this.transition_paddingVidWidthChanged}
+                  ></Input>
+
+                  <InputLabel>Add Video Height</InputLabel>
+                  <Input
+                    id="padVidHeight"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_paddingVidHeight}
+                    onChange={this.transition_paddingVidHeightChanged}
+                  ></Input>
+                  <InputLabel>Add Row</InputLabel>
+                  <Select
+                    id="row"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_paddingVidRow}
+                    onChange={this.transition_paddingVidRowChanged}
+                  >
+                    {createStringOptions().map(option => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <InputLabel>Add Column</InputLabel>
+                  <Select
+                    id="col"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.transition_paddingVidCol}
+                    onChange={this.transition_paddingVidColChanged}
+                  >
+                    {createStringOptions().map(option => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <InputLabel>Add Color</InputLabel>
+                  <Select
+                    id="color"
+                    style={{ minWidth: 180, marginBottom: 10 }}
+                    value={this.state.transition_paddingColor}
+                    onChange={this.transition_paddingColorChanged}
+                  >
+                    {colors.map(color => (
+                      <MenuItem key={color} value={color}>
+                        {color}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </div>
+              ) : null}
               <Button
                 variant="contained"
                 color="primary"
