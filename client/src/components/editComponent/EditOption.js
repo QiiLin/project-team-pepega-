@@ -60,7 +60,9 @@ class EditOption extends React.Component {
       transition_startFrame: "",
       transition_endFrame: "",
       transition_paddingVidWidth: "",
-      transition_paddingVidHeight: ""
+      transition_paddingVidHeight: "",
+      transition_paddingRow: "",
+      transition_paddingCol: ""
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
@@ -105,10 +107,10 @@ class EditOption extends React.Component {
     // console.log(this.state.transition_dropdownValue);
     bodyFormData.append("transitionType", this.state.transition_dropdownValue);
     bodyFormData.append(
-      "transitionStartFrame",
+      "transition_startFrame",
       this.state.transition_startFrame
     );
-    bodyFormData.append("transitionEndFrame", this.state.transition_endFrame);
+    bodyFormData.append("transition_endFrame", this.state.transition_endFrame);
     bodyFormData.append(
       "transition_paddingVidWidth",
       this.state.transition_paddingVidWidth
@@ -117,9 +119,21 @@ class EditOption extends React.Component {
       "transition_paddingVidHeight",
       this.state.transition_paddingVidHeight
     );
+    bodyFormData.append(
+      "transition_paddingRow",
+      this.state.transition_paddingRow
+    );
+    bodyFormData.append(
+      "transition_paddingCol",
+      this.state.transition_paddingCol
+    );
 
-    console.log(this.state.transition_paddingVidWidth);
-    console.log(this.state.transition_paddingVidHeight);
+    console.log(this.state.transition_paddingRow);
+    console.log(bodyFormData.get("transition_paddingRow"));
+    console.log(this.state.transition_paddingCol);
+    console.log(bodyFormData.get("transition_paddingCol"));
+    console.log(bodyFormData.get("transition_startFrame"));
+    console.log(bodyFormData.get("transition_endFrame"));
 
     // Add transition effects through an item action
     this.props.transitionClip(selectItemOne, bodyFormData);
@@ -150,6 +164,7 @@ class EditOption extends React.Component {
   };
 
   transition_paddingVidWidthChanged = event => {
+    event.persist();
     this.setState(() => {
       return {
         transition_paddingVidWidth: event.target.value
@@ -158,9 +173,26 @@ class EditOption extends React.Component {
   };
 
   transition_paddingVidHeightChanged = event => {
+    event.persist();
     this.setState(() => {
       return {
         transition_paddingVidHeight: event.target.value
+      };
+    });
+  };
+
+  transition_paddingRowChanged = event => {
+    this.setState(() => {
+      return {
+        transition_paddingRow: event.target.value
+      };
+    });
+  };
+
+  transition_paddingColChanged = event => {
+    this.setState(() => {
+      return {
+        transition_paddingCol: event.target.value
       };
     });
   };
@@ -321,7 +353,7 @@ class EditOption extends React.Component {
                     id="row"
                     style={{ minWidth: 180, marginBottom: 10 }}
                     value={this.state.transition_paddingVidRow}
-                    onChange={this.transition_paddingVidRowChanged}
+                    onChange={this.transition_paddingRowChanged}
                   >
                     {createStringOptions().map(option => (
                       <MenuItem key={option} value={option}>
@@ -334,7 +366,7 @@ class EditOption extends React.Component {
                     id="col"
                     style={{ minWidth: 180, marginBottom: 10 }}
                     value={this.transition_paddingVidCol}
-                    onChange={this.transition_paddingVidColChanged}
+                    onChange={this.transition_paddingColChanged}
                   >
                     {createStringOptions().map(option => (
                       <MenuItem key={option} value={option}>

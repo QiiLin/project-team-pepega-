@@ -77,8 +77,8 @@ export const trimClip = (id, body) => (dispatch, getState) => {
 export const transitionClip = (id, data) => (dispatch, getState) => {
   console.log("id: ", id);
   console.log("data: ", data.get("transitionType"));
-  console.log("data: ", data.get("transitionStartFrame"));
-  console.log("data: ", data.get("transitionEndFrame"));
+  console.log("data: ", data.get("transition_startFrame"));
+  console.log("data: ", data.get("transition_endFrame"));
   axios
     .post(`/api/edit/transition/${id}`, data, tokenConfig2(getState), {
       headers: {
