@@ -56,6 +56,7 @@ class VideoList extends Component {
 
   render() {
     const { items } = this.props.item;
+    console.log(items);
     return (
       <div>
         <Nav tabs>

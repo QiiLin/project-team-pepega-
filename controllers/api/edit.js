@@ -466,9 +466,12 @@ router.post("/transition/:id", upload.none(), (req, res) => {
   if (!req.body.transitionType) {
     return res.status(400).end("transition type required");
   } else if (req.body.transitionType === "pad") {
-    transitionType = `${req.body.transitionType}=${req.body.transition_paddingVidWidth}:${req.body.transition_paddingVidHeight}:${req.body.transition_paddingVidCol}:${req.body.transition_paddingVidRow}:${req.body.transition_paddingColor}`;
+    transitionType = `${req.body.transitionType}=${req.body.transition_paddingVidWidth}:\
+                      ${req.body.transition_paddingVidHeight}:${req.body.transition_paddingVidCol}:\
+                      ${req.body.transition_paddingVidRow}:${req.body.transition_paddingColor}`;
   } else {
-    transitionType = `${req.body.transitionType}:${req.body.transitionStartFrame}:${req.body.transitionEndFrame}`;
+    transitionType = `${req.body.transitionType}:${req.body.transitionStartFrame}:\
+                      ${req.body.transitionEndFrame}`;
   }
   console.log(transitionType);
   gfs_prim.then(function(gfs) {
