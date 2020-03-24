@@ -180,7 +180,6 @@ class EditOption extends React.Component {
   };
 
   transition_paddingColorChanged = event => {
-    event.persist();
     this.setState(() => {
       return {
         transition_paddingColor: event.target.value
