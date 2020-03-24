@@ -18,7 +18,7 @@ const { PassThrough, Duplex } = require("stream");
 
 function retrivePromise(id, gfs) {
   return new Promise(function(resolve, reject) {
-    gfs.files.findOne({ _id: mongoose.Types.ObjectId(id) }, (err, file) => {
+    gfs.files.findOne({ filename: id }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
         return reject("fail fetch", id);

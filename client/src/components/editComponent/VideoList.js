@@ -102,8 +102,8 @@ class VideoList extends Component {
                     </Button>
                     <Box m={0.5} />
                     <CardTitle>{filename}</CardTitle>
-                    <Player key={_id}>
-                      <source src={"api/items/" + _id} />
+                    <Player key={filename}>
+                      <source src={"api/items/" + filename} />
                       <Shortcut
                         clickable={false}
                         dblclickable={false}
@@ -119,7 +119,7 @@ class VideoList extends Component {
                         color="primary"
                         endIcon={<VideoLibraryIcon />}
                         onClick={() => {
-                          this.props.setSelectItemOne(_id);
+                          this.props.setSelectItemOne(filename);
                         }}
                       >
                         Load to player one
@@ -130,7 +130,7 @@ class VideoList extends Component {
                         color="primary"
                         endIcon={<VideoLibraryIcon />}
                         onClick={() => {
-                          this.props.setSelectItemTwo(_id);
+                          this.props.setSelectItemTwo(filename);
                         }}
                       >
                         Load to player two
