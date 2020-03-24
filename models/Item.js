@@ -17,12 +17,12 @@ const ItemSchema = new Schema({
   },
   thumbnail: {
     type: Buffer,
-    required: false
+    required: true
   },  
-  /*date: {
+  date: {
     type: Date,
     default: Date.now
-  }*/
+  }
 });
 
 module.exports = Item = mongoose.model("item", ItemSchema);

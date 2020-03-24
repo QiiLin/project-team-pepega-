@@ -88,7 +88,7 @@ class VideosList extends Component {
 
                   ) : null}
                   <Player>
-                    <source src={"api/items/" + _id} />
+                    <source src={"api/items/" + file_name} />
                   </Player>
                 </ListGroupItem>
               </CSSTransition>
