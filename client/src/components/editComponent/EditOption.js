@@ -229,7 +229,7 @@ class EditOption extends React.Component {
                   </MenuItem>
                 ))}
               </Select>
-              {this.state.transition_dropdownValue ? (
+              {this.state.transition_dropdownValue.includes("fade") ? (
                 <div>
                   <InputLabel>Add Transition Start Frame</InputLabel>
                   <Select
@@ -258,6 +258,10 @@ class EditOption extends React.Component {
                     ))}
                   </Select>
                 </div>
+              ) : null}
+
+              {this.state.transition_dropdownValue.includes("pad") ? (
+                <div></div>
               ) : null}
 
               <Button
