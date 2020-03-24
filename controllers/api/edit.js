@@ -456,16 +456,19 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
 router.post("/transition/:id", upload.none(), (req, res) => {
+  console.log(req.body.transition_paddingVidWidth);
+  console.log(req.body.transition_paddingVidHeight);
+  console.log(req.body.transition_paddingColor);
+  console.log(req.body.transition_paddingVidRow);
+  console.log(req.body.transition_paddingVidCol);
+  let transitionType;
   res.set("Content-Type", "text/plain");
-  let transitionType = `${req.body.transitionType}:${req.body.transitionStartFrame}:${req.body.transitionEndFrame}`;
-  if (
-    !req.body.transitionType ||
-    !req.body.transitionStartFrame ||
-    !req.body.transitionEndFrame
-  ) {
-    return res
-      .status(400)
-      .end("transition type, start frame, and end frame are required");
+  if (!req.body.transitionType) {
+    return res.status(400).end("transition type required");
+  } else if (req.body.transitionType === "pad") {
+    transitionType = `${req.body.transitionType}=${req.body.transition_paddingVidWidth}:${req.body.transition_paddingVidHeight}:${req.body.transition_paddingVidCol}:${req.body.transition_paddingVidRow}`;
+  } else {
+    transitionType = `${req.body.transitionType}:${req.body.transitionStartFrame}:${req.body.transitionEndFrame}`;
   }
   gfs_prim.then(function(gfs) {
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
