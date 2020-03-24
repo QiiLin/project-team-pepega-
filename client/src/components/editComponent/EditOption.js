@@ -58,7 +58,9 @@ class EditOption extends React.Component {
       merge_dropdownValue: "",
       transition_dropdownValue: "",
       transition_startFrame: "",
-      transition_endFrame: ""
+      transition_endFrame: "",
+      transition_paddingVidWidth: "",
+      transition_paddingVidHeight: ""
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
@@ -107,6 +109,17 @@ class EditOption extends React.Component {
       this.state.transition_startFrame
     );
     bodyFormData.append("transitionEndFrame", this.state.transition_endFrame);
+    bodyFormData.append(
+      "transition_paddingVidWidth",
+      this.state.transition_paddingVidWidth
+    );
+    bodyFormData.append(
+      "transition_paddingVidHeight",
+      this.state.transition_paddingVidHeight
+    );
+
+    console.log(this.state.transition_paddingVidWidth);
+    console.log(this.state.transition_paddingVidHeight);
 
     // Add transition effects through an item action
     this.props.transitionClip(selectItemOne, bodyFormData);
@@ -136,6 +149,22 @@ class EditOption extends React.Component {
     });
   };
 
+  transition_paddingVidWidthChanged = event => {
+    this.setState(() => {
+      return {
+        transition_paddingVidWidth: event.target.value
+      };
+    });
+  };
+
+  transition_paddingVidHeightChanged = event => {
+    this.setState(() => {
+      return {
+        transition_paddingVidHeight: event.target.value
+      };
+    });
+  };
+
   addCaption = () => {
     const { videoOneSelection } = this.props.item;
     const { captionValue, captions } = this.props.edit;
@@ -161,6 +190,16 @@ class EditOption extends React.Component {
     // console.log(this.props.item.videoOneSelection);
     const { items, selectItemOne } = this.props.item;
     const transitionTypes = ["fade=in", "fade=out", "pad"];
+    const colors = [
+      "red",
+      "green",
+      "blue",
+      "yellow",
+      "violet",
+      "black",
+      "white",
+      "cyans"
+    ];
     return (
       <div>
         <Grid key="merge_grid" container>
