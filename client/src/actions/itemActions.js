@@ -7,7 +7,8 @@ import {
   SET_SELECTED_ITEM_ONE,
   SET_SELECTED_ITEM_TWO,
   SET_ITEM_ONE_RANGE,
-  SET_ITEM_TWO_RANGE
+  SET_ITEM_TWO_RANGE,
+  SET_PROGRESS_BAR
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
@@ -97,3 +98,7 @@ export const setVideoTwoRange = range => {
     payload: range
   };
 };
+export const setProgressBar = isOpen => ({
+  type: SET_PROGRESS_BAR,
+  isOpen: isOpen
+});

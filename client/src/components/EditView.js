@@ -6,6 +6,7 @@ import VideoCaptionInput from "./VideoCaptionInput";
 import TimeLineSector from "./editComponent/TimeLineSector";
 import EditOption from "./editComponent/EditOption";
 import { setVideoOneRange, setVideoTwoRange } from "../actions/itemActions";
+import TopBarProgress from "react-topbar-progress-indicator";
 import { connect } from "react-redux";
 class EditView extends React.Component {
   constructor(props) {
@@ -29,6 +30,7 @@ class EditView extends React.Component {
       <div>
         {this.props.isAuthenticated ? (
           <Container>
+            <TopBarProgress />
             <Row>
               <Col>
                 <VideoList />
