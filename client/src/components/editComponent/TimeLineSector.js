@@ -65,7 +65,7 @@ class TimeLineSector extends React.Component {
           onChange={this.handleChange}
           valueLabelDisplay="auto"
           aria-labelledby="range-slider"
-          valueLabelDisplay="auto"
+          getAriaValueText={valuetext}
         />
       </div>
     );
