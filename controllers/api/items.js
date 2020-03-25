@@ -1,33 +1,46 @@
 const express = require("express");
 const router = express.Router();
 
-const {gfs_prim, upload} = require('../../middleware/gridSet');
+const { gfs_prim, upload } = require("../../middleware/gridSet");
 const auth = require("../../middleware/auth");
 
 // @route POST /upload
 // @desc  Uploads file to DB
-router.post('/upload', upload.single('video'), auth, (req, res) => {
-  let uploaded_file = req.file;
-  console.log("Uploaded file: ", uploaded_file);
+router.post("/upload", upload.single("video"), auth, (req, res) => {
+  console.log("Uploaded file: ", req.file);
+
+  gfs_prim.then(function(gfs) {
+    gfs.files.findOne(
+      { _id: mongoose.Types.ObjectId(req.file.id) },
+      (err, file) => {
+        // Check if file
+        if (!file || file.length === 0) {
+          return res.status(404).json({
+            err: "No file exists"
+          });
+        }
+      }
+    );
+  });
+
   const newItem = new Item({
     uploader_id: req.body.uploader_id,
     originalname: uploaded_file.originalname,
     file_name: uploaded_file.filename,
-    file_path: uploaded_file.path 
+    file_path: uploaded_file.path
   });
   res.json({ file: req.file });
 });
 
-
 // @route GET /files
 // @desc  Display all files in JSON
-router.get('/', auth, (req, res) => {
-  gfs_prim.then(function (gfs) {
+router.get("/", auth, (req, res) => {
+  gfs_prim.then(function(gfs) {
     gfs.files.find().toArray((err, files) => {
       // Check if files
       if (!files || files.length === 0) {
         return res.status(404).json({
-          err: 'No files exist'
+          err: "No files exist"
         });
       }
       console.log("get item is called");
@@ -39,7 +52,7 @@ router.get('/', auth, (req, res) => {
 
 // @route GET /files/:filename
 // @desc  Display single file object
-router.get('/:filename', (req, res) => {
+router.get("/:filename", (req, res) => {
   // gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
   //     // Check if file
   //     if (!file || file.length === 0) {
@@ -50,32 +63,34 @@ router.get('/:filename', (req, res) => {
   //     // File exists
   //     return res.json(file);
   // });
-  console.log("start getting ", req.params.filename );
-  gfs_prim.then(function (gfs) {
-    gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-      // Check if file
-      if (!file || file.length === 0) {
-        return res.status(404).json({
-          err: 'No file exists'
-        });
+  console.log("start getting ", req.params.filename);
+  gfs_prim.then(function(gfs) {
+    gfs.files.findOne(
+      { _id: mongoose.Types.ObjectId(req.params.id) },
+      (err, file) => {
+        // Check if file
+        if (!file || file.length === 0) {
+          return res.status(404).json({
+            err: "No file exists"
+          });
+        }
+
+        console.log("mid getting");
+
+        // Check if image
+        // if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
+        // Read output to browser
+        const readstream = gfs.createReadStream(file.filename);
+        readstream.pipe(res);
+        console.log("done getting");
+        return;
+        // } else {
+        //     res.status(404).json({
+        //         err: 'Not an image'
+        //     });
+        // }
       }
-
-      console.log("mid getting");
-
-      // Check if image
-      // if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
-      // Read output to browser
-      const readstream = gfs.createReadStream(file.filename);
-      readstream.pipe(res);
-      console.log("done getting");
-      return;
-      // } else {
-      //     res.status(404).json({
-      //         err: 'Not an image'
-      //     });
-      // }
-    });
-
+    );
 
     // TODO:  TRY THIS the below doesn't work
     // let file_id = req.params.filename;
@@ -100,9 +115,9 @@ router.get('/:filename', (req, res) => {
 
 // @route DELETE /files/:id
 // @desc  Delete file
-router.delete('/:id', (req, res) => {
-  gfs_prim.then(function (gfs) {
-    gfs.remove({ _id: req.params.id, root: 'fs' }, (err, gridStore) => {
+router.delete("/:id", (req, res) => {
+  gfs_prim.then(function(gfs) {
+    gfs.remove({ _id: req.params.id, root: "fs" }, (err, gridStore) => {
       if (err) {
         return res.status(404).json({ err: err });
       }
@@ -110,10 +125,6 @@ router.delete('/:id', (req, res) => {
     });
   });
 });
-
-
-
-
 
 // ---------------------------stuff below are old code-----//
 // // @route  GET /api/items

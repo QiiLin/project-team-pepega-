@@ -267,7 +267,7 @@ class EditOption extends React.Component {
                   <MenuItem
                     className="edit-dropdown-item"
                     key={_id}
-                    value={filename}
+                    value={_id}
                   >
                     {filename}
                   </MenuItem>

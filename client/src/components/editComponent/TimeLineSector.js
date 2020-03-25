@@ -59,8 +59,8 @@ class TimeLineSector extends React.Component {
           min={0}
           max={
             this.props.videoReference === "1"
-              ? roundUp(durationVideoOne)
-              : roundUp(durationVideoTwo)
+              ? roundUp(durationVideoOne ? durationVideoOne : 0)
+              : roundUp(durationVideoTwo ? durationVideoTwo : 0)
           }
           onChange={this.handleChange}
           valueLabelDisplay="auto"
