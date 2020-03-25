@@ -6,6 +6,8 @@ import VideoCaptionInput from "./VideoCaptionInput";
 import TimeLineSector from "./editComponent/TimeLineSector";
 import EditOption from "./editComponent/EditOption";
 import { setVideoOneRange, setVideoTwoRange } from "../actions/itemActions";
+import TopBarProgress from "react-topbar-progress-indicator";
+import { HandleProgressBar } from "./ProgressBar";
 import { connect } from "react-redux";
 class EditView extends React.Component {
   constructor(props) {
@@ -29,6 +31,7 @@ class EditView extends React.Component {
       <div>
         {this.props.isAuthenticated ? (
           <Container>
+            <TopBarProgress />
             <Row>
               <Col>
                 <VideoList />
@@ -88,6 +91,8 @@ const mapStateToProps = state => ({
   isAuthenticated: state.auth.isAuthenticated
 });
 
-export default connect(mapStateToProps, { setVideoOneRange, setVideoTwoRange })(
-  EditView
-);
+export default connect(mapStateToProps, {
+  setVideoOneRange,
+  setVideoTwoRange,
+  HandleProgressBar
+})(EditView);
