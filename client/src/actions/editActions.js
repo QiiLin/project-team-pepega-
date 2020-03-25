@@ -1,21 +1,20 @@
 import axios from "axios";
 import {
-    MERGE_CLIP,
-    TRIM_CLIP,
-    SET_SYNC,
-    SET_DURATION_ONE,
-    SET_DURATION_TWO,
-    ADD_CAPTION,
-    SET_CAPTION,
-    RESET_CAPTION,
-    DELETE_CAPTION
+  MERGE_CLIP,
+  TRIM_CLIP,
+  SET_SYNC,
+  SET_DURATION_ONE,
+  SET_DURATION_TWO,
+  ADD_CAPTION,
+  SET_CAPTION,
+  RESET_CAPTION,
+  DELETE_CAPTION
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 import { getItems } from "./itemActions";
 
 export const mergeClip = ids => (dispatch, getState) => {
-  console.log("mergeItem called");
   for (var pair of ids.entries()) {
     console.log(pair[0] + ", " + pair[1]);
   }
@@ -54,15 +53,22 @@ export const captionClip = (id, data) => (dispatch, getState) => {
 };
 
 export const trimClip = (id, body) => (dispatch, getState) => {
-  // console.log("trimClip called");
-  // for (var pair of body.entries()) {
-  //   console.log(pair[0]+ ', ' + pair[1]);
-  // }
-  // console.log(id);
-
   axios
     // Attach token to request in the header
     .post(`/api/edit/trim/${id}`, body, tokenConfig2(getState), {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+    .then(res => dispatch(getItems()))
+    .catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
+};
+
+export const transitionClip = (id, data) => (dispatch, getState) => {
+  axios
+    .post(`/api/edit/transition/${id}`, data, tokenConfig2(getState), {
       headers: {
         "Content-Type": "multipart/form-data"
       }
@@ -79,20 +85,18 @@ export const set_sync = () => {
   };
 };
 
-export const setDurationOne = (video_length) => {
-
-    return {
-        type: SET_DURATION_ONE,
-        payload: video_length,
-    };
+export const setDurationOne = video_length => {
+  return {
+    type: SET_DURATION_ONE,
+    payload: video_length
+  };
 };
 
-export const setDurationTwo = (video_length) => {
-
-    return {
-        type: SET_DURATION_TWO,
-        payload: video_length,
-    };
+export const setDurationTwo = video_length => {
+  return {
+    type: SET_DURATION_TWO,
+    payload: video_length
+  };
 };
 
 export const addCapation = item => {

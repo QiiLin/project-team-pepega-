@@ -87,7 +87,7 @@ class VideoList extends Component {
         >
           <TabPane tabId="1">
             <Row>
-              {items.map(({ _id, filename }) => (
+              {items.map(({ _id, filename, originalname }) => (
                 <Col sm="6" key={_id}>
                   <Card body>
                     <Button
@@ -101,7 +101,7 @@ class VideoList extends Component {
                       Delete
                     </Button>
                     <Box m={0.5} />
-                    <CardTitle>{filename}</CardTitle>
+                    <CardTitle>{originalname ? originalname : filename}</CardTitle>
                     <Player key={_id}>
                       <source src={"api/items/" + _id} />
                       <Shortcut

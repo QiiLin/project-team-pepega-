@@ -13,6 +13,12 @@ let valuetext = value => {
   return `${value} %`;
 };
 
+let roundUp = videoLength => {
+  return parseFloat(videoLength)
+    .toFixed(2)
+    .toString();
+};
+
 class TimeLineSector extends React.Component {
   //TODO get data for the represented video and set the range of this correctly
   constructor(props) {
@@ -53,8 +59,8 @@ class TimeLineSector extends React.Component {
           min={0}
           max={
             this.props.videoReference === "1"
-              ? (durationVideoOne ? durationVideoOne : 0)
-              : (durationVideoTwo ? durationVideoTwo : 0)
+              ? roundUp(durationVideoOne ? durationVideoOne : 0)
+              : roundUp(durationVideoTwo ? durationVideoTwo : 0)
           }
           onChange={this.handleChange}
           valueLabelDisplay="auto"

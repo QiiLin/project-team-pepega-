@@ -12,8 +12,8 @@ const _ = require("underscore");
 router.post('/upload', upload.single('video'), auth, (req, res) => {
   console.log("Uploaded file: ", req.file);
 
-  /*gfs_prim.then(function (gfs) {
-    gfs.files.findOne({ filename: req.file.filename }, (err, file) => {
+  gfs_prim.then(function (gfs) {
+    gfs.files.findOne({ _id: mongoose.Types.ObjectId(req.file.id) }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
         return res.status(404).json({
@@ -21,8 +21,8 @@ router.post('/upload', upload.single('video'), auth, (req, res) => {
         });
       }
     });
-  });*/
-  console.log(req.body.uploader_id, typeof(req.body.uploader_id), mongoose.Types.ObjectId(req.body.uploader_id))
+  });
+  
   const newItem = new Item({
     uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
     gfs_id: mongoose.Types.ObjectId(req.file.id),
@@ -95,8 +95,6 @@ router.get('/:id', (req, res) => {
   // });
   //console.log("start getting ", req.params.id, req.params._id, mongoose.Types.ObjectId(req.params.id), mongoose.Types.ObjectId(req.params._id), req.params.filename  );
   gfs_prim.then(function (gfs) {
-    //gfs.files.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }, (err, file) => {
-    console.log(req.params.id, "B");
     gfs.files.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
@@ -143,7 +141,6 @@ router.get('/:id', (req, res) => {
 // @route DELETE /files/:id
 // @desc  Delete file
 router.delete('/:id', (req, res) => {
-  console.log(req.params.id, typeof(req.params.id), "f");
   gfs_prim.then(function (gfs) {
     gfs.remove({ _id: mongoose.Types.ObjectId(req.params.id), root: 'fs' }, (err, gridStore) => {
       if (err) {
