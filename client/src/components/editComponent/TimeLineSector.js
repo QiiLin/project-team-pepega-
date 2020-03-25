@@ -14,7 +14,9 @@ let valuetext = value => {
 };
 
 let roundUp = videoLength => {
-  return Math.ceil(parseFloat(videoLength).toFixed(2)).toString();
+  return parseFloat(videoLength)
+    .toFixed(2)
+    .toString();
 };
 
 class TimeLineSector extends React.Component {
