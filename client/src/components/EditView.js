@@ -3,6 +3,7 @@ import { Container, Row, Col } from "reactstrap";
 import VideoList from "./editComponent/VideoList";
 import VideoContainer from "./editComponent/VideoContainer";
 import VideoCaptionInput from "./VideoCaptionInput";
+// import TopBarProgress from "react-topbar-progress-indicator";
 import TimeLineSector from "./editComponent/TimeLineSector";
 import EditOption from "./editComponent/EditOption";
 import { setVideoOneRange, setVideoTwoRange } from "../actions/itemActions";
@@ -29,6 +30,7 @@ class EditView extends React.Component {
       <div>
         {this.props.isAuthenticated ? (
           <Container>
+            {/* <TopBarProgress /> */}
             <Row>
               <Col>
                 <VideoList />
