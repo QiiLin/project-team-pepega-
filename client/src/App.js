@@ -5,10 +5,11 @@ import { Provider } from "react-redux";
 import store from "./store";
 import AppNavbar from "./components/AppNavbar";
 import ItemModal from "./components/ItemModal";
-import EditView from "./components/EditView"
+import EditView from "./components/EditView";
 import { Container } from "reactstrap";
 import { loadUser } from "./actions/authActions";
 import "../node_modules/video-react/dist/video-react.css";
+import HandleProgressBar from "./components/ProgressBar";
 
 class App extends Component {
   componentDidMount() {
@@ -18,11 +19,12 @@ class App extends Component {
   render() {
     return (
       <Provider store={store}>
+        <HandleProgressBar />
         <div className="App">
           <AppNavbar />
           <Container>
             <ItemModal />
-            <EditView/>
+            <EditView />
           </Container>
         </div>
       </Provider>

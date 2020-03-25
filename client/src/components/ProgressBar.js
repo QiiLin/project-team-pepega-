@@ -9,7 +9,7 @@ TopBarProgress.config({
     "1.0": "#373d45"
   },
   shadowBlur: 0,
-  barThickness: 2
+  barThickness: 10
 });
 
 export class ProgressBar extends React.Component {
