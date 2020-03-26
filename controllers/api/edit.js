@@ -13,8 +13,9 @@ let createJSONfilter = transitionType => {};
 const { gfs_prim } = require("../../middleware/gridSet");
 const upload = multer();
 const crypto = require("crypto");
-const { StreamInput, StreamOutput } = require("fluent-ffmpeg-multistream");
-const { PassThrough, Duplex } = require("stream");
+const thumb = require("video-thumbnail");
+// const { StreamInput, StreamOutput } = require("fluent-ffmpeg-multistream");
+// const { PassThrough, Duplex } = require("stream");
 
 function retrievePromise(id, gfs) {
   return new Promise(function(resolve, reject) {
@@ -54,8 +55,8 @@ router.post("/caption/:id", (req, res) => {
     .replace(":", "\\\\:");
 
   let srt_path = __dirname + "/../../temp/subtitle/" + "t_sub.srt";
-  let input_path = path.join(__dirname + "/../../temp/video/test.mp4");
-  let out_path = path.join(__dirname + "/../../temp/video/out.mp4");
+  // let input_path = path.join(__dirname + "/../../temp/video/test.mp4");
+  // let out_path = path.join(__dirname + "/../../temp/video/out.mp4");
   console.log(srt_path);
   console.log(sub_path);
   fs.writeFile(srt_path, result, function(err) {
@@ -250,7 +251,7 @@ router.post("/merge", upload.none(), (req, res) => {
                         console.log("Could not remove Merge2 tmp file:" + err);
                     });
                     // fs.createReadStream(pathOut_path).pipe(result);
-                    
+
                     return res.status(200).end("Merging is completed");
                   })
                   .mergeToFile(result, pathOut_tmp);
@@ -466,7 +467,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
   } else {
     transitionType = `${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`;
   }
-  console.log(transitionType);
+  // console.log(transitionType);
   gfs_prim.then(function(gfs) {
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({
