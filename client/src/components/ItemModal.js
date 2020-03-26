@@ -63,13 +63,20 @@ class ItemModal extends Component {
       <div>
         <h1>Hello</h1>
         {this.props.isAuthenticated ? (
-          <Button
-            color="dark"
-            style={{ marginBottom: "50px" }}
-            onClick={this.toggle}
-          >
-            Add Video
-          </Button>
+          <div>
+            <h3>Please upload a video</h3>
+            <h4>
+              You can merge two videos, add transition effects, trim videos, or
+              add captions to videos
+            </h4>
+            <Button
+              color="dark"
+              style={{ marginBottom: "50px" }}
+              onClick={this.toggle}
+            >
+              Add Video
+            </Button>
+          </div>
         ) : (
           <h4 className="mb-3 ml-4">Please log in to manage videos</h4>
         )}
