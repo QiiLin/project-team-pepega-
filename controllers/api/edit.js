@@ -496,14 +496,41 @@ router.post("/transition/:id", upload.none(), (req, res) => {
     });
   });
 
-  retrievePromise(req.params.id, gfs).then(function(itm) {
+  /*   gfs_prim.then(function(gfs) {
+    fpreviewname = fname.split(".")[0] + "_preview" + fname.split(".")[1];
+    let resultPreview = gfs.createWriteStream({
+      filename: fpreviewname,
+      mode: "w",
+      contentType: "video/webm"
+    });
+    retrievePromise(req.params.id, gfs).then(function(itm) {
+      ffmpeg(itm)
+        .inputOptions([`-ss ${req.body.transitionStartFrame}`])
+        .outputOptions([`-t 4`])
+        .output("../../video_output")
+        .noAudio()
+        .on("progress", progress => {
+          console.log(`[Transition1]: ${JSON.stringify(progress)}`);
+        })
+        .on("stderr", function(stderrLine) {
+          console.log("Stderr output [Transition1]: " + stderrLine);
+        })
+        .on("error", function(err) {
+          res.json("An error occurred [Transition1]: ", err.message);
+        })
+        .on("end", function() {})
+        .saveToFile(resultPreview)
+    });
+  });
+ */
+  /*   retrievePromise(req.params.id, gfs).then(function(itm) {
     ffmpeg(itm)
       .inputOptions([`-ss ${req.body.transitionStartFrame}`])
       .outputOptions([`-t 4`])
       .output("../../video_output")
       .noAudio()
       .run();
-  });
+  }); */
 });
 
 module.exports = router;

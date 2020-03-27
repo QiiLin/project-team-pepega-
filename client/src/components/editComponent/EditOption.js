@@ -43,9 +43,9 @@ String.prototype.toHHMMSS = function() {
   return hours + ":" + minutes + ":" + seconds;
 };
 
-let createStringOptions = () => {
+let createStringOptions = videoLength => {
   let options = [];
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < videoLength; i++) {
     options.push(i.toString());
   }
   return options;
@@ -241,6 +241,7 @@ class EditOption extends React.Component {
       "white",
       "cyans"
     ];
+    const { durationVideoOne } = this.props.edit;
     return (
       <div>
         <Grid key="merge_grid" container>
@@ -312,27 +313,27 @@ class EditOption extends React.Component {
               {/* If the user chose fade=in or fade=out */}
               {this.state.transition_dropdownValue.includes("fade") ? (
                 <div>
-                  <InputLabel>Add Transition Start Frame</InputLabel>
+                  <InputLabel>Add Transition Start Time</InputLabel>
                   <Select
                     id="startFrame"
                     style={{ minWidth: 180, marginBottom: 10 }}
                     value={this.state.transition_startFrame}
                     onChange={this.transition_startFrameChanged}
                   >
-                    {createStringOptions().map(option => (
+                    {createStringOptions(durationVideoOne).map(option => (
                       <MenuItem key={option} value={option}>
                         {option}
                       </MenuItem>
                     ))}
                   </Select>
-                  <InputLabel>Add Transition End Frame</InputLabel>
+                  <InputLabel>Add Transition End Time</InputLabel>
                   <Select
                     id="endFrame"
                     style={{ minWidth: 180, marginBottom: 10 }}
                     value={this.state.transition_endFrame}
                     onChange={this.transition_endFrameChanged}
                   >
-                    {createStringOptions().map(option => (
+                    {createStringOptions(durationVideoOne).map(option => (
                       <MenuItem key={option} value={option}>
                         {option}
                       </MenuItem>
