@@ -250,7 +250,7 @@ router.post("/merge", upload.none(), (req, res) => {
                         console.log("Could not remove Merge2 tmp file:" + err);
                     });
                     // fs.createReadStream(pathOut_path).pipe(result);
-                    
+
                     return res.status(200).end("Merging is completed");
                   })
                   .mergeToFile(result, pathOut_tmp);
@@ -494,6 +494,15 @@ router.post("/transition/:id", upload.none(), (req, res) => {
         .on("end", function() {})
         .saveToFile(result);
     });
+  });
+
+  retrievePromise(req.params.id, gfs).then(function(itm) {
+    ffmpeg(itm)
+      .inputOptions([`-ss ${req.body.transitionStartFrame}`])
+      .outputOptions([`-t 4`])
+      .output("../../video_output")
+      .noAudio()
+      .run();
   });
 });
 
