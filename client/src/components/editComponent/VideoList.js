@@ -101,7 +101,9 @@ class VideoList extends Component {
                       Delete
                     </Button>
                     <Box m={0.5} />
-                    <CardTitle>{originalname ? originalname : filename}</CardTitle>
+                    <CardTitle>
+                      {originalname ? originalname : filename}
+                    </CardTitle>
                     <Player key={_id}>
                       <source src={"api/items/" + _id} />
                       <Shortcut
@@ -112,6 +114,7 @@ class VideoList extends Component {
                       <ControlBar disabled />
                       <BigPlayButton disabled />
                     </Player>
+
                     <Box m={0.5} />
                     <ButtonGroup vertical>
                       <Button

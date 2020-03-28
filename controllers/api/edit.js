@@ -456,6 +456,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
   // console.log(req.body.transition_paddingColor);
   // console.log(req.body.transition_paddingVidRow);
   // console.log(req.body.transition_paddingVidCol);
+  console.log(req.body.transitionType);
   console.log(req.body.transitionStartFrame, req.body.transitionEndFrame);
   let transitionType;
   res.set("Content-Type", "text/plain");

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { AppBar, Tabs, Tab, Box } from "@material-ui/core/";
+import { AppBar, Tabs, Tab, Box, Button } from "@material-ui/core/";
 import { setDurationOne, setDurationTwo } from "../../actions/editActions";
 import { Player } from "video-react";
 import { connect } from "react-redux";
@@ -65,23 +65,49 @@ class VideoContainer extends Component {
           value="1"
         >
           {selectItemOne ? (
-            <Player
-              key={selectItemOne}
-              ref={player => {
-                this.player1 = player;
-              }}
-            >
-              <source src={"api/items/" + selectItemOne} />
-            </Player>
+            <div>
+              <div
+                onMouseOver={() => {
+                  this.player1.play();
+                }}
+                onMouseOut={() => {
+                  this.player1.load();
+                }}
+              >
+                <Button color="primary">Preview</Button>
+              </div>
+              <div>
+                <Player
+                  key={selectItemOne}
+                  ref={player => {
+                    this.player1 = player;
+                  }}
+                >
+                  <source src={"api/items/" + selectItemOne} />
+                </Player>
+              </div>
+            </div>
           ) : (
-            <Player
-              key={selectItemOne}
-              ref={player => {
-                this.player1 = player;
-              }}
-            >
-              <source src={"http://www.w3schools.com/html/mov_bbb.mp4"} />
-            </Player>
+            <div>
+              <div
+                onMouseOver={() => {
+                  this.player1.play();
+                }}
+                onMouseOut={() => {
+                  this.player1.load();
+                }}
+              >
+                <Button color="primary">Preview</Button>
+              </div>
+              <Player
+                key={selectItemOne}
+                ref={player => {
+                  this.player1 = player;
+                }}
+              >
+                <source src={"http://www.w3schools.com/html/mov_bbb.mp4"} />
+              </Player>
+            </div>
           )}
         </Box>
         <Box
@@ -89,25 +115,49 @@ class VideoContainer extends Component {
           value="2"
         >
           {selectItemTwo ? (
-            <Player
-              key={selectItemTwo}
-              ref={player => {
-                this.player2 = player;
-              }}
-            >
-              <source src={"api/items/" + selectItemTwo} />
-            </Player>
+            <div>
+              <div
+                onMouseOver={() => {
+                  this.player2.play();
+                }}
+                onMouseOut={() => {
+                  this.player2.load();
+                }}
+              >
+                <Button color="primary">Preview</Button>
+              </div>
+              <Player
+                key={selectItemTwo}
+                ref={player => {
+                  this.player2 = player;
+                }}
+              >
+                <source src={"api/items/" + selectItemTwo} />
+              </Player>
+            </div>
           ) : (
-            <Player
-              key={selectItemTwo}
-              ref={player => {
-                this.player2 = player;
-              }}
-            >
-              <source
-                src={"http://techslides.com/demos/sample-videos/small.webm"}
-              />
-            </Player>
+            <div>
+              <div
+                onMouseOver={() => {
+                  this.player2.play();
+                }}
+                onMouseOut={() => {
+                  this.player2.load();
+                }}
+              >
+                <Button color="primary">Preview</Button>
+              </div>
+              <Player
+                key={selectItemTwo}
+                ref={player => {
+                  this.player2 = player;
+                }}
+              >
+                <source
+                  src={"http://techslides.com/demos/sample-videos/small.webm"}
+                />
+              </Player>
+            </div>
           )}
         </Box>
       </div>
