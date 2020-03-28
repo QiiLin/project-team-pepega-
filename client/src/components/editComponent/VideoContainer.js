@@ -71,7 +71,7 @@ class VideoContainer extends Component {
           value="1"
         >
           <div>
-            <div
+            {/*             <div
               onMouseOver={() => {
                 this.player1.play();
               }}
@@ -80,7 +80,7 @@ class VideoContainer extends Component {
               }}
             >
               <Button color="primary">Preview</Button>
-            </div>
+            </div> */}
             <div>
               <Player
                 key={selectItemOne}
@@ -98,7 +98,7 @@ class VideoContainer extends Component {
           value="2"
         >
           <div>
-            <div
+            {/*             <div
               onMouseOver={() => {
                 this.player2.play();
               }}
@@ -107,7 +107,7 @@ class VideoContainer extends Component {
               }}
             >
               <Button color="primary">Preview</Button>
-            </div>
+            </div> */}
             <Player
               key={selectItemTwo}
               ref={player => {
