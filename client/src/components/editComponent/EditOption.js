@@ -24,6 +24,8 @@ import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
+import PadTransitionComp from "./PadTransitionComp";
+import FadeTransitionComp from "./FadeTransitionComp";
 
 String.prototype.toHHMMSS = function() {
   var sec_num = parseInt(this, 10); // don't forget the second param
@@ -43,12 +45,12 @@ String.prototype.toHHMMSS = function() {
   return hours + ":" + minutes + ":" + seconds;
 };
 
-let createStringOptions = videoLength => {
-  let options = [];
-  for (let i = 0; i < videoLength; i++) {
-    options.push(i.toString());
+let createStringOptions = options => {
+  let optionsList = [];
+  for (let i = 0; i < options; i++) {
+    optionsList.push(i.toString());
   }
-  return options;
+  return optionsList;
 };
 
 class EditOption extends React.Component {
@@ -310,96 +312,35 @@ class EditOption extends React.Component {
                   </MenuItem>
                 ))}
               </Select>
+
               {/* If the user chose fade=in or fade=out */}
               {this.state.transition_dropdownValue.includes("fade") ? (
-                <div>
-                  <InputLabel>Add Transition Start Time</InputLabel>
-                  <Select
-                    id="startFrame"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_startFrame}
-                    onChange={this.transition_startFrameChanged}
-                  >
-                    {createStringOptions(durationVideoOne).map(option => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <InputLabel>Add Transition End Time</InputLabel>
-                  <Select
-                    id="endFrame"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_endFrame}
-                    onChange={this.transition_endFrameChanged}
-                  >
-                    {createStringOptions(durationVideoOne).map(option => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </div>
+                <FadeTransitionComp
+                  transStart={this.state.transition_startFrame}
+                  transStartChanged={this.transition_startFrameChanged}
+                  transEnd={this.state.transition_endFrame}
+                  transEndChanged={this.transition_endFrameChanged}
+                  createStringOptions={createStringOptions}
+                  duration={durationVideoOne}
+                />
               ) : null}
 
               {/* If the user chooses pad */}
               {this.state.transition_dropdownValue.includes("pad") ? (
-                <div>
-                  <InputLabel>Add Video Width</InputLabel>
-                  <Input
-                    id="padVidWidth"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_paddingVidWidth}
-                    onChange={this.transition_paddingVidWidthChanged}
-                  ></Input>
-
-                  <InputLabel>Add Video Height</InputLabel>
-                  <Input
-                    id="padVidHeight"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_paddingVidHeight}
-                    onChange={this.transition_paddingVidHeightChanged}
-                  ></Input>
-                  <InputLabel>Add Row</InputLabel>
-                  <Select
-                    id="row"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_paddingVidRow}
-                    onChange={this.transition_paddingVidRowChanged}
-                  >
-                    {createStringOptions().map(option => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <InputLabel>Add Column</InputLabel>
-                  <Select
-                    id="col"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.transition_paddingVidCol}
-                    onChange={this.transition_paddingVidColChanged}
-                  >
-                    {createStringOptions().map(option => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <InputLabel>Add Color</InputLabel>
-                  <Select
-                    id="color"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_paddingColor}
-                    onChange={this.transition_paddingColorChanged}
-                  >
-                    {colors.map(color => (
-                      <MenuItem key={color} value={color}>
-                        {color}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </div>
+                <PadTransitionComp
+                  padVidWidth={this.state.transition_paddingVidWidth}
+                  padVidWidthChanged={this.transition_paddingVidWidthChanged}
+                  padVidHeight={this.state.transition_paddingVidHeight}
+                  padVidHeightChanged={this.transition_paddingVidHeightChanged}
+                  padVidRow={this.state.transition_paddingVidRow}
+                  padVidRowChanged={this.transition_paddingVidRowChanged}
+                  padVidCol={this.state.transition_paddingVidCol}
+                  padVidColChanged={this.transition_paddingVidColChanged}
+                  padVidColor={this.state.transition_paddingColor}
+                  padVidColorChanged={this.transition_paddingColorChanged}
+                  createStringOptions={createStringOptions}
+                  colors={colors}
+                />
               ) : null}
               <Button
                 variant="contained"
