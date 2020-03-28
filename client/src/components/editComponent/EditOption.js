@@ -5,8 +5,7 @@ import {
   Button,
   InputLabel,
   MenuItem,
-  Box,
-  Input
+  Box
 } from "@material-ui/core";
 import MergeTypeIcon from "@material-ui/icons/MergeType";
 import {

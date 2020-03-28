@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { AppBar, Tabs, Tab, Box, Button } from "@material-ui/core/";
+import { AppBar, Tabs, Tab, Box } from "@material-ui/core/";
 import { setDurationOne, setDurationTwo } from "../../actions/editActions";
 import { Player } from "video-react";
 import { connect } from "react-redux";
+// import PlayerComp from "./PlayerComp";
 
 class VideoContainer extends Component {
   constructor(props) {
@@ -29,7 +30,6 @@ class VideoContainer extends Component {
     this.setState({
       player1: state
     });
-    console.log("weqweqweqwe");
     const { player } = this.player1.getState();
     this.props.setDurationOne(player.duration);
   }
@@ -39,7 +39,6 @@ class VideoContainer extends Component {
     this.setState({
       player2: state
     });
-    console.log("weqweqweqwe2");
     const { player } = this.player2.getState();
     this.props.setDurationTwo(player.duration);
   }
@@ -71,16 +70,6 @@ class VideoContainer extends Component {
           value="1"
         >
           <div>
-            {/*             <div
-              onMouseOver={() => {
-                this.player1.play();
-              }}
-              onMouseOut={() => {
-                this.player1.load();
-              }}
-            >
-              <Button color="primary">Preview</Button>
-            </div> */}
             <div>
               <Player
                 key={selectItemOne}
@@ -98,16 +87,6 @@ class VideoContainer extends Component {
           value="2"
         >
           <div>
-            {/*             <div
-              onMouseOver={() => {
-                this.player2.play();
-              }}
-              onMouseOut={() => {
-                this.player2.load();
-              }}
-            >
-              <Button color="primary">Preview</Button>
-            </div> */}
             <Player
               key={selectItemTwo}
               ref={player => {
@@ -122,8 +101,6 @@ class VideoContainer extends Component {
     );
   }
 }
-
-// class PlayerComp extends Component {}
 
 // Mapping a redux state to a component property
 const mapStateToProps = state => ({
