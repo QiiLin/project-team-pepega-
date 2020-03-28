@@ -52,6 +52,12 @@ class VideoContainer extends Component {
     // Note selectedFile is from VideoList
     // TODO: Update the placeholder for video
     const { selectItemOne, selectItemTwo } = this.props.item;
+    const playerOneSource = selectItemOne
+      ? "api/items/" + selectItemOne
+      : "http://www.w3schools.com/html/mov_bbb.mp4";
+    const playerTwoSource = selectItemTwo
+      ? "api/items/" + selectItemTwo
+      : "http://techslides.com/demos/sample-videos/small.webm";
     return (
       <div>
         <AppBar position="sticky">
@@ -64,106 +70,60 @@ class VideoContainer extends Component {
           display={this.state.selectTab === "1" ? "block" : "none"}
           value="1"
         >
-          {selectItemOne ? (
-            <div>
-              <div
-                onMouseOver={() => {
-                  this.player1.play();
-                }}
-                onMouseOut={() => {
-                  this.player1.load();
-                }}
-              >
-                <Button color="primary">Preview</Button>
-              </div>
-              <div>
-                <Player
-                  key={selectItemOne}
-                  ref={player => {
-                    this.player1 = player;
-                  }}
-                >
-                  <source src={"api/items/" + selectItemOne} />
-                </Player>
-              </div>
+          <div>
+            <div
+              onMouseOver={() => {
+                this.player1.play();
+              }}
+              onMouseOut={() => {
+                this.player1.load();
+              }}
+            >
+              <Button color="primary">Preview</Button>
             </div>
-          ) : (
             <div>
-              <div
-                onMouseOver={() => {
-                  this.player1.play();
-                }}
-                onMouseOut={() => {
-                  this.player1.load();
-                }}
-              >
-                <Button color="primary">Preview</Button>
-              </div>
               <Player
                 key={selectItemOne}
                 ref={player => {
                   this.player1 = player;
                 }}
               >
-                <source src={"http://www.w3schools.com/html/mov_bbb.mp4"} />
+                <source src={playerOneSource} />
               </Player>
             </div>
-          )}
+          </div>
         </Box>
         <Box
           display={this.state.selectTab === "2" ? "block" : "none"}
           value="2"
         >
-          {selectItemTwo ? (
-            <div>
-              <div
-                onMouseOver={() => {
-                  this.player2.play();
-                }}
-                onMouseOut={() => {
-                  this.player2.load();
-                }}
-              >
-                <Button color="primary">Preview</Button>
-              </div>
-              <Player
-                key={selectItemTwo}
-                ref={player => {
-                  this.player2 = player;
-                }}
-              >
-                <source src={"api/items/" + selectItemTwo} />
-              </Player>
+          <div>
+            <div
+              onMouseOver={() => {
+                this.player2.play();
+              }}
+              onMouseOut={() => {
+                this.player2.load();
+              }}
+            >
+              <Button color="primary">Preview</Button>
             </div>
-          ) : (
-            <div>
-              <div
-                onMouseOver={() => {
-                  this.player2.play();
-                }}
-                onMouseOut={() => {
-                  this.player2.load();
-                }}
-              >
-                <Button color="primary">Preview</Button>
-              </div>
-              <Player
-                key={selectItemTwo}
-                ref={player => {
-                  this.player2 = player;
-                }}
-              >
-                <source
-                  src={"http://techslides.com/demos/sample-videos/small.webm"}
-                />
-              </Player>
-            </div>
-          )}
+            <Player
+              key={selectItemTwo}
+              ref={player => {
+                this.player2 = player;
+              }}
+            >
+              <source src={playerTwoSource} />
+            </Player>
+          </div>
         </Box>
       </div>
     );
   }
 }
+
+// class PlayerComp extends Component {}
 
 // Mapping a redux state to a component property
 const mapStateToProps = state => ({
