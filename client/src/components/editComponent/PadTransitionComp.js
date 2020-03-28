@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { Select, InputLabel, MenuItem, Input } from "@material-ui/core";
+import {
+  Select,
+  InputLabel,
+  MenuItem,
+  Input,
+  Tooltip
+} from "@material-ui/core";
+import HelpIcon from "@material-ui/icons/Help";
 
 class PadTransitionComp extends Component {
   constructor(props) {
@@ -24,7 +31,12 @@ class PadTransitionComp extends Component {
           value={this.props.padVidHeight}
           onChange={this.props.padVidHeightChanged}
         ></Input>
-        <InputLabel>Add Row</InputLabel>
+        <InputLabel>
+          Add Row
+          <Tooltip title="Number of pixels from left you want to place the padding">
+            <HelpIcon />
+          </Tooltip>
+        </InputLabel>
         <Select
           id="row"
           style={{ minWidth: 180, marginBottom: 10 }}
@@ -37,7 +49,12 @@ class PadTransitionComp extends Component {
             </MenuItem>
           ))}
         </Select>
-        <InputLabel>Add Column</InputLabel>
+        <InputLabel>
+          Add Column
+          <Tooltip title="Number of pixels from the top you want to place the padding">
+            <HelpIcon />
+          </Tooltip>
+        </InputLabel>
         <Select
           id="col"
           style={{ minWidth: 180, marginBottom: 10 }}

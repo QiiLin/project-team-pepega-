@@ -6,8 +6,7 @@ import {
   InputLabel,
   MenuItem,
   Box,
-  Input,
-  Tooltip
+  Input
 } from "@material-ui/core";
 import MergeTypeIcon from "@material-ui/icons/MergeType";
 import {
@@ -19,7 +18,6 @@ import {
   transitionClip
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
-import { HelpIcon } from "@material-ui/icons/Help";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
@@ -293,9 +291,6 @@ class EditOption extends React.Component {
               alignItems="flex-start"
             >
               <InputLabel>Add Transition Effect</InputLabel>
-              {/* <Tooltip title="To add a transition effect, indicate the start and end frame in the format of dd (eg. 00, 30)"> */}
-              {/* <HelpIcon /> */}
-              {/* </Tooltip> */}
               <Select
                 className="transition-dropdown"
                 style={{ minWidth: 180, marginBottom: 10 }}
