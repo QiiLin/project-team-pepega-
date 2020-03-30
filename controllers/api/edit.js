@@ -499,14 +499,14 @@ router.post("/transition/:id", upload.none(), (req, res) => {
 });
 
 // @route POST /api/edit/chroma/:id
-// @desc  Add a chroma key (eg. ) to a video
+// @desc  Add a special effect to a video
 router.post("/chroma/:id", upload.none(), (req, res) => {
   res.set("Content-Type", "text/plain");
-  if (!req.body.complexFilter) {
-    return res.status(400).end("complex filter (for add chroma key) required");
-  }
   let complexFilter = req.body.complexFilter;
-  console.log("complex filter: ", complexFilter);
+  if (!complexFilter) {
+    return res.status(400).end("complex filter required");
+  }
+  console.log(complexFilter);
   gfs_prim.then(function(gfs) {
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({
@@ -516,12 +516,12 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
     });
     retrievePromise(req.params.id, gfs).then(function(itm) {
       ffmpeg(itm)
-        // .format("webm")
-        // .withVideoCodec("libvpx")
-        // .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
-        // .withVideoBitrate(1024)
-        // .withAudioCodec("libvorbis")
-        .complexFilter(complexFilter)
+        .format("webm")
+        .withVideoCodec("libvpx")
+        .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+        .withVideoBitrate(1024)
+        .withAudioCodec("libvorbis")
+        .complexFilter([complexFilter], "output")
         .on("progress", progress => {
           console.log(`[Chroma1]: ${JSON.stringify(progress)}`);
         })
@@ -529,7 +529,7 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
           console.log("Stderr output [Chroma1]: " + stderrLine);
         })
         .on("error", function(err) {
-          res.json("An error occurred [Chroma1]: ", err.message);
+          res.status(400).json("An error occurred [Chroma1]: ", err.message);
         })
         .on("end", function() {})
         .saveToFile(result);

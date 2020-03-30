@@ -32,3 +32,5 @@ export const RESET_CAPTION = "RESET_CAPTION";
 export const DELETE_CAPTION = "DELETE_CAPTION";
 
 export const SET_PROGRESS_BAR = "SET_PROGRESS_BAR";
+
+export const ADD_CHROMA = "ADD_CHROMA";

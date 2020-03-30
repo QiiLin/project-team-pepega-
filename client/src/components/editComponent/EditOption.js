@@ -14,7 +14,8 @@ import {
   mergeClip,
   set_sync,
   trimClip,
-  transitionClip
+  transitionClip,
+  addChroma
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
@@ -62,7 +63,8 @@ class EditOption extends React.Component {
       transition_paddingVidHeight: "",
       transition_paddingVidRow: "",
       transition_paddingVidCol: "",
-      transition_paddingColor: ""
+      transition_paddingColor: "",
+      chroma_dropdownValue: ""
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
@@ -204,6 +206,42 @@ class EditOption extends React.Component {
     });
   };
 
+  chroma_dropdownSubmit = selectItemOne => {
+    let bodyFormData = new FormData();
+    let command;
+    bodyFormData.append("vid_id", selectItemOne);
+    console.log(this.state.chroma_dropdownValue);
+    switch (this.state.chroma_dropdownValue) {
+      case "Blurry cloud":
+        command = {
+          filter: "lutrgb",
+          options: { g: 0, b: 0 },
+          inputs: "a",
+          outputs: "red"
+        };
+        break;
+      default:
+        command = "NA";
+    }
+    bodyFormData.append("complexFilter", command);
+    // console.log(bodyFormData.get("complexFilter"));
+    console.log(
+      "chroma_dropdownSubmit chroma: ",
+      bodyFormData.get("complexFilter")
+    );
+    this.props.addChroma(selectItemOne, bodyFormData);
+  };
+
+  chroma_dropdownChanged = event => {
+    event.persist();
+    console.log(event.target.value);
+    this.setState(() => {
+      return {
+        chroma_dropdownValue: event.target.value
+      };
+    });
+  };
+
   addCaption = () => {
     const { videoOneSelection } = this.props.item;
     const { captionValue, captions } = this.props.edit;
@@ -240,6 +278,7 @@ class EditOption extends React.Component {
       "white",
       "cyans"
     ];
+    const chromaChoices = ["Blurry cloud"];
     const { durationVideoOne } = this.props.edit;
     return (
       <div>
@@ -345,7 +384,7 @@ class EditOption extends React.Component {
                   selectItemOne
                 )}
               >
-                Add Effect
+                Add Transition Effect
               </Button>
             </Grid>
             <Box m={2} />
@@ -363,6 +402,40 @@ class EditOption extends React.Component {
                 onClick={this.trim_Submit.bind(this, selectItemOne)}
               >
                 Trim
+              </Button>
+            </Grid>
+            <Box m={2} />
+            <Grid
+              container
+              direction="column"
+              justify="flex-start"
+              alignItems="flex-start"
+            >
+              <InputLabel>Add special effects</InputLabel>
+              <Select
+                className="chroma-dropdown"
+                style={{ minWidth: 180, marginBottom: 10 }}
+                value={this.state.chroma_dropdownValue}
+                onChange={this.chroma_dropdownChanged}
+              >
+                {chromaChoices.map(type => (
+                  <MenuItem
+                    className="chroma-dropdown-item"
+                    key={type}
+                    value={type}
+                  >
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+
+              <Button
+                variant="contained"
+                color="primary"
+                endIcon={<FiberSmartRecordIcon />}
+                onClick={this.chroma_dropdownSubmit.bind(this, selectItemOne)}
+              >
+                Add Special Effect
               </Button>
             </Grid>
           </Grid>
@@ -393,5 +466,6 @@ export default connect(mapStateToProps, {
   transitionClip,
   set_sync,
   addCapation,
-  captionClip
+  captionClip,
+  addChroma
 })(EditOption);

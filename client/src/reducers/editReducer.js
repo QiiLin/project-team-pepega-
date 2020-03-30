@@ -8,7 +8,8 @@ import {
   SET_DURATION_TWO,
   SET_SYNC,
   TRIM_CLIP,
-  TRANSITION_CLIP
+  TRANSITION_CLIP,
+  ADD_CHROMA
 } from "../actions/types";
 
 /*
@@ -41,6 +42,7 @@ const initialState = {
 };
 
 export default function(state = initialState, action) {
+  console.log(action);
   switch (action.type) {
     case MERGE_CLIP:
       return {
@@ -73,6 +75,12 @@ export default function(state = initialState, action) {
       return {
         ...state,
         durationVideoTwo: action.payload
+      };
+    case ADD_CHROMA:
+      console.log("Got to editReducer");
+      return {
+        ...state,
+        items: action.payload
       };
     case ADD_CAPTION:
       return {

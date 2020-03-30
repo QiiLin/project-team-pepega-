@@ -8,7 +8,8 @@ import {
   ADD_CAPTION,
   SET_CAPTION,
   RESET_CAPTION,
-  DELETE_CAPTION
+  DELETE_CAPTION,
+  ADD_CHROMA
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
@@ -69,6 +70,21 @@ export const trimClip = (id, body) => (dispatch, getState) => {
 export const transitionClip = (id, data) => (dispatch, getState) => {
   axios
     .post(`/api/edit/transition/${id}`, data, tokenConfig2(getState), {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+    .then(res => dispatch(getItems()))
+    .catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
+};
+
+export const addChroma = (id, data) => (dispatch, getState) => {
+  console.log("addChroma editAction");
+  console.log(id, data);
+  axios
+    .post(`/api/edit/chroma/${id}`, data, tokenConfig2(getState), {
       headers: {
         "Content-Type": "multipart/form-data"
       }
