@@ -42,7 +42,7 @@ const initialState = {
 };
 
 export default function(state = initialState, action) {
-  console.log(action);
+  // console.log(action);
   switch (action.type) {
     case MERGE_CLIP:
       return {

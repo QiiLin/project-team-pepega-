@@ -490,7 +490,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
           console.log("Stderr output [Transition1]: " + stderrLine);
         })
         .on("error", function(err) {
-          res.json("An error occurred [Transition1]: ", err.message);
+          return res.json("An error occurred [Transition1]: ", err.message);
         })
         .on("end", function() {})
         .saveToFile(result);
@@ -506,6 +506,7 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
   if (!complexFilter) {
     return res.status(400).end("complex filter required");
   }
+  // console.log(complexFilter);
   console.log(complexFilter);
   gfs_prim.then(function(gfs) {
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
@@ -519,9 +520,10 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
         .format("webm")
         .withVideoCodec("libvpx")
         .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+        // .addInputOption("../../Images/blurrycloud.png")
         .withVideoBitrate(1024)
         .withAudioCodec("libvorbis")
-        .complexFilter([complexFilter], "output")
+        .complexFilter(complexFilter)
         .on("progress", progress => {
           console.log(`[Chroma1]: ${JSON.stringify(progress)}`);
         })
@@ -529,7 +531,9 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
           console.log("Stderr output [Chroma1]: " + stderrLine);
         })
         .on("error", function(err) {
-          res.status(400).json("An error occurred [Chroma1]: ", err.message);
+          return res
+            .status(400)
+            .json("An error occurred [Chroma1]: ", err.message);
         })
         .on("end", function() {})
         .saveToFile(result);

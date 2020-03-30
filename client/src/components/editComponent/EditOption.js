@@ -212,13 +212,19 @@ class EditOption extends React.Component {
     bodyFormData.append("vid_id", selectItemOne);
     console.log(this.state.chroma_dropdownValue);
     switch (this.state.chroma_dropdownValue) {
-      case "Blurry cloud":
-        command = {
-          filter: "lutrgb",
-          options: { g: 0, b: 0 },
-          inputs: "a",
-          outputs: "red"
-        };
+      case "Blurry":
+        command = "scale=w=200:h=100";
+        break;
+      case "Kaleidoscope":
+        command =
+          "[1:v]alphaextract,split[a1][a2]; \
+        [0:v][a1]alphamerge,transpose=1[e]; \
+        [0:v][a2]alphamerge,transpose=2[w]; \
+        [0:v]vflip,hflip[s]; \
+        [0:v]pad=ih*2:ih*2:x=(ow-iw)/2[n]; \
+        [n][s]overlay=W/2-w/2:W/2[bg]; \
+        [bg][e]overlay=W/2:H/2-h/2[bg2]; \
+        [bg2][w]overlay=0:H/2-h/2";
         break;
       default:
         command = "NA";
@@ -278,7 +284,7 @@ class EditOption extends React.Component {
       "white",
       "cyans"
     ];
-    const chromaChoices = ["Blurry cloud"];
+    const chromaChoices = ["Blurry", "Kaleidoscope"];
     const { durationVideoOne } = this.props.edit;
     return (
       <div>
