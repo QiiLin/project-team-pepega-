@@ -30,19 +30,11 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
       });
     });
   };
+
   let metadata = await getMetadata(resultFile);
   let width = metadata.streams[0].width;
   let height = metadata.streams[0].height;
-  // ffmpeg.ffprobe(resultFile, function(err, metadata) {
-  //   if (err) {
-  //     console.log(err);
-  //   }
-  //   // metadata.streams.width
-  //   let width = metadata.streams[0].width;
-  //   let height = metadata.streams[0].height;
-  //   console.log(width);
-  //   console.log(height);
-  // });
+
   gfs.files.findOne(
     { _id: mongoose.Types.ObjectId(req.file.id) },
     (err, file) => {
@@ -57,8 +49,8 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
     }
   );
 
-  console.log("outside width: ", width);
-  console.log("outside height: ", height);
+  // console.log("outside width: ", width);
+  // console.log("outside height: ", height);
 
   const newItem = new Item({
     uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),

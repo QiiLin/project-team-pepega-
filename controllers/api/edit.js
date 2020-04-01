@@ -501,6 +501,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
 // @route POST /api/edit/chroma/:id
 // @desc  Add a special effect to a video
 router.post("/chroma/:id", upload.none(), (req, res) => {
+  let gifPath = "Images/dancingbanana.gif";
   res.set("Content-Type", "text/plain");
   let complexFilter = req.body.complexFilter;
   if (!complexFilter) {
@@ -519,14 +520,18 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
       ffmpeg(itm)
         .format("webm")
         .withVideoCodec("libvpx")
-        // POSSIBLY CHANGE GIF TO DYNAMIC IN THE FUTURE
-        .addInput("dancingbanana.gif")
-        .addOptions(["-y", "-ignore_loop 0", "-max_muxing_queue_size 2048"])
-        // Might need this
-        .outputOptions([`-map [outv]`, `-map [outa]`])
-        .frames(900)
-        .withVideoBitrate(1024)
-        .withVideoCodec("libx264")
+        .addOptions([
+          "-y",
+          "-ignore_loop 0",
+          "-i " + gifPath + "",
+          "-frames:v 900",
+          "-b:v 1024"
+        ])
+        .outputOptions([
+          "-codec:a copy",
+          "-codec:v libx264",
+          "-max_muxing_queue_size 2048"
+        ])
         // CHANGE VIDEO WIDTH AND HEIGHT TO DYNAMIC
         .complexFilter([`[1:v]scale=560:320[ovrl]`, `[0:v][ovrl]overlay=0:0`])
         .on("progress", progress => {
