@@ -35,6 +35,7 @@
     "fluent-ffmpeg-multistream": "^1.0.0",
     "form-data": "^3.0.0",
     "fs": "0.0.1-security",
+    "get-video-dimensions": "^1.0.0",
     "gridfs-stream": "^1.1.1",
     "jsonwebtoken": "^8.5.1",
     "method-override": "^2.3.10",

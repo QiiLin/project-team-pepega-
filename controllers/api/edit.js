@@ -464,7 +464,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
     return res.status(400).end("transition type required");
   } else if (req.body.transitionType === "pad") {
     transitionType = `${req.body.transitionType}=width=${req.body.transition_paddingVidWidth}:height=${req.body.transition_paddingVidHeight}:x=${req.body.transition_paddingVidCol}:y=${req.body.transition_paddingVidRow}:color=${req.body.transition_paddingColor}`;
-  } else {
+  } else if (req.body.transitionType.includes("fade")) {
     transitionType = `${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`;
   }
   console.log(transitionType);
@@ -519,11 +519,16 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
       ffmpeg(itm)
         .format("webm")
         .withVideoCodec("libvpx")
-        .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
-        // .addInputOption("../../Images/blurrycloud.png")
+        // POSSIBLY CHANGE GIF TO DYNAMIC IN THE FUTURE
+        .addInput("dancingbanana.gif")
+        .addOptions(["-y", "-ignore_loop 0", "-max_muxing_queue_size 2048"])
+        // Might need this
+        .outputOptions([`-map [outv]`, `-map [outa]`])
+        .frames(900)
         .withVideoBitrate(1024)
-        .withAudioCodec("libvorbis")
-        .complexFilter(complexFilter)
+        .withVideoCodec("libx264")
+        // CHANGE VIDEO WIDTH AND HEIGHT TO DYNAMIC
+        .complexFilter([`[1:v]scale=560:320[ovrl]`, `[0:v][ovrl]overlay=0:0`])
         .on("progress", progress => {
           console.log(`[Chroma1]: ${JSON.stringify(progress)}`);
         })
@@ -539,6 +544,11 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
         .saveToFile(result);
     });
   });
+  /*
+  ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex 
+  "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy 
+  -codec:v libx264 -max_muxing_queue_size 2048 video.mp4
+  */
 });
 
 module.exports = router;
