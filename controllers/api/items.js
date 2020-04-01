@@ -7,59 +7,55 @@ const auth = require("../../middleware/auth");
 const Item = require("../../models/Item");
 const _ = require("underscore");
 const ffmpeg = require("../../controllers/ff_path");
-// let getDimensions = require("get-video-dimensions");
 
 // @route POST /upload
 // @desc  Uploads file to DB
-router.post("/upload", upload.single("video"), auth, (req, res) => {
+router.post("/upload", upload.single("video"), auth, async (req, res) => {
   console.log("Uploaded file: ", req.file);
 
-  /*   getDimensions(req.file.originalname).then(function(dimensions) {
-    console.log(dimensions.height);
-    console.log(dimensions.width);
-  }); */
+  let gfs = await gfs_prim;
+  let resultFile = gfs.createReadStream({
+    filename: req.file.filename,
+    mode: "r",
+    contentType: req.file.contentType
+  });
 
-  // console.log("file path: ", req.file.path);
-
-  // ffmpeg.ffprobe(req.file.path, function(err, metadata) {
+  let getMetadata = stream => {
+    return new Promise((resolve, reject) => {
+      ffmpeg.ffprobe(stream, function(err, metadata) {
+        if (err) {
+          reject(err);
+        }
+        resolve(metadata);
+      });
+    });
+  };
+  let metadata = await getMetadata(resultFile);
+  let width = metadata.streams[0].width;
+  let height = metadata.streams[0].height;
+  // ffmpeg.ffprobe(resultFile, function(err, metadata) {
   //   if (err) {
   //     console.log(err);
   //   }
-  //   let videoProperties = metadata.streams.find(video => video.height !== null);
-  //   console.log(videoProperties.width);
-  //   console.log(videoProperties.height);
+  //   // metadata.streams.width
+  //   let width = metadata.streams[0].width;
+  //   let height = metadata.streams[0].height;
+  //   console.log(width);
+  //   console.log(height);
   // });
-
-  gfs_prim.then(function(gfs) {
-    let resultFile = gfs.createReadStream({
-      filename: req.file.filename,
-      mode: "r",
-      contentType: req.file.contentType
-    });
-
-    ffmpeg.ffprobe(resultFile, function(err, metadata) {
-      if (err) {
-        console.log(err);
+  gfs.files.findOne(
+    { _id: mongoose.Types.ObjectId(req.file.id) },
+    (err, file) => {
+      console.log("gfs file: ", file);
+      // Check if file
+      if (!file || file.length === 0) {
+        return res.status(404).json({
+          err: "No file exists"
+        });
       }
-      // metadata.streams.width
-      let width = metadata.streams[0].width;
-      let height = metadata.streams[0].height;
-      console.log(width);
-      console.log(height);
-    });
-    gfs.files.findOne(
-      { _id: mongoose.Types.ObjectId(req.file.id) },
-      (err, file) => {
-        console.log("gfs file: ", file);
-        // Check if file
-        if (!file || file.length === 0) {
-          return res.status(404).json({
-            err: "No file exists"
-          });
-        }
-      }
-    );
-  });
+      file;
+    }
+  );
 
   console.log("outside width: ", width);
   console.log("outside height: ", height);
@@ -68,9 +64,11 @@ router.post("/upload", upload.single("video"), auth, (req, res) => {
     uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
     gfs_id: mongoose.Types.ObjectId(req.file.id),
     originalname: req.file.originalname,
-    file_path: req.file.path
+    file_path: req.file.path,
+    width: width,
+    height: height
   });
-  newItem.save();
+  await newItem.save();
   const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
   return res.json({
     _id: id,
@@ -79,7 +77,9 @@ router.post("/upload", upload.single("video"), auth, (req, res) => {
     md5: md5,
     contentType: contentType,
     uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
-    originalname: originalname
+    originalname: originalname,
+    width: newItem.width,
+    height: newItem.height
   });
 });
 
