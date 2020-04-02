@@ -8,11 +8,11 @@ const ffmpeg = require("../../controllers/ff_path");
 // Item model
 const Item = require("../../models/Item");
 const mongoose = require("mongoose");
-let createJSONfilter = transitionType => {};
 // import stream from 'stream';
 const { gfs_prim } = require("../../middleware/gridSet");
 const upload = multer();
 const crypto = require("crypto");
+const { exec } = require("child_process");
 const { StreamInput, StreamOutput } = require("fluent-ffmpeg-multistream");
 const { PassThrough, Duplex } = require("stream");
 
@@ -501,6 +501,20 @@ router.post("/transition/:id", upload.none(), (req, res) => {
 // @route POST /api/edit/chroma/:id
 // @desc  Add a special effect to a video
 router.post("/chroma/:id", upload.none(), (req, res) => {
+  exec(
+    `ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex \
+  "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
+  -codec:v libx264 -max_muxing_queue_size 2048 video.mp4`,
+    function(err, stdout, stderr) {
+      console.log("stdout: " + stdout);
+      console.log("stderr: " + stderr);
+      if (err !== null) {
+        console.log("exec error: " + err);
+      }
+    }
+  );
+  // child();
+  /*
   let gifPath = "Images/dancingbanana.gif";
   res.set("Content-Type", "text/plain");
   let complexFilter = req.body.complexFilter;
@@ -549,11 +563,13 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
         .saveToFile(result);
     });
   });
-  /*
+  */
+});
+
+/*
   ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex 
   "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy 
   -codec:v libx264 -max_muxing_queue_size 2048 video.mp4
-  */
-});
+*/
 
 module.exports = router;
