@@ -17,7 +17,7 @@ const { StreamInput, StreamOutput } = require("fluent-ffmpeg-multistream");
 const { PassThrough, Duplex } = require("stream");
 
 function retrievePromise(id, gfs) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     gfs.files.findOne({ _id: mongoose.Types.ObjectId(id) }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
@@ -40,7 +40,7 @@ router.post("/caption/:id", (req, res) => {
   }
 
   let result = "";
-  req.body.data.forEach(function(curr, index) {
+  req.body.data.forEach(function (curr, index) {
     let temp = "" + (index + 1) + "\n";
     temp += curr.start_time + " --> " + curr.end_time + "\n";
     temp += curr.text + "\n";
@@ -58,10 +58,10 @@ router.post("/caption/:id", (req, res) => {
   let out_path = path.join(__dirname + "/../../temp/video/out.mp4");
   console.log(srt_path);
   console.log(sub_path);
-  fs.writeFile(srt_path, result, function(err) {
+  fs.writeFile(srt_path, result, function (err) {
     if (err) throw err;
     console.log("Saved!");
-    gfs_prim.then(function(gfs) {
+    gfs_prim.then(function (gfs) {
       // get read stream from DB
       let resultFile = gfs.createWriteStream({
         filename: fname,
@@ -73,7 +73,7 @@ router.post("/caption/:id", (req, res) => {
       Promise.all([currentItem, currentItemCopy]).then(Items => {
         let currStream = Items[0];
         let readItem = Items[1];
-        ffmpeg.ffprobe(currStream, function(err, metadata) {
+        ffmpeg.ffprobe(currStream, function (err, metadata) {
           let width = metadata ? metadata.streams[0].width : 640;
           let height = metadata ? metadata.streams[0].height : 360;
           let fps = metadata ? metadata.streams[0].r_frame_rate : 30;
@@ -96,7 +96,7 @@ router.post("/caption/:id", (req, res) => {
             .on("progress", progress => {
               console.log(`[Caption]: ${JSON.stringify(progress)}`);
             })
-            .on("error", function(err) {
+            .on("error", function (err) {
               // fs.unlink(srt_path, err => {
               //     if (err) console.log("Could not remove srt file:" + err);
               // });
@@ -104,10 +104,10 @@ router.post("/caption/:id", (req, res) => {
                 .status(500)
                 .json("An error occurred [Caption]: " + err.message);
             })
-            .on("stderr", function(stderrLine) {
+            .on("stderr", function (stderrLine) {
               console.log("Stderr output [Subtitle]:: " + stderrLine);
             })
-            .on("end", function() {
+            .on("end", function () {
               fs.unlink(srt_path, err => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
@@ -129,7 +129,7 @@ router.post("/merge", upload.none(), (req, res) => {
   if (!req.body.curr_vid_id || !req.body.merge_vid_id)
     return res.status(400).end("video id for merging required");
 
-  gfs_prim.then(function(gfs) {
+  gfs_prim.then(function (gfs) {
     const curr_vid_id = req.body.curr_vid_id;
     const merge_vid_id = req.body.merge_vid_id;
     let itemOne = retrievePromise(curr_vid_id, gfs);
@@ -145,7 +145,7 @@ router.post("/merge", upload.none(), (req, res) => {
       contentType: "video/webm"
     });
 
-    Promise.all([itemOne, itemOneCopy, itemTwo]).then(function(itm) {
+    Promise.all([itemOne, itemOneCopy, itemTwo]).then(function (itm) {
       let currStream = itm[0];
       let currStreamCopy = itm[1];
       let targetStream = itm[2];
@@ -166,7 +166,7 @@ router.post("/merge", upload.none(), (req, res) => {
       // console.log(path2_tmp);
       // console.log (pathOut_path);
 
-      ffmpeg.ffprobe(currStream, function(err, metadata) {
+      ffmpeg.ffprobe(currStream, function (err, metadata) {
         let width = metadata ? metadata.streams[0].width : 640;
         let height = metadata ? metadata.streams[0].height : 360;
         let fps = metadata ? metadata.streams[0].r_frame_rate : 30;
@@ -188,13 +188,13 @@ router.post("/merge", upload.none(), (req, res) => {
           .on("progress", progress => {
             console.log(`[Merge1]: ${JSON.stringify(progress)}`);
           })
-          .on("error", function(err) {
+          .on("error", function (err) {
             res.json("An error occurred [Merge1]: " + err.message);
           })
           /*.on('stderr', function(stderrLine) {
                         console.log('Stderr output [Merge1]: ' + stderrLine);
                       })*/
-          .on("end", function() {
+          .on("end", function () {
             ffmpeg(targetStream)
               //.preset("divx")
               .format("webm")
@@ -207,7 +207,7 @@ router.post("/merge", upload.none(), (req, res) => {
               .on("progress", progress => {
                 console.log(`[Merge2]: ${JSON.stringify(progress)}`);
               })
-              .on("error", function(err) {
+              .on("error", function (err) {
                 fs.unlink(path1_tmp, err => {
                   if (err)
                     console.log("Could not remove Merge1 tmp file:" + err);
@@ -217,14 +217,14 @@ router.post("/merge", upload.none(), (req, res) => {
               /*.on('stderr', function(stderrLine) {
                               console.log('Stderr output [Merge2]:: ' + stderrLine);
                             })*/
-              .on("end", function() {
+              .on("end", function () {
                 ffmpeg({ source: path1_tmp })
                   .mergeAdd(path2_tmp)
                   .addOutputOption(["-f webm"])
                   .on("progress", progress => {
                     console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
                   })
-                  .on("error", function(err) {
+                  .on("error", function (err) {
                     fs.unlink(path1_tmp, err => {
                       if (err)
                         console.log("Could not remove Merge1 tmp file:" + err);
@@ -240,7 +240,7 @@ router.post("/merge", upload.none(), (req, res) => {
                   /*.on('stderr', function (stderrLine) {
                                             console.log('Stderr output [MergeCombine]:: ' + stderrLine);
                                         })*/
-                  .on("end", function() {
+                  .on("end", function () {
                     fs.unlink(path1_tmp, err => {
                       if (err)
                         console.log("Could not remove Merge1 tmp file:" + err);
@@ -285,15 +285,15 @@ router.post("/cut/:id", (req, res) => {
         .on("progress", progress => {
           console.log(`[Cut1]: ${JSON.stringify(progress)}`);
         })
-        .on("stderr", function(stderrLine) {
+        .on("stderr", function (stderrLine) {
           console.log("Stderr output [Cut1]: " + stderrLine);
         })
-        .on("error", function(err) {
+        .on("error", function (err) {
           return res
             .status(500)
             .json("An error occurred [Cut1]: " + err.message);
         })
-        .on("end", function() {
+        .on("end", function () {
           return res.status(200).json("Operation Complete");
         })
         .writeToStream(result);
@@ -312,7 +312,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
   if (timestampStart === "0" || timestampStart === "00:00:00.000")
     //starting at 0 not allowed by library
     timestampStart = "00:00:00.001";
-  gfs_prim.then(function(gfs) {
+  gfs_prim.then(function (gfs) {
     let itemOne = retrievePromise(req.params.id, gfs);
     let itemOneCopy = retrievePromise(req.params.id, gfs);
     let itemCopy_One = retrievePromise(req.params.id, gfs);
@@ -345,7 +345,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
       );
       let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
 
-      ffmpeg.ffprobe(itemOneStream, function(err, metadata) {
+      ffmpeg.ffprobe(itemOneStream, function (err, metadata) {
         let duration = metadata ? metadata.streams[0].duration : 5; //vid duration in timebase unit
         ffmpeg(itemCopyStream)
           .format("webm")
@@ -357,13 +357,13 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
           .on("progress", progress => {
             console.log(`[Trim1]: ${JSON.stringify(progress)}`);
           })
-          .on("stderr", function(stderrLine) {
+          .on("stderr", function (stderrLine) {
             console.log("Stderr output [Trim1]: " + stderrLine);
           })
-          .on("error", function(err) {
+          .on("error", function (err) {
             res.json("An error occurred [Trim1]: " + err.message);
           })
-          .on("end", function() {
+          .on("end", function () {
             ffmpeg(itemCopyOneStream)
               .format("webm")
               .withVideoCodec("libvpx")
@@ -375,24 +375,24 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
               .on("progress", progress => {
                 console.log(`[Trim2]: ${JSON.stringify(progress)}`);
               })
-              .on("stderr", function(stderrLine) {
+              .on("stderr", function (stderrLine) {
                 console.log("Stderr output [Trim2]: " + stderrLine);
               })
-              .on("error", function(err) {
+              .on("error", function (err) {
                 fs.unlink(path1_tmp, err => {
                   if (err)
                     console.log("Could not remove Trim2 tmp file:" + err);
                 });
                 res.json("An error occurred [Trim2]: " + err.message);
               })
-              .on("end", function() {
+              .on("end", function () {
                 ffmpeg({ source: path1_tmp })
                   .addOutputOption(["-f webm"])
                   .mergeAdd(path2_tmp)
                   .on("progress", progress => {
                     console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
                   })
-                  .on("error", function(err) {
+                  .on("error", function (err) {
                     fs.unlink(path1_tmp, err => {
                       if (err)
                         console.log("Could not remove Trim1 tmp file:" + err);
@@ -403,10 +403,10 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
                     });
                     res.json("An error occurred [TrimCombine]: " + err.message);
                   })
-                  .on("stderr", function(stderrLine) {
+                  .on("stderr", function (stderrLine) {
                     console.log("Stderr output [MergeCombine]:: " + stderrLine);
                   })
-                  .on("end", function() {
+                  .on("end", function () {
                     fs.unlink(path1_tmp, err => {
                       if (err)
                         console.log("Could not remove Trim1 tmp file:" + err);
@@ -468,14 +468,14 @@ router.post("/transition/:id", upload.none(), (req, res) => {
     transitionType = `${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`;
   }
   console.log(transitionType);
-  gfs_prim.then(function(gfs) {
+  gfs_prim.then(function (gfs) {
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
       contentType: "video/webm"
     });
-    retrievePromise(req.params.id, gfs).then(function(itm) {
+    retrievePromise(req.params.id, gfs).then(function (itm) {
       ffmpeg(itm)
         .format("webm")
         .withVideoCodec("libvpx")
@@ -486,13 +486,13 @@ router.post("/transition/:id", upload.none(), (req, res) => {
         .on("progress", progress => {
           console.log(`[Transition1]: ${JSON.stringify(progress)}`);
         })
-        .on("stderr", function(stderrLine) {
+        .on("stderr", function (stderrLine) {
           console.log("Stderr output [Transition1]: " + stderrLine);
         })
-        .on("error", function(err) {
+        .on("error", function (err) {
           return res.json("An error occurred [Transition1]: ", err.message);
         })
-        .on("end", function() {})
+        .on("end", function () { })
         .saveToFile(result);
     });
   });
@@ -501,11 +501,28 @@ router.post("/transition/:id", upload.none(), (req, res) => {
 // @route POST /api/edit/chroma/:id
 // @desc  Add a special effect to a video
 router.post("/chroma/:id", upload.none(), (req, res) => {
+  res.set("Content-Type", "text/plain");
+  // First, grab the file from the database and write it to the video_input folder (and name it input.mp4)
+  gfs_prim.then(function (gfs) {
+    const fname = crypto.randomBytes(16).toString("hex") + ".webm";
+    let result = gfs.createWriteStream({
+      filename: fname,
+      mode: "w",
+      contentType: "video/webm"
+    });
+    retrievePromise(req.params.id, gfs).then(function (itm) {
+      ffmpeg(itm)
+        .save(path.join(__dirname, "../../video_input/input.mp4"))
+      // .saveToFile(result)
+    })
+  })
+  // Secondly, apply the ffmpeg command line command 
   exec(
-    `ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex \
-  "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
-  -codec:v libx264 -max_muxing_queue_size 2048 video.mp4`,
-    function(err, stdout, stderr) {
+    `ffmpeg -y -i ${path.join(__dirname, "../../video_input/input.mp4")} \
+    -i  ${path.join(__dirname, "../../images/blurrycloud.png")} -filter_complex \
+    "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
+    -codec:v libx264 -max_muxing_queue_size 1024 ${path.join(__dirname, "../../video_output/output.mp4")}`,
+    function (err, stdout, stderr) {
       console.log("stdout: " + stdout);
       console.log("stderr: " + stderr);
       if (err !== null) {
@@ -513,63 +530,28 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
       }
     }
   );
-  // child();
-  /*
-  let gifPath = "Images/dancingbanana.gif";
-  res.set("Content-Type", "text/plain");
-  let complexFilter = req.body.complexFilter;
-  if (!complexFilter) {
-    return res.status(400).end("complex filter required");
-  }
-  // console.log(complexFilter);
-  console.log(complexFilter);
-  gfs_prim.then(function(gfs) {
+  // Thirdly, grab the output file, save it in the database, and delete the
+  gfs_prim.then(function (gfs) {
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
       contentType: "video/webm"
     });
-    retrievePromise(req.params.id, gfs).then(function(itm) {
-      ffmpeg(itm)
-        .format("webm")
-        .withVideoCodec("libvpx")
-        .addOptions([
-          "-y",
-          "-ignore_loop 0",
-          "-i " + gifPath + "",
-          "-frames:v 900",
-          "-b:v 1024"
-        ])
-        .outputOptions([
-          "-codec:a copy",
-          "-codec:v libx264",
-          "-max_muxing_queue_size 2048"
-        ])
-        // CHANGE VIDEO WIDTH AND HEIGHT TO DYNAMIC
-        .complexFilter([`[1:v]scale=560:320[ovrl]`, `[0:v][ovrl]overlay=0:0`])
-        .on("progress", progress => {
-          console.log(`[Chroma1]: ${JSON.stringify(progress)}`);
-        })
-        .on("stderr", function(stderrLine) {
-          console.log("Stderr output [Chroma1]: " + stderrLine);
-        })
-        .on("error", function(err) {
-          return res
-            .status(400)
-            .json("An error occurred [Chroma1]: ", err.message);
-        })
-        .on("end", function() {})
-        .saveToFile(result);
-    });
-  });
-  */
+    ffmpeg(path.join(__dirname, "../../video_output/output.mp4"))
+      .saveToFile(result)
+  })
 });
 
 /*
   ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex 
   "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy 
   -codec:v libx264 -max_muxing_queue_size 2048 video.mp4
+
+   `ffmpeg -y -i ${path.join(__dirname, "../../video_input/input.mp4")} -ignore_loop 0 \
+    -i ${path.join(__dirname, "../../images/blurrycloud.png")} -filter_complex \
+    "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
+    -codec:v libx264 -max_muxing_queue_size 2048 ${path.join(__dirname, "../../video_output/output.mp4"
 */
 
 module.exports = router;
