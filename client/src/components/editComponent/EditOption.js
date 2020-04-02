@@ -216,7 +216,9 @@ class EditOption extends React.Component {
         command = "scale=w=200:h=100";
         break;
       case "Dancing Banana":
-        command = "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0";
+        // dancing banana = 560:320
+        // [1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0
+        command = "overlay=shortest=1";
         break;
       // case "Kaleidoscope":
       //   command =

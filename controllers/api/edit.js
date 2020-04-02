@@ -501,7 +501,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
 // @route POST /api/edit/chroma/:id
 // @desc  Add a special effect to a video
 router.post("/chroma/:id", upload.none(), (req, res) => {
-  let gifPath = "Images/dancingbanana.gif";
+  let gifPath = "Images/dancingbanana2.gif";
   res.set("Content-Type", "text/plain");
   let complexFilter = req.body.complexFilter;
   if (!complexFilter) {
@@ -517,28 +517,36 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
       contentType: "video/webm"
     });
     retrievePromise(req.params.id, gfs).then(function(itm) {
+      /*
+      console.log("itm: ", itm);
       ffmpeg(itm)
         .format("webm")
-        .withVideoCodec("libvpx")
         .addOptions([
           "-y",
           "-ignore_loop 0",
           "-i " + gifPath + "",
-          "-frames:v 900",
-          "-b:v 1024"
+          "-err_detect ignore_err",
+          "-ec guess_mvs+deblock+favor_inter -ignore_unknown"
+        ])
+        // CHANGE VIDEO WIDTH AND HEIGHT TO DYNAMIC
+        .complexFilter([
+          `[1:v]scale=249:246[ovrl]`,
+          `[0:v][ovrl]overlay=0:0`
+          // `overlay=shortest=1`
         ])
         .outputOptions([
+          "-frames:v 900",
           "-codec:a copy",
           "-codec:v libx264",
           "-max_muxing_queue_size 2048"
         ])
-        // CHANGE VIDEO WIDTH AND HEIGHT TO DYNAMIC
-        .complexFilter([`[1:v]scale=560:320[ovrl]`, `[0:v][ovrl]overlay=0:0`])
+        // .frames(900)
+        // .withVideoBitrate(1024)
         .on("progress", progress => {
           console.log(`[Chroma1]: ${JSON.stringify(progress)}`);
         })
         .on("stderr", function(stderrLine) {
-          console.log("Stderr output [Chroma1]: " + stderrLine);
+          console.log("Stderr output [Chroma1-stderr]: " + stderrLine);
         })
         .on("error", function(err) {
           return res
@@ -548,12 +556,14 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
         .on("end", function() {})
         .saveToFile(result);
     });
+    */
   });
-  /*
-  ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex 
+});
+
+/*
+  ffmpeg -y -i input.mp4 -ignore_loop 0 -i Images/dancingbanana.gif -filter_complex 
   "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy 
   -codec:v libx264 -max_muxing_queue_size 2048 video.mp4
   */
-});
 
 module.exports = router;
