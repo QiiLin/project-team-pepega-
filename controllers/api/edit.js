@@ -541,9 +541,12 @@ router.post("/chroma/:id", upload.none(), (req, res) => {
     ffmpeg(path.join(__dirname, "../../video_output/output.mp4"))
       .saveToFile(result)
   })
+    .catch(err => console.log(err))
 });
 
 /*
+  --enable-demuxer=mov
+
   ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex 
   "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy 
   -codec:v libx264 -max_muxing_queue_size 2048 video.mp4
