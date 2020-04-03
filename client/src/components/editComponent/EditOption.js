@@ -25,7 +25,7 @@ import CaptionListView from "../CaptionListView";
 import PadTransitionComp from "./PadTransitionComp";
 import FadeTransitionComp from "./FadeTransitionComp";
 
-String.prototype.toHHMMSS = function() {
+String.prototype.toHHMMSS = function () {
   var sec_num = parseInt(this, 10); // don't forget the second param
   var hours = Math.floor(sec_num / 3600);
   var minutes = Math.floor((sec_num - hours * 3600) / 60);
@@ -208,38 +208,11 @@ class EditOption extends React.Component {
 
   chroma_dropdownSubmit = selectItemOne => {
     let bodyFormData = new FormData();
-    let command;
     bodyFormData.append("vid_id", selectItemOne);
-    console.log(this.state.chroma_dropdownValue);
-    switch (this.state.chroma_dropdownValue) {
-      case "Blurry":
-        command = "scale=w=200:h=100";
-        break;
-      case "Dancing Banana":
-        command = "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0";
-        break;
-      // case "Kaleidoscope":
-      //   command =
-      //     "[1:v]alphaextract,split[a1][a2]; \
-      //   [0:v][a1]alphamerge,transpose=1[e]; \
-      //   [0:v][a2]alphamerge,transpose=2[w]; \
-      //   [0:v]vflip,hflip[s]; \
-      //   [0:v]pad=ih*2:ih*2:x=(ow-iw)/2[n]; \
-      //   [n][s]overlay=W/2-w/2:W/2[bg]; \
-      //   [bg][e]overlay=W/2:H/2-h/2[bg2]; \
-      //   [bg2][w]overlay=0:H/2-h/2";
-      //   break;
-      // case "Circular":
-      //   command = "[1:v]alphaextract[alf];[0:v][alf]alphamerge";
-      //   break;
-      default:
-        command = "NA";
-    }
-    bodyFormData.append("complexFilter", command);
-    // console.log(bodyFormData.get("complexFilter"));
+    bodyFormData.append("command", this.state.chroma_dropdownValue);
     console.log(
       "chroma_dropdownSubmit chroma: ",
-      bodyFormData.get("complexFilter")
+      bodyFormData.get("command")
     );
     this.props.addChroma(selectItemOne, bodyFormData);
   };
@@ -290,7 +263,7 @@ class EditOption extends React.Component {
       "white",
       "cyans"
     ];
-    const chromaChoices = ["Blurry", "Dancing Banana"]; //"Kaleidoscope", "Circular"
+    const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
     const { durationVideoOne } = this.props.edit;
     return (
       <div>

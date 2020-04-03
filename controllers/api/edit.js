@@ -500,49 +500,98 @@ router.post("/transition/:id", upload.none(), (req, res) => {
 
 // @route POST /api/edit/chroma/:id
 // @desc  Add a special effect to a video
-router.post("/chroma/:id", upload.none(), (req, res) => {
-  res.set("Content-Type", "text/plain");
-  // First, grab the file from the database and write it to the video_input folder (and name it input.mp4)
-  gfs_prim.then(function (gfs) {
-    const fname = crypto.randomBytes(16).toString("hex") + ".webm";
-    let result = gfs.createWriteStream({
-      filename: fname,
-      mode: "w",
-      contentType: "video/webm"
+router.post("/chroma/:id", upload.none(), async (req, res) => {
+  let inputPath = path.join(__dirname, "../../video_input/input.mp4");
+  let outputPath = path.join(__dirname, "../../video_output/output.mp4");
+
+  let gfs = await gfs_prim;
+
+  let getInputReadStream = (id, gfs) => {
+    return new Promise(function (resolve, reject) {
+      gfs.files.findOne({ _id: mongoose.Types.ObjectId(id) }, (err, file) => {
+        // Check if file
+        if (!file || file.length === 0) {
+          return reject("fail fetch", id);
+        }
+        const readstream = gfs.createReadStream(file.filename);
+        return resolve(readstream);
+      });
     });
-    retrievePromise(req.params.id, gfs).then(function (itm) {
-      ffmpeg(itm)
-        .save(path.join(__dirname, "../../video_input/input.mp4"))
-      // .saveToFile(result)
-    })
-  })
-  // Secondly, apply the ffmpeg command line command 
-  exec(
-    `ffmpeg -y -i ${path.join(__dirname, "../../video_input/input.mp4")} \
-    -i  ${path.join(__dirname, "../../images/blurrycloud.png")} -filter_complex \
-    "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
-    -codec:v libx264 -max_muxing_queue_size 1024 ${path.join(__dirname, "../../video_output/output.mp4")}`,
-    function (err, stdout, stderr) {
-      console.log("stdout: " + stdout);
-      console.log("stderr: " + stderr);
-      if (err !== null) {
-        console.log("exec error: " + err);
+  };
+  try {
+    let itm = await getInputReadStream(req.params.id, gfs)
+    console.log("itm: ", itm)
+    ffmpeg(itm).save(inputPath);
+  } catch (err) {
+    console.log("getInputReadStream: ", err);
+  }
+
+  switch (req.body.command) {
+    case "Add Cloud":
+      command = `ffmpeg -y -i ${inputPath} \
+      -i  ${path.join(__dirname, "../../images/blurrycloud.png")} -filter_complex \
+      "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
+      -codec:v libx264 -max_muxing_queue_size 1024 ${outputPath} -err_detect ignore_err`;
+      break;
+    case "Add Dancing Banana":
+      command = `  ffmpeg -y -i ${inputPath} -ignore_loop 0 \
+      -i ${path.join(__dirname, "../../images/dancingbanana.gif")} -filter_complex \
+      "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
+      -codec:v libx264 -max_muxing_queue_size 2048 ${outputPath} -err_detect ignore_err`;
+      break;
+  }
+
+  let executeShell = command => {
+    return new Promise((resolve, reject) => {
+      exec(command, function (err, stdout, stderr) {
+        if (stderr !== null) {
+          reject(stderr);
+        }
+        resolve(stdout);
+      });
+    });
+  };
+  try {
+    let execShell = await executeShell(command)
+  } catch (err) {
+    console.log("execShell: ", err)
+  };
+
+  let exportFile = () => {
+    return new Promise((resolve, reject) => {
+      try {
+        console.log("fs.existsSync(outputPath): ", fs.existsSync(outputPath))
+        if (fs.existsSync(outputPath)) {
+          console.log("Path exists")
+          fs.readFile(outputPath, function (err, content) {
+            console.log("Got inside readFile");
+            if (err) {
+              console.log("file export err")
+              reject(err);
+            } else {
+              console.log("file export else")
+              resolve(content);
+            }
+          });
+        } else {
+          reject("no file");
+        }
+      } catch (err) {
+        console.log(err)
       }
-    }
-  );
-  // Thirdly, grab the output file, save it in the database, and delete the
-  gfs_prim.then(function (gfs) {
-    const fname = crypto.randomBytes(16).toString("hex") + ".webm";
-    let result = gfs.createWriteStream({
-      filename: fname,
-      mode: "w",
-      contentType: "video/webm"
     });
-    ffmpeg(path.join(__dirname, "../../video_output/output.mp4"))
-      .saveToFile(result)
-  })
-    .catch(err => console.log(err))
+  };
+  try {
+    let content = await exportFile()
+    console.log(content)
+    res.setHeader("Content-type", "video/mp4");
+    res.setHeader("Content-disposition", "attachment; filename=output.mp4");
+    res.end(content);
+  } catch (err) {
+    console.log(err)
+  };
 });
+
 
 /*
   --enable-demuxer=mov
