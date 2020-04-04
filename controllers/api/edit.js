@@ -519,20 +519,45 @@ router.post("/chroma/:id", upload.none(), async (req, res) => {
     });
   };
   const itm = await getInputReadStream(req.params.id, gfs).catch(err => console.log("getInputReadStream: ", err));
-  console.log("itm: ", itm)
+  // console.log("itm: ", itm)
   ffmpeg(itm).save(inputPath);
+
+  console.log(inputPath)
+
+  let getWidthHeight = () => {
+    return new Promise((resolve, reject) => {
+      exec(`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 ${inputPath}`, function (err, stdout, stderr) {
+        if (err !== null) {
+          console.log("reject dim")
+          console.log(stderr)
+          reject(stderr);
+        } else {
+          console.log("resolve dim")
+          resolve(stdout);
+        }
+      });
+    })
+  }
+  let widthHeight = await getWidthHeight().catch(err => console.log(err))
+  let widthHeightNoSpace = widthHeight.replace(/(\r\n|\n|\r)/gm, "")
+  let widthHeightList = widthHeightNoSpace.split("x")
+  // console.log("widthHeight: ", widthHeightList)
+  let vidWidth = widthHeightList[0]
+  let vidHeight = widthHeightList[1]
+  // console.log(vidWidth)
+  // console.log(vidHeight)
 
   switch (req.body.command) {
     case "Add Cloud":
       command = `ffmpeg -y -i ${inputPath} \
       -i  ${path.join(__dirname, "../../images/blurrycloud.png")} -filter_complex \
-      "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
+      "[1:v]scale=${vidWidth}:${vidHeight}[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
       -codec:v libx264 -max_muxing_queue_size 1024 ${outputPath} -err_detect ignore_err`;
       break;
     case "Add Dancing Banana":
       command = `  ffmpeg -y -i ${inputPath} -ignore_loop 0 \
       -i ${path.join(__dirname, "../../images/dancingbanana.gif")} -filter_complex \
-      "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
+      "[1:v]scale=${vidWidth}:${vidHeight}[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
       -codec:v libx264 -max_muxing_queue_size 2048 ${outputPath} -err_detect ignore_err`;
       break;
   }
@@ -551,8 +576,6 @@ router.post("/chroma/:id", upload.none(), async (req, res) => {
 });
 
 /*
-  --enable-demuxer=mov
-
   ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex 
   "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy 
   -codec:v libx264 -max_muxing_queue_size 2048 video.mp4
