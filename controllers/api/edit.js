@@ -518,13 +518,9 @@ router.post("/chroma/:id", upload.none(), async (req, res) => {
       });
     });
   };
-  try {
-    let itm = await getInputReadStream(req.params.id, gfs)
-    console.log("itm: ", itm)
-    ffmpeg(itm).save(inputPath);
-  } catch (err) {
-    console.log("getInputReadStream: ", err);
-  }
+  const itm = await getInputReadStream(req.params.id, gfs).catch(err => console.log("getInputReadStream: ", err));
+  console.log("itm: ", itm)
+  ffmpeg(itm).save(inputPath);
 
   switch (req.body.command) {
     case "Add Cloud":
@@ -551,47 +547,8 @@ router.post("/chroma/:id", upload.none(), async (req, res) => {
       });
     });
   };
-  try {
-    let execShell = await executeShell(command)
-  } catch (err) {
-    console.log("execShell: ", err)
-  };
-
-  let exportFile = () => {
-    return new Promise((resolve, reject) => {
-      try {
-        console.log("fs.existsSync(outputPath): ", fs.existsSync(outputPath))
-        if (fs.existsSync(outputPath)) {
-          console.log("Path exists")
-          fs.readFile(outputPath, function (err, content) {
-            console.log("Got inside readFile");
-            if (err) {
-              console.log("file export err")
-              reject(err);
-            } else {
-              console.log("file export else")
-              resolve(content);
-            }
-          });
-        } else {
-          reject("no file");
-        }
-      } catch (err) {
-        console.log(err)
-      }
-    });
-  };
-  try {
-    let content = await exportFile()
-    console.log(content)
-    res.setHeader("Content-type", "video/mp4");
-    res.setHeader("Content-disposition", "attachment; filename=output.mp4");
-    res.end(content);
-  } catch (err) {
-    console.log(err)
-  };
+  let execShell = await executeShell(command).catch(err => console.log("execShell: ", err));
 });
-
 
 /*
   --enable-demuxer=mov

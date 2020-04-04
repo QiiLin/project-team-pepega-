@@ -422,6 +422,13 @@ class EditOption extends React.Component {
               >
                 Add Special Effect
               </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                endIcon={<FiberSmartRecordIcon />}
+                href="http://localhost:3333">
+                Download
+              </Button>
             </Grid>
           </Grid>
           <Grid></Grid>

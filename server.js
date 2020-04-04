@@ -4,6 +4,8 @@ const path = require("path");
 const config = require("config");
 const bodyParser = require("body-parser");
 const methodOverride = require('method-override');
+const fs = require("fs");
+const http = require('http')
 
 const app = express();
 
@@ -24,7 +26,6 @@ mongoose
   .then(() => console.log("Mongo DB connected"))
   .catch(err => console.log(err));
 
-
 app.use("/api/items", require("./controllers/api/items"));
 app.use("/api/users", require("./controllers/api/users"));
 app.use("/api/auth", require("./controllers/api/auth"));
@@ -41,5 +42,18 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 const port = process.env.PORT || 5000;
+
+http.createServer(function (req, res) {
+  fs.readFile(path.join(__dirname, "/video_output/output.mp4"), function (err, content) {
+    if (err) {
+      res.writeHead(400, { 'Content-type': 'text/html' })
+      console.log(err);
+      res.end("No such file");
+    } else {
+      res.setHeader('Content-disposition', 'attachment; filename=output.mp4');
+      res.end(content);
+    }
+  });
+}).listen(3333);
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
