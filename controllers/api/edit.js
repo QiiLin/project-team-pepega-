@@ -539,8 +539,8 @@ router.post("/chroma/:id", upload.none(), async (req, res) => {
     })
   }
   let widthHeight = await getWidthHeight().catch(err => console.log(err))
-  let widthHeightNoSpace = widthHeight.replace(/(\r\n|\n|\r)/gm, "")
-  let widthHeightList = widthHeightNoSpace.split("x")
+  let widthHeightNoSpace = widthHeight.replace(/(\r\n|\n|\r)/gm, "");
+  let widthHeightList = widthHeightNoSpace.split("x");
   // console.log("widthHeight: ", widthHeightList)
   let vidWidth = widthHeightList[0]
   let vidHeight = widthHeightList[1]
@@ -552,13 +552,14 @@ router.post("/chroma/:id", upload.none(), async (req, res) => {
       command = `ffmpeg -y -i ${inputPath} \
       -i  ${path.join(__dirname, "../../images/blurrycloud.png")} -filter_complex \
       "[1:v]scale=${vidWidth}:${vidHeight}[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
-      -codec:v libx264 -max_muxing_queue_size 1024 ${outputPath} -err_detect ignore_err`;
+      -codec:v libx264 -max_muxing_queue_size 2048 ${outputPath}`;
+      // -max_muxing_queue_size 1024
       break;
     case "Add Dancing Banana":
       command = `  ffmpeg -y -i ${inputPath} -ignore_loop 0 \
       -i ${path.join(__dirname, "../../images/dancingbanana.gif")} -filter_complex \
       "[1:v]scale=${vidWidth}:${vidHeight}[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
-      -codec:v libx264 -max_muxing_queue_size 2048 ${outputPath} -err_detect ignore_err`;
+      -codec:v libx264 -max_muxing_queue_size 2048 ${outputPath}`;
       break;
   }
 
