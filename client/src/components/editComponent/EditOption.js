@@ -21,6 +21,7 @@ import EjectIcon from "@material-ui/icons/Eject";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
 import AcUnitIcon from '@material-ui/icons/AcUnit';
 import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
+import AdjustIcon from '@material-ui/icons/Adjust';
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
@@ -430,6 +431,19 @@ class EditOption extends React.Component {
                 endIcon={<SystemUpdateAltIcon />}
                 href="http://localhost:3333">
                 Download
+              </Button>
+            </Grid>
+            <Box m={2} />
+            <Grid
+              container
+              direction="column"
+              justify="flex-start"
+              alignItems="flex-start">
+              <InputLabel>Record</InputLabel>
+              <Button
+                variant="contained"
+                color="primary"
+                endIcon={<AdjustIcon />}>
               </Button>
             </Grid>
           </Grid>
