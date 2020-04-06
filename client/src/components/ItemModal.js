@@ -8,10 +8,12 @@ import {
   FormGroup,
   Label
 } from "reactstrap";
+import { Tooltip } from "@material-ui/core";
 import { connect } from "react-redux";
 import { addItem } from "../actions/itemActions";
 import { PropTypes } from "prop-types";
 import "bootstrap/dist/css/bootstrap.min.css";
+import HelpIcon from "@material-ui/icons/Help";
 
 class ItemModal extends Component {
   constructor(props) {
@@ -62,16 +64,21 @@ class ItemModal extends Component {
     return (
       <div>
         <h1>Hello</h1>
+        <Tooltip title={<React.Fragment>
+          <h4>You can: </h4>
+          <ul>
+            <li><h5>merge two videos</h5></li>
+            <li><h5>add transition effects</h5></li>
+            <li><h5>trim videos, or</h5></li>
+            <li><h5>add captions to videos</h5></li>
+          </ul>
+        </React.Fragment>
+        }>
+          <HelpIcon />
+        </Tooltip>
         {this.props.isAuthenticated ? (
           <div>
             <h3>Please upload a video</h3>
-            <h4>You can:</h4>
-            <ul>
-              <li>merge two videos</li>
-              <li>add transition effects</li>
-              <li>trim videos, or</li>
-              <li>add captions to videos</li>
-            </ul>
             <Button
               color="dark"
               style={{ marginBottom: "50px" }}
@@ -81,8 +88,8 @@ class ItemModal extends Component {
             </Button>
           </div>
         ) : (
-          <h4 className="mb-3 ml-4">Please log in to manage videos</h4>
-        )}
+            <h4 className="mb-3 ml-4">Please log in to manage videos</h4>
+          )}
 
         <Modal isOpen={this.state.modal} toggle={this.toggle}>
           <ModalHeader toggle={this.toggle}>Add To Videos List</ModalHeader>
