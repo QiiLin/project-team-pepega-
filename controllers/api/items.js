@@ -22,7 +22,7 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
 
   let getMetadata = stream => {
     return new Promise((resolve, reject) => {
-      ffmpeg.ffprobe(stream, function(err, metadata) {
+      ffmpeg.ffprobe(stream, function (err, metadata) {
         if (err) {
           reject(err);
         }
@@ -45,7 +45,7 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
           err: "No file exists"
         });
       }
-      file;
+      // file;
     }
   );
 
@@ -78,7 +78,7 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
 // @route GET /api/items
 // @desc  Display all files in JSON
 router.get("/", auth, (req, res) => {
-  gfs_prim.then(function(gfs) {
+  gfs_prim.then(function (gfs) {
     gfs.files.find().toArray((err, files) => {
       // Check if files
       if (!files || files.length === 0) {
@@ -89,9 +89,9 @@ router.get("/", auth, (req, res) => {
       console.log("get item is called");
       // Files
 
-      Item.find({}, function(err, filesMetadata) {
-        let itm = _.map(files, function(file) {
-          let metadata = _.find(filesMetadata, function(fileMetadataRes) {
+      Item.find({}, function (err, filesMetadata) {
+        let itm = _.map(files, function (file) {
+          let metadata = _.find(filesMetadata, function (fileMetadataRes) {
             //match gfs_id of metadata collection to _id of gridfs collection
             return fileMetadataRes.gfs_id.toString() === file._id.toString(); //toString gets rid of mongoose objectid type
           });
@@ -129,7 +129,7 @@ router.get("/:id", (req, res) => {
   //     return res.json(file);
   // });
   //console.log("start getting ", req.params.id, req.params._id, mongoose.Types.ObjectId(req.params.id), mongoose.Types.ObjectId(req.params._id), req.params.filename  );
-  gfs_prim.then(function(gfs) {
+  gfs_prim.then(function (gfs) {
     gfs.files.findOne(
       { _id: mongoose.Types.ObjectId(req.params.id) },
       (err, file) => {
@@ -144,7 +144,7 @@ router.get("/:id", (req, res) => {
 
         const readstream = gfs.createReadStream(file.filename);
         readstream.pipe(res);
-        readstream.on("end", function() {
+        readstream.on("end", function () {
           const readstreamMetadata = Item.find({
             gfs_id: mongoose.Types.ObjectId(req.params.id)
           }).stream();
@@ -179,7 +179,7 @@ router.get("/:id", (req, res) => {
 // @route DELETE /files/:id
 // @desc  Delete file
 router.delete("/:id", (req, res) => {
-  gfs_prim.then(function(gfs) {
+  gfs_prim.then(function (gfs) {
     gfs.remove(
       { _id: mongoose.Types.ObjectId(req.params.id), root: "fs" },
       (err, gridStore) => {

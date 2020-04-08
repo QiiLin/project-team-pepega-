@@ -9,7 +9,8 @@ import {
   SET_CAPTION,
   RESET_CAPTION,
   DELETE_CAPTION,
-  ADD_CHROMA
+  ADD_CHROMA,
+  SAVE_RECORDING
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
@@ -94,6 +95,35 @@ export const addChroma = (id, data) => (dispatch, getState) => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });
 };
+
+export const saveMP3 = (data) => (dispatch, getState) => {
+  console.log("file: ", data)
+  axios
+    .post(`/api/edit/saveMP3`, data, tokenConfig2(getState), {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+    .then(res => dispatch(getItems()))
+    .catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
+};
+/*
+export const saveMP3 = (file) => (dispatch, getState) => {
+  console.log("saveMP3 editAction");
+  console.log("file: ", file)
+  axios.post("/api/edit/saveMP3/", file, tokenConfig2(getState), {
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  })
+    .then(res => dispatch(getItems()))
+    .catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
+}
+*/
 
 export const set_sync = () => {
   return {

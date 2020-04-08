@@ -41,7 +41,7 @@ const initialState = {
   captionValue: ""
 };
 
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
   // console.log(action);
   switch (action.type) {
     case MERGE_CLIP:
@@ -77,7 +77,6 @@ export default function(state = initialState, action) {
         durationVideoTwo: action.payload
       };
     case ADD_CHROMA:
-      console.log("Got to editReducer");
       return {
         ...state,
         items: action.payload

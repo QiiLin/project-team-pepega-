@@ -10,7 +10,13 @@ const Item = require("../../models/Item");
 const mongoose = require("mongoose");
 // import stream from 'stream';
 const { gfs_prim } = require("../../middleware/gridSet");
-const upload = multer();
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, "../../video_input/"),
+  filename: function (req, file, callback) {
+    callback(null, "recording.mp3")
+  }
+});
+const upload = multer({ storage: storage });
 const crypto = require("crypto");
 const { exec } = require("child_process");
 const { StreamInput, StreamOutput } = require("fluent-ffmpeg-multistream");
@@ -262,6 +268,7 @@ router.post("/merge", upload.none(), (req, res) => {
     });
   });
 });
+
 // @route  POST /api/edit/cut/:id/
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
@@ -606,5 +613,53 @@ router.post("/chroma/:id", upload.none(), async (req, res) => {
     "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
     -codec:v libx264 -max_muxing_queue_size 2048 ${path.join(__dirname, "../../video_output/output.mp4"
 */
+
+router.post("/saveMP3", upload.single("mp3file"), async (req, res) => {
+  console.log("edit.js saveMP3");
+  console.log("file in backend: ", req.file)
+  let gfs = await gfs_prim;
+
+  gfs.files.findOne(
+    { _id: mongoose.Types.ObjectId(req.file.id) },
+    (err, file) => {
+      console.log("gfs file: ", file);
+      // Check if file
+      if (!file || file.length === 0) {
+        return res.status(404).json({
+          err: "No file exists"
+        });
+      }
+    }
+  );
+
+  const newItem = new Item({
+    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
+    gfs_id: mongoose.Types.ObjectId(req.file.id),
+    originalname: req.file.originalname,
+    file_path: req.file.path,
+    width: 0,
+    height: 0
+  });
+
+  const writeStream = gfs.createWriteStream({
+    filename: req.file.filename,
+    contentType: req.file.mimetype
+  });
+  fs.createReadStream(req.file.path).pipe(writeStream)
+
+  await newItem.save();
+  const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
+  return res.json({
+    _id: id,
+    uploadDate: uploadDate,
+    filename: filename,
+    md5: md5,
+    contentType: contentType,
+    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
+    originalname: originalname,
+    width: newItem.width,
+    height: newItem.height
+  });
+});
 
 module.exports = router;

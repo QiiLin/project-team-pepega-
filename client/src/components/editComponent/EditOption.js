@@ -15,7 +15,8 @@ import {
   set_sync,
   trimClip,
   transitionClip,
-  addChroma
+  addChroma,
+  saveMP3
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
@@ -27,6 +28,10 @@ import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
 import PadTransitionComp from "./PadTransitionComp";
 import FadeTransitionComp from "./FadeTransitionComp";
+import SingleRecorder from "./Recorder";
+// import Recorder from "./Record"
+// import AudioRecorder from 'react-audio-recorder';
+
 
 String.prototype.toHHMMSS = function () {
   var sec_num = parseInt(this, 10); // don't forget the second param
@@ -67,7 +72,8 @@ class EditOption extends React.Component {
       transition_paddingVidRow: "",
       transition_paddingVidCol: "",
       transition_paddingColor: "",
-      chroma_dropdownValue: ""
+      chroma_dropdownValue: "",
+      record: false
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
@@ -250,6 +256,15 @@ class EditOption extends React.Component {
     const { captions } = this.props.edit;
     this.props.captionClip(selectItemOne, captions);
   };
+
+  saveMP3 = (file) => {
+    console.log("saveMP3 called")
+    console.log("file: ", file)
+    // const { selectItemOne } = this.props.item;
+    let bodyFormData = new FormData();
+    bodyFormData.append("mp3file", file);
+    this.props.saveMP3(bodyFormData);
+  }
 
   render() {
     // console.log(this.props.item);
@@ -440,11 +455,7 @@ class EditOption extends React.Component {
               justify="flex-start"
               alignItems="flex-start">
               <InputLabel>Record</InputLabel>
-              <Button
-                variant="contained"
-                color="primary"
-                endIcon={<AdjustIcon />}>
-              </Button>
+              <SingleRecorder saveMP3={this.saveMP3} />
             </Grid>
           </Grid>
           <Grid></Grid>
@@ -475,5 +486,6 @@ export default connect(mapStateToProps, {
   set_sync,
   addCapation,
   captionClip,
-  addChroma
+  addChroma,
+  saveMP3
 })(EditOption);
