@@ -6,16 +6,14 @@ const mongoose = require("mongoose");
 const auth = require("../../middleware/auth");
 const Item = require("../../models/Item");
 const edit = require("../api/edit");
-const _ = require("underscore");
-const path = require("path");
+//const _ = require("underscore");
 
 // @route POST /upload
 // @desc  Uploads file to DB
 router.post('/upload', upload.single('video'), auth, (req, res) => {
   console.log("Uploaded file: ", req.file);
 
-  let basename = path.basename(req.file.filename).replace(path.extname(req.file.filename), ""); //filename w/o extension
-  edit.generateThumbnail(req.file.id, basename);
+  edit.generateThumbnail(req.file.id, req.file.filename);
 
   let metadata = {
     uploader_id: req.body.uploader_id,
@@ -117,6 +115,10 @@ router.get('/thumbnail/:id', (req, res) => {
 
       const readstream = gfs.createReadStream(file.filename);
       readstream.pipe(res);
+      readstream.on('error', function (err) {
+        console.log('An error occurred!', err);
+        throw err;
+      });
       /*readstream.on('end', function() {
         const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
         readstreamMetadata.pipe(res);

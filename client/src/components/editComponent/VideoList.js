@@ -105,10 +105,7 @@ class VideoList extends Component {
                     </Button>
                     <Box m={0.5} />
                     <CardTitle>{metadata.originalname ? metadata.originalname : filename}</CardTitle>
-                    {/*<Media data-src={"api/items/thumbnail" + _id}></Media>*/}
-                    <CardMedia  style={{width: '250px'}}
-                      image={"api/items/thumbnail/" + _id}
-                    />
+                    <img src={"api/items/thumbnail/" + _id} style={{width: '100%', height: '100%'}}></img>
                     {/*<Player key={_id}>
                       <source src={"api/items/" + _id} />
                       <Shortcut

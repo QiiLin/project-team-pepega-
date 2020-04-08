@@ -27,9 +27,9 @@ function retrievePromise(id, gfs) {
   });
 }
 
-function generateThumbnail(id, basename) {
-  console.log("id:", id, " basename:", basename);
+function generateThumbnail(id, filename) {  
   gfs_prim.then(function(gfs) {
+    let basename = path.basename(filename).replace(path.extname(filename), ""); //filename w/o extension
     const fname = basename + ".png";
     let result = gfs.createWriteStream({
       filename: fname,
@@ -98,7 +98,7 @@ router.post("/caption/:id", (req, res) => {
       let resultFile = gfs.createWriteStream({
         filename: fname,
         mode: "w",
-        contentType: "video/webm"
+        content_type: "video/webm"
       });
       let currentItem = retrievePromise(req.params.id, gfs);
       let currentItemCopy = retrievePromise(req.params.id, gfs);
@@ -174,9 +174,8 @@ router.post("/merge", upload.none(), (req, res) => {
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
-      contentType: "video/webm"
+      content_type: "video/webm"
     });
-
     Promise.all([itemOne, itemOneCopy, itemTwo]).then(function(itm) {
       let currStream = itm[0];
       let currStreamCopy = itm[1];
@@ -307,7 +306,7 @@ router.post("/cut/:id", (req, res) => {
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
-      contentType: "video/webm"
+      content_type: "video/webm"
     });
     let itemOne = retrievePromise(req.params.id, gfs);
     itemOne.then(item => {
@@ -353,7 +352,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
-      contentType: "video/webm"
+      content_type: "video/webm"
     });
     Promise.all([itemOne, itemOneCopy, itemCopy_One]).then(resultItem => {
       let itemOneStream = resultItem[0];
@@ -505,7 +504,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
-      contentType: "video/webm"
+      content_type: "video/webm"
     });
     retrievePromise(req.params.id, gfs).then(function(itm) {
       ffmpeg(itm)
