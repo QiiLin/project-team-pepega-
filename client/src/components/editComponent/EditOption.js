@@ -398,7 +398,7 @@ class EditOption extends React.Component {
               justify="flex-start"
               alignItems="flex-start"
             >
-              <InputLabel>Add special effects</InputLabel>
+              {/*<InputLabel>Add special effects</InputLabel>
               <Select
                 className="chroma-dropdown"
                 style={{ minWidth: 180, marginBottom: 10 }}
@@ -423,14 +423,14 @@ class EditOption extends React.Component {
                 onClick={this.chroma_dropdownSubmit.bind(this, selectItemOne)}
               >
                 Add Special Effect
-              </Button>
+                </Button>
               <Button
                 variant="contained"
                 color="primary"
                 endIcon={<SystemUpdateAltIcon />}
                 href="http://localhost:3333">
                 Download
-              </Button>
+              </Button>*/}
             </Grid>
           </Grid>
           <Grid></Grid>
