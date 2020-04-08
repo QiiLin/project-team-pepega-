@@ -43,7 +43,7 @@ if (process.env.NODE_ENV === "production") {
 }
 const port = process.env.PORT || 5000;
 
-http.createServer(function (req, res) {
+/*http.createServer(function (req, res) {
   fs.readFile(path.join(__dirname, "/video_output/output.mp4"), function (err, content) {
     if (err) {
       res.writeHead(400, { 'Content-type': 'text/html' })
@@ -54,6 +54,6 @@ http.createServer(function (req, res) {
       res.end(content);
     }
   });
-}).listen(3333);
+}).listen(3333);*/
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
