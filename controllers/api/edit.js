@@ -13,8 +13,6 @@ let createJSONfilter = transitionType => {};
 const { gfs_prim } = require("../../middleware/gridSet");
 const upload = multer();
 const crypto = require("crypto");
-const { StreamInput, StreamOutput } = require("fluent-ffmpeg-multistream");
-const { PassThrough, Duplex } = require("stream");
 
 function retrievePromise(id, gfs) {
   return new Promise(function(resolve, reject) {
@@ -27,6 +25,40 @@ function retrievePromise(id, gfs) {
       return resolve(readstream);
     });
   });
+}
+
+function generateThumbnail(id, basename) {
+  console.log("id:", id, " basename:", basename);
+  gfs_prim.then(function(gfs) {
+    const fname = basename + ".png";
+    let result = gfs.createWriteStream({
+      filename: fname,
+      mode: "w",
+      content_type: "image/png",
+      metadata: {video_id: id}
+    });
+    retrievePromise(id, gfs).then(function(item) {
+      ffmpeg(item)
+        .withVideoCodec("png")
+        .addOptions([
+          "-vframes 1", //output 1 frame
+          "-f image2pipe" //force image to writestream
+        ])
+        .on("progress", progress => {
+          console.log(`[Thumbnail]: ${JSON.stringify(progress)}`);
+        })
+        .on("stderr", function(stderrLine) {
+          console.log("Stderr output [Thumbnail]: " + stderrLine);
+        })
+        .on("error", function(err) {
+          return ("An error occurred [Thumbnail]: ", err.message);
+        })
+        .on("end", function() {
+          return ("Thumbnail is completed");
+        })
+        .saveToFile(result);
+    });
+  });  
 }
 
 // @route  POST /api/caption
@@ -85,7 +117,7 @@ router.post("/caption/:id", (req, res) => {
             .input(readItem)
             .format("webm")
             .withVideoCodec("libvpx")
-            .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+            .addOptions(["-b:v 0",  "-crf 30"])
             .withVideoBitrate(1024)
             .withAudioCodec("libvorbis")
             .withFpsInput(fps)
@@ -178,7 +210,8 @@ router.post("/merge", upload.none(), (req, res) => {
           //.preset("divx")
           .format("webm")
           .withVideoCodec("libvpx")
-          .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+          //.addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+          .addOptions(["-b:v 0",  "-crf 30"])
           .withVideoBitrate(1024)
           .withAudioCodec("libvorbis")
           .withFpsInput(fps)
@@ -199,7 +232,7 @@ router.post("/merge", upload.none(), (req, res) => {
               //.preset("divx")
               .format("webm")
               .withVideoCodec("libvpx")
-              .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+              .addOptions(["-b:v 0",  "-crf 30"]) //sets bitrate to zero and specify Constant Rate Factor to target certain perceptual quality lvl, prevents quality loss
               .withVideoBitrate(1024)
               .withAudioCodec("libvorbis")
               .withFpsInput(fps)
@@ -220,7 +253,7 @@ router.post("/merge", upload.none(), (req, res) => {
               .on("end", function() {
                 ffmpeg({ source: path1_tmp })
                   .mergeAdd(path2_tmp)
-                  .addOutputOption(["-f webm"])
+                  .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
                   .on("progress", progress => {
                     console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
                   })
@@ -281,7 +314,7 @@ router.post("/cut/:id", (req, res) => {
       ffmpeg(item)
         .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
         .setDuration(req.body.timestampDuration)
-        .addOutputOption(["-f webm"])
+        .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
         .on("progress", progress => {
           console.log(`[Cut1]: ${JSON.stringify(progress)}`);
         })
@@ -350,7 +383,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
         ffmpeg(itemCopyStream)
           .format("webm")
           .withVideoCodec("libvpx")
-          .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+          .addOptions(["-b:v 0",  "-crf 30"])
           .withVideoBitrate(1024)
           .withAudioCodec("libvorbis")
           .setDuration(timestampStart)
@@ -367,7 +400,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
             ffmpeg(itemCopyOneStream)
               .format("webm")
               .withVideoCodec("libvpx")
-              .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+              .addOptions(["-b:v 0",  "-crf 30"])
               .withVideoBitrate(1024)
               .withAudioCodec("libvorbis")
               .setStartTime(timestampEnd)
@@ -387,7 +420,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
               })
               .on("end", function() {
                 ffmpeg({ source: path1_tmp })
-                  .addOutputOption(["-f webm"])
+                  .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
                   .mergeAdd(path2_tmp)
                   .on("progress", progress => {
                     console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
@@ -478,7 +511,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
       ffmpeg(itm)
         .format("webm")
         .withVideoCodec("libvpx")
-        .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+        .addOptions(["-b:v 0",  "-crf 30"])
         .withVideoBitrate(1024)
         .withAudioCodec("libvorbis")
         .videoFilters(transitionType)
@@ -497,4 +530,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
   });
 });
 
-module.exports = router;
+module.exports = {
+  router: router,
+  generateThumbnail: generateThumbnail
+};

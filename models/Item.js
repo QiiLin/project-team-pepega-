@@ -14,11 +14,7 @@ const ItemSchema = new Schema({
   originalname: {
     type: String,
     required: true
-  },
-  thumbnail: {
-    type: Buffer,
-    required: false
-  },  
+  }
   /*date: {
     type: Date,
     default: Date.now

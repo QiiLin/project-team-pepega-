@@ -9,9 +9,10 @@ import {
   CardTitle,
   Row,
   Col,
+  Media,
   ButtonGroup
 } from "reactstrap";
-import { Button, Box } from "@material-ui/core";
+import { Button, Box, CardMedia } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import VideoLibraryIcon from "@material-ui/icons/VideoLibrary";
 import { connect } from "react-redux";
@@ -86,8 +87,10 @@ class VideoList extends Component {
           style={{ maxHeight: 600, overflow: "auto" }}
         >
           <TabPane tabId="1">
-            <Row>
-              {items.map(({ _id, filename, originalname }) => (
+            <Row>              
+              {items
+                .filter(({metadata}) => (metadata == null ? false : metadata.video_id === undefined))
+                .map(({ _id, filename, metadata }) => (                      
                 <Col sm="6" key={_id}>
                   <Card body>
                     <Button
@@ -101,8 +104,12 @@ class VideoList extends Component {
                       Delete
                     </Button>
                     <Box m={0.5} />
-                    <CardTitle>{originalname ? originalname : filename}</CardTitle>
-                    <Player key={_id}>
+                    <CardTitle>{metadata.originalname ? metadata.originalname : filename}</CardTitle>
+                    {/*<Media data-src={"api/items/thumbnail" + _id}></Media>*/}
+                    <CardMedia  style={{width: '250px'}}
+                      image={"api/items/thumbnail/" + _id}
+                    />
+                    {/*<Player key={_id}>
                       <source src={"api/items/" + _id} />
                       <Shortcut
                         clickable={false}
@@ -111,7 +118,7 @@ class VideoList extends Component {
                       />
                       <ControlBar disabled />
                       <BigPlayButton disabled />
-                    </Player>
+                    </Player>*/}
                     <Box m={0.5} />
                     <ButtonGroup vertical>
                       <Button
