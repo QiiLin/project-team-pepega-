@@ -56,10 +56,6 @@ RUN mkdir -p ~/ffmpeg_sources ~/bin && cd ~/ffmpeg_sources && \
     hash -r
 RUN mv ~/bin/ffmpeg /usr/local/bin && mv ~/bin/ffprobe /usr/local/bin && mv ~/bin/ffplay /usr/local/bin
 
-
-
-
-
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -68,16 +64,11 @@ WORKDIR /usr/src/app
 # where available (npm@5+)
 COPY package*.json ./
 
-
-
 # Bundle app source
 COPY . .
 RUN npm run install-all
+RUN npm run postbuild
 
-
-
-
-
-
-EXPOSE 3000 5000
-CMD npm run dev
+# run the server and expose port 
+EXPOSE 5000
+CMD npm run product_run

@@ -18,29 +18,36 @@ const db = config.get("mongoURI");
 
 // Connect to mongo
 mongoose
-  .connect(db, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
-  })
-  .then(() => console.log("Mongo DB connected"))
-  .catch(err => console.log(err));
+    .connect(db, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useCreateIndex: true
+    })
+    .then(() => console.log("Mongo DB connected"))
+    .catch(err => console.log(err));
 
 app.use("/api/items", require("./controllers/api/items"));
 app.use("/api/users", require("./controllers/api/users"));
 app.use("/api/auth", require("./controllers/api/auth"));
 app.use("/api/edit", require("./controllers/api/edit"));
-
+console.log("invooke");
 // Serve static assets if in production
 if (process.env.NODE_ENV === "production") {
-  // Set static folder
-  app.use(express.static("client/build"));
-
-  app.get("*", (req, res) => {
+    // Set static folder
+    app.use(express.static("client/build"));
+    console.log("inssdvooke");
+    app.get("*", (req, res) => {
+        // Current directory, go into client/build, and load the index.html file
+        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+    });
+}
+// Set static folder
+app.use(express.static("client/build"));
+console.log("inssdvooke");
+app.get("*", (req, res) => {
     // Current directory, go into client/build, and load the index.html file
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-  });
-}
+});
 const port = process.env.PORT || 5000;
 
 /*http.createServer(function (req, res) {
