@@ -15,9 +15,6 @@ import { returnErrors } from "./errorActions";
 import { getItems } from "./itemActions";
 
 export const mergeClip = ids => (dispatch, getState) => {
-  for (var pair of ids.entries()) {
-    console.log(pair[0] + ", " + pair[1]);
-  }
 
   axios
     // Attach token to request in the header

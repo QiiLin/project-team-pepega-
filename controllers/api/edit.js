@@ -37,27 +37,32 @@ function generateThumbnail(id, filename) {
       content_type: "image/png",
       metadata: {video_id: id}
     });
-    retrievePromise(id, gfs).then(function(item) {
-      ffmpeg(item)
-        .withVideoCodec("png")
-        .addOptions([
-          "-vframes 1", //output 1 frame
-          "-f image2pipe" //force image to writestream
-        ])
-        .on("progress", progress => {
-          console.log(`[Thumbnail]: ${JSON.stringify(progress)}`);
-        })
-        .on("stderr", function(stderrLine) {
-          console.log("Stderr output [Thumbnail]: " + stderrLine);
-        })
-        .on("error", function(err) {
-          return ("An error occurred [Thumbnail]: ", err.message);
-        })
-        .on("end", function() {
-          return ("Thumbnail is completed");
-        })
-        .saveToFile(result);
-    });
+    //search for newly generated video every 0.5s until exists since this gridfs version has a small delay on write
+    let idInterval = setInterval(function(){
+      retrievePromise(id, gfs).then(function(item) {
+        clearInterval(idInterval);
+        ffmpeg(item)
+          .withVideoCodec("png")
+          .addOptions([
+            "-vframes 1", //output 1 frame
+            "-f image2pipe" //force image to writestream
+          ])
+          .on("progress", progress => {
+            console.log(`[Thumbnail]: ${JSON.stringify(progress)}`);
+          })
+          .on("stderr", function(stderrLine) {
+            console.log("Stderr output [Thumbnail]: " + stderrLine);
+          })
+          .on("error", function(err) {
+            return ("An error occurred [Thumbnail]: ", err.message);
+          })
+          .on("end", function() {
+            return ("Thumbnail is completed");
+          })
+          .saveToFile(result);
+      });   
+    }, 500);   
+    
   });  
 }
 
@@ -144,6 +149,7 @@ router.post("/caption/:id", (req, res) => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
               // TODO return data with path to access the file in the database
+              
               return res.status(200).end("Caption is added");
             })
             .writeToStream(resultFile);
@@ -161,6 +167,8 @@ router.post("/merge", upload.none(), (req, res) => {
   if (!req.body.curr_vid_id || !req.body.merge_vid_id)
     return res.status(400).end("video id for merging required");
 
+  let result_id;
+  const fname = crypto.randomBytes(16).toString("hex") + ".webm";
   gfs_prim.then(function(gfs) {
     const curr_vid_id = req.body.curr_vid_id;
     const merge_vid_id = req.body.merge_vid_id;
@@ -169,12 +177,15 @@ router.post("/merge", upload.none(), (req, res) => {
     let itemTwo = retrievePromise(merge_vid_id, gfs);
     // let tempWriteOne = gfs.createWriteStream({ filename: 'my_1_file'});
     // let tempWriteTwo = gfs.createWriteStream({ filename: 'my_2_file'});
-
-    const fname = crypto.randomBytes(16).toString("hex") + ".webm";
+    
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
-      content_type: "video/webm"
+      content_type: "video/webm",
+      metadata: {
+        uploader_id: "test",
+        originalname: fname
+      }
     });
     Promise.all([itemOne, itemOneCopy, itemTwo]).then(function(itm) {
       let currStream = itm[0];
@@ -195,8 +206,7 @@ router.post("/merge", upload.none(), (req, res) => {
 
       // console.log(path1_tmp);
       // console.log(path2_tmp);
-      // console.log (pathOut_path);
-
+      // console.log (pathOut_path);      
       ffmpeg.ffprobe(currStream, function(err, metadata) {
         let width = metadata ? metadata.streams[0].width : 640;
         let height = metadata ? metadata.streams[0].height : 360;
@@ -206,7 +216,6 @@ router.post("/merge", upload.none(), (req, res) => {
         console.log(fps);
 
         ffmpeg(currStreamCopy)
-          //.preset("divx")
           .format("webm")
           .withVideoCodec("libvpx")
           //.addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
@@ -214,21 +223,18 @@ router.post("/merge", upload.none(), (req, res) => {
           .withVideoBitrate(1024)
           .withAudioCodec("libvorbis")
           .withFpsInput(fps)
-          .outputOptions([
-            `-vf scale=${width}:${height},setsar=1` //Sample Aspect Ratio = 1.0
-          ])
+          .outputOptions([`-vf scale=${width}:${height},setsar=1`]) //Sample Aspect Ratio = 1.0     
           .on("progress", progress => {
             console.log(`[Merge1]: ${JSON.stringify(progress)}`);
           })
           .on("error", function(err) {
             res.json("An error occurred [Merge1]: " + err.message);
           })
-          /*.on('stderr', function(stderrLine) {
+          .on('stderr', function(stderrLine) {
                         console.log('Stderr output [Merge1]: ' + stderrLine);
-                      })*/
+                      })
           .on("end", function() {
             ffmpeg(targetStream)
-              //.preset("divx")
               .format("webm")
               .withVideoCodec("libvpx")
               .addOptions(["-b:v 0",  "-crf 30"]) //sets bitrate to zero and specify Constant Rate Factor to target certain perceptual quality lvl, prevents quality loss
@@ -244,56 +250,54 @@ router.post("/merge", upload.none(), (req, res) => {
                   if (err)
                     console.log("Could not remove Merge1 tmp file:" + err);
                 });
-                res.json("An error occurred [Merge2]: " + err.message);
+                return res.json("An error occurred [Merge2]: " + err.message);
               })
-              /*.on('stderr', function(stderrLine) {
+              .on('stderr', function(stderrLine) {
                               console.log('Stderr output [Merge2]:: ' + stderrLine);
-                            })*/
+                            })
               .on("end", function() {
-                ffmpeg({ source: path1_tmp })
-                  .mergeAdd(path2_tmp)
-                  .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
-                  .on("progress", progress => {
-                    console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
-                  })
-                  .on("error", function(err) {
-                    fs.unlink(path1_tmp, err => {
-                      if (err)
-                        console.log("Could not remove Merge1 tmp file:" + err);
-                    });
-                    fs.unlink(path2_tmp, err => {
-                      if (err)
-                        console.log("Could not remove Merge2 tmp file:" + err);
-                    });
-                    res.json(
-                      "An error occurred [MergeCombine]: " + err.message
-                    );
-                  })
-                  /*.on('stderr', function (stderrLine) {
-                                            console.log('Stderr output [MergeCombine]:: ' + stderrLine);
-                                        })*/
-                  .on("end", function() {
-                    fs.unlink(path1_tmp, err => {
-                      if (err)
-                        console.log("Could not remove Merge1 tmp file:" + err);
-                    });
-                    fs.unlink(path2_tmp, err => {
-                      if (err)
-                        console.log("Could not remove Merge2 tmp file:" + err);
-                    });
-                    // fs.createReadStream(pathOut_path).pipe(result);
-                    
-                    return res.status(200).end("Merging is completed");
-                  })
-                  .mergeToFile(result, pathOut_tmp);
-              })
-              .save(path2_tmp);
-          })
-          .save(path1_tmp);
+                  ffmpeg({ source: path1_tmp })
+                    .mergeAdd(path2_tmp)
+                    .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
+                    .on("progress", progress => {
+                      console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
+                    })
+                    .on("error", function(err) {
+                      fs.unlink(path1_tmp, err => {
+                        if (err)
+                          console.log("Could not remove Merge1 tmp file:" + err);
+                      });
+                      fs.unlink(path2_tmp, err => {
+                        if (err)
+                          console.log("Could not remove Merge2 tmp file:" + err);
+                      });
+                      return res.json("An error occurred [MergeCombine]: " + err.message);
+                    })
+                    .on('stderr', function (stderrLine) {
+                          console.log('Stderr output [MergeCombine]:: ' + stderrLine);
+                    })
+                    .on("end", function() {
+                      fs.unlink(path1_tmp, err => {
+                        if (err)
+                          console.log("Could not remove Merge1 tmp file:" + err);
+                      });
+                      fs.unlink(path2_tmp, err => {
+                        if (err)
+                          console.log("Could not remove Merge2 tmp file:" + err);
+                      });
+                      generateThumbnail(result.id, fname);
+                      return res.status(200).json("Merging is completed");
+                    })
+                    .mergeToFile(result, pathOut_tmp);                
+            })
+            .save(path2_tmp);
+        })
+        .save(path1_tmp);
       });
     });
   });
 });
+
 // @route  POST /api/edit/cut/:id/
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
