@@ -15,10 +15,6 @@ const ItemSchema = new Schema({
     type: String,
     required: true
   },
-  thumbnail: {
-    type: Buffer,
-    required: false
-  },
   width: {
     type: Number,
     required: true
