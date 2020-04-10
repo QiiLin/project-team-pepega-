@@ -101,6 +101,7 @@ class EditOption extends React.Component {
     let bodyFormData = new FormData();
     bodyFormData.append("curr_vid_id", selectItemOne);
     bodyFormData.append("merge_vid_id", this.state.merge_dropdownValue);
+    bodyFormData.append("uploader_id", this.props.user._id);
 
     // Add video through add item action
     this.props.mergeClip(bodyFormData);

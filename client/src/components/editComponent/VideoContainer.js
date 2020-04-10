@@ -59,12 +59,10 @@ class VideoContainer extends Component {
       : "http://techslides.com/demos/sample-videos/small.webm";
     return (
       <div>
-        <AppBar position="sticky">
-          <Tabs value={this.state.selectTab} onChange={this.handleTabClick}>
-            <Tab label="Player One" value="1" />
-            <Tab label="Player Two" value="2" />
-          </Tabs>
-        </AppBar>
+        <Tabs value={this.state.selectTab} onChange={this.handleTabClick}>
+          <Tab label="Player One" value="1" />
+          <Tab label="Player Two" value="2" />
+        </Tabs>
         <Box
           display={this.state.selectTab === "1" ? "block" : "none"}
           value="1"
