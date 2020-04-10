@@ -3,6 +3,7 @@ import { AppBar, Tabs, Tab, Box } from "@material-ui/core/";
 import { setDurationOne, setDurationTwo } from "../../actions/editActions";
 import { Player } from "video-react";
 import { connect } from "react-redux";
+import '../style/Main.css';
 // import PlayerComp from "./PlayerComp";
 
 class VideoContainer extends Component {
@@ -16,7 +17,7 @@ class VideoContainer extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     // subscribe state change
     this.player1.subscribeToStateChange(this.handleStateChangeOne.bind(this));
-    this.player2.subscribeToStateChange(this.handleStateChangeTwo.bind(this));
+    // this.player2.subscribeToStateChange(this.handleStateChangeTwo.bind(this));
   }
 
   changeCurrentTime(seconds) {
@@ -54,17 +55,8 @@ class VideoContainer extends Component {
     const playerOneSource = selectItemOne
       ? "api/items/" + selectItemOne
       : "http://www.w3schools.com/html/mov_bbb.mp4";
-    const playerTwoSource = selectItemTwo
-      ? "api/items/" + selectItemTwo
-      : "http://techslides.com/demos/sample-videos/small.webm";
     return (
       <div>
-        <AppBar position="sticky">
-          <Tabs value={this.state.selectTab} onChange={this.handleTabClick}>
-            <Tab label="Player One" value="1" />
-            <Tab label="Player Two" value="2" />
-          </Tabs>
-        </AppBar>
         <Box
           display={this.state.selectTab === "1" ? "block" : "none"}
           value="1"
@@ -72,6 +64,7 @@ class VideoContainer extends Component {
           <div>
             <div>
               <Player
+                fluid={false} width={"100%"} height={630}
                 key={selectItemOne}
                 ref={player => {
                   this.player1 = player;
@@ -80,21 +73,6 @@ class VideoContainer extends Component {
                 <source src={playerOneSource} />
               </Player>
             </div>
-          </div>
-        </Box>
-        <Box
-          display={this.state.selectTab === "2" ? "block" : "none"}
-          value="2"
-        >
-          <div>
-            <Player
-              key={selectItemTwo}
-              ref={player => {
-                this.player2 = player;
-              }}
-            >
-              <source src={playerTwoSource} />
-            </Player>
           </div>
         </Box>
       </div>

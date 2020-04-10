@@ -1,0 +1,8 @@
+.lower_z_index {
+    z-index: 100!important;
+}
+
+.overflow_class {
+    max-height: 600px;
+    overflow: auto
+}

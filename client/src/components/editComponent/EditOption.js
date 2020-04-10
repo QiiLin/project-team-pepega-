@@ -26,6 +26,16 @@ import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
 import PadTransitionComp from "./PadTransitionComp";
 import FadeTransitionComp from "./FadeTransitionComp";
+import { setVideoOneRange, setVideoTwoRange } from "../../actions/itemActions";
+import TimeLineSector from "./TimeLineSector";
+import Tooltip from '@material-ui/core/Tooltip';
+
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+
+
+
+
 
 String.prototype.toHHMMSS = function () {
   var sec_num = parseInt(this, 10); // don't forget the second param
@@ -70,7 +80,12 @@ class EditOption extends React.Component {
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
+    this.setOneRange = this.setOneRange.bind(this);
   }
+  
+  setOneRange = value => {
+    this.props.setVideoOneRange(value);
+  };
 
   static propTypes = {
     item: PropTypes.object.isRequired,
@@ -266,22 +281,34 @@ class EditOption extends React.Component {
       "cyans"
     ];
     const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
+
+    const classes = makeStyles((theme) => ({
+      root: {
+        flexGrow: 1,
+      },
+      paper: {
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+      },
+    }));
     const { durationVideoOne } = this.props.edit;
     return (
       <div>
-        <Grid key="merge_grid" container>
+        <div>
+          <TimeLineSector title="Here is range select for the video" callback={this.setOneRange} videoReference="1"/>
+          <Button variant="contained" color="primary"onClick={() => this.props.set_sync()}>
+            Sync range selector
+          </Button>
+         </div> 
+         <br/>
           <Grid
-            container
-            direction="column"
-            justify="flex-start"
-            alignItems="flex-start"
+          container
+          direction="row"
+          justify="space-evenly"
+          alignItems="flex-start"
           >
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
+            <Grid>
               <InputLabel>Select a video to merge</InputLabel>
               <Select
                 className="edit-dropdown"
@@ -299,6 +326,8 @@ class EditOption extends React.Component {
                   </MenuItem>
                 ))}
               </Select>
+              <br/>
+              <Tooltip title="This take few mins" arrow>
               <Button
                 variant="contained"
                 color="primary"
@@ -307,14 +336,9 @@ class EditOption extends React.Component {
               >
                 Merge
               </Button>
+              </Tooltip>
             </Grid>
-            <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
+            <Grid>
               <InputLabel>Add Transition Effect</InputLabel>
               <Select
                 className="transition-dropdown"
@@ -374,13 +398,7 @@ class EditOption extends React.Component {
                 Add Transition Effect
               </Button>
             </Grid>
-            <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
+            <Grid>
               <InputLabel>Trim Video</InputLabel>
               <Button
                 variant="contained"
@@ -391,13 +409,7 @@ class EditOption extends React.Component {
                 Trim
               </Button>
             </Grid>
-            <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
+            <Grid>
               {/*<InputLabel>Add special effects</InputLabel>
               <Select
                 className="chroma-dropdown"
@@ -432,15 +444,32 @@ class EditOption extends React.Component {
                 Download
               </Button>*/}
             </Grid>
-          </Grid>
-          <Grid></Grid>
-        </Grid>
-        <Button color="primary" onClick={() => this.props.set_sync()}>
-          Sync range selector
+            <Grid>
+          <Button              
+          variant="contained"
+          color="primary"
+          onClick={this.trim_Submit.bind(this, selectItemOne)}>
+            Enable Add Caption
         </Button>
-        <Button onClick={() => this.addCaption()}>Add to Caption</Button>
-        <Button onClick={() => this.burnVideo()}>Burn it into video</Button>
+        {this.state.isWanted ? (
+          <div>
+              <Button           variant="contained"
+          color="primary"onClick={() => this.addCaption()}>Add to Caption</Button>
+        <Button           variant="contained"
+          color="primary"onClick={() => this.burnVideo()}>Burn it into video</Button>
+            </div>
+        )
+        :
+        (<div> </div>)};
+      
+            
+            </Grid>
+            <Grid>
         <CaptionListView />
+            </Grid>
+          </Grid>
+          <br/>
+
       </div>
     );
   }
@@ -461,5 +490,6 @@ export default connect(mapStateToProps, {
   set_sync,
   addCapation,
   captionClip,
-  addChroma
+  addChroma,
+  setVideoOneRange
 })(EditOption);
