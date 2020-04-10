@@ -5,9 +5,11 @@ import {
   Button,
   InputLabel,
   MenuItem,
-  Box
+  Box,
+  Tooltip
 } from "@material-ui/core";
 import MergeTypeIcon from "@material-ui/icons/MergeType";
+import HelpIcon from "@material-ui/icons/Help";
 import {
   addCapation,
   captionClip,
@@ -16,22 +18,20 @@ import {
   trimClip,
   transitionClip,
   addChroma,
-  saveMP3
+  saveMP3,
+  addAudToVid
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
 import AcUnitIcon from '@material-ui/icons/AcUnit';
 import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
-import AdjustIcon from '@material-ui/icons/Adjust';
+import AddIcon from '@material-ui/icons/Add';
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
 import PadTransitionComp from "./PadTransitionComp";
 import FadeTransitionComp from "./FadeTransitionComp";
 import SingleRecorder from "./Recorder";
-// import Recorder from "./Record"
-// import AudioRecorder from 'react-audio-recorder';
-
 
 String.prototype.toHHMMSS = function () {
   var sec_num = parseInt(this, 10); // don't forget the second param
@@ -73,7 +73,9 @@ class EditOption extends React.Component {
       transition_paddingVidCol: "",
       transition_paddingColor: "",
       chroma_dropdownValue: "",
-      record: false
+      record: false,
+      audio_dropdownValue: "",
+      video_dropdownValue: ""
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
@@ -219,10 +221,10 @@ class EditOption extends React.Component {
     let bodyFormData = new FormData();
     bodyFormData.append("vid_id", selectItemOne);
     bodyFormData.append("command", this.state.chroma_dropdownValue);
-    console.log(
-      "chroma_dropdownSubmit chroma: ",
-      bodyFormData.get("command")
-    );
+    // console.log(
+    //   "chroma_dropdownSubmit chroma: ",
+    //   bodyFormData.get("command")
+    // );
     this.props.addChroma(selectItemOne, bodyFormData);
   };
 
@@ -232,6 +234,36 @@ class EditOption extends React.Component {
     this.setState(() => {
       return {
         chroma_dropdownValue: event.target.value
+      };
+    });
+  };
+
+  addAudToVid_dropdownSubmit = selectItemOne => {
+    console.log("id: ", selectItemOne)
+    let bodyFormData = new FormData();
+    bodyFormData.append("vid_id", selectItemOne);
+    bodyFormData.append("audio_id", this.state.audio_dropdownValue);
+    // bodyFormData.append("video", this.state.video_dropdownValue);
+    this.props.addAudToVid(selectItemOne, bodyFormData)
+  }
+
+  audio_dropdownChanged = event => {
+    event.persist();
+    console.log(event.target.value);
+    this.setState(() => {
+      return {
+        audio_dropdownValue: event.target.value
+      };
+    });
+    console.log(this.state.audio_dropdownValue)
+  };
+
+  video_dropdownChanged = event => {
+    event.persist();
+    console.log(event.target.value);
+    this.setState(() => {
+      return {
+        video_dropdownValue: event.target.value
       };
     });
   };
@@ -282,6 +314,9 @@ class EditOption extends React.Component {
       "cyans"
     ];
     const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
+    // const audioExts = ["3gp", "aa", "aac", "aax", "act", "aiff", "alac", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "flac", "gsm", "iklax", "ivs", "m4a", "m4b", "m4p", "mmf", "mp3", "mpc", "msv", "nmf", "nsf", "ogg", "oga", "mogg", "opus", "ra", "rm", "raw", "rf64", "sln", "tta", "voc", "vox", "wav", "wma", "wv", "webm", "8svx", "cda"]
+    const audioExts = ["mp3", "aac", "ac3", "eac3", "ogg", "wma", "wav", "l16", "aiff", "au", "pcm"]
+    const videoExts = ["mp4", "m4a", "m4v", "f4v", "f4a", "m4b", "m4r", "f4b", "mov", "3gp", "webm"]
     const { durationVideoOne } = this.props.edit;
     return (
       <div>
@@ -457,8 +492,61 @@ class EditOption extends React.Component {
               <InputLabel>Record</InputLabel>
               <SingleRecorder saveMP3={this.saveMP3} />
             </Grid>
+            <Box m={2} />
+            <Grid
+              container
+              direction="column"
+              justify="flex-start"
+              alignItems="flex-start">
+              <InputLabel>Add Aduio to Video</InputLabel>
+              <Tooltip title="Please load the video to which you want to add sound">
+                <HelpIcon />
+              </Tooltip>
+              <Box m={1} />
+              {/* <InputLabel>Video</InputLabel>
+              <Select
+                className="video-dropdown"
+                style={{ minWidth: 180, marginBottom: 10 }}
+                value={this.state.video_dropdownValue}
+                onChange={this.video_dropdownChanged}
+              >
+                {items.filter((item) => (videoExts.includes(item.filename.split(".")[1]))).map(({ _id, filename }) => (
+                  <MenuItem
+                    className="audio-dropdown-item"
+                    key={filename}
+                    value={filename}
+                  >
+                    {filename}
+                  </MenuItem>
+                ))}
+              </Select> 
+              <Box m={1} /> */}
+              <InputLabel>Audio</InputLabel>
+              <Select
+                className="audio-dropdown"
+                style={{ minWidth: 180, marginBottom: 10 }}
+                value={this.state.audio_dropdownValue}
+                onChange={this.audio_dropdownChanged}>
+                {items.filter((item) => (audioExts.includes(item.filename.split(".")[1]))).map(({ _id, filename }) => (
+                  <MenuItem
+                    className="audio-dropdown-item"
+                    key={_id}
+                    value={_id}
+                  >
+                    {filename}
+                  </MenuItem>
+                ))}
+              </Select>
+              <Button
+                variant="contained"
+                color="primary"
+                endIcon={<AddIcon />}
+                onClick={this.addAudToVid_dropdownSubmit.bind(this, selectItemOne)}
+              >
+                Add
+              </Button>
+            </Grid>
           </Grid>
-          <Grid></Grid>
         </Grid>
         <Button color="primary" onClick={() => this.props.set_sync()}>
           Sync range selector
@@ -487,5 +575,6 @@ export default connect(mapStateToProps, {
   addCapation,
   captionClip,
   addChroma,
-  saveMP3
+  saveMP3,
+  addAudToVid
 })(EditOption);

@@ -10,13 +10,13 @@ const Item = require("../../models/Item");
 const mongoose = require("mongoose");
 // import stream from 'stream';
 const { gfs_prim } = require("../../middleware/gridSet");
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, "../../video_input/"),
-  filename: function (req, file, callback) {
-    callback(null, "recording.mp3")
-  }
-});
-const upload = multer({ storage: storage });
+// const storage = multer.diskStorage({
+//   destination: path.join(__dirname, "../../video_input/"),
+//   filename: function (req, file, callback) {
+//     callback(null, "recording.mp3")
+//   }
+// });
+const upload = multer({ dest: path.join(__dirname, "../../recordings/") });
 const crypto = require("crypto");
 const { exec } = require("child_process");
 const { StreamInput, StreamOutput } = require("fluent-ffmpeg-multistream");
@@ -132,6 +132,8 @@ router.post("/caption/:id", (req, res) => {
 // @access Private
 router.post("/merge", upload.none(), (req, res) => {
   res.set("Content-Type", "text/plain");
+  console.log(req.body.curr_vid_id)
+  console.log(req.body.merge_vid_id)
   if (!req.body.curr_vid_id || !req.body.merge_vid_id)
     return res.status(400).end("video id for merging required");
 
@@ -601,28 +603,16 @@ router.post("/chroma/:id", upload.none(), async (req, res) => {
   })
 });
 
-/*
-  --enable-demuxer=mov
-
-  ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex 
-  "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy 
-  -codec:v libx264 -max_muxing_queue_size 2048 video.mp4
-
-   `ffmpeg -y -i ${path.join(__dirname, "../../video_input/input.mp4")} -ignore_loop 0 \
-    -i ${path.join(__dirname, "../../images/blurrycloud.png")} -filter_complex \
-    "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
-    -codec:v libx264 -max_muxing_queue_size 2048 ${path.join(__dirname, "../../video_output/output.mp4"
-*/
-
+// @route POST /api/edit/saveMP3
+// @desc  Save the user recording into the database once the Stop button is pressed
 router.post("/saveMP3", upload.single("mp3file"), async (req, res) => {
-  console.log("edit.js saveMP3");
-  console.log("file in backend: ", req.file)
+  // console.log("edit.js saveMP3");
+  // console.log("file in backend: ", req.file)
   let gfs = await gfs_prim;
 
   gfs.files.findOne(
     { _id: mongoose.Types.ObjectId(req.file.id) },
     (err, file) => {
-      console.log("gfs file: ", file);
       // Check if file
       if (!file || file.length === 0) {
         return res.status(404).json({
@@ -641,13 +631,15 @@ router.post("/saveMP3", upload.single("mp3file"), async (req, res) => {
     height: 0
   });
 
+  // Write it to a file in the recordings directory
   const writeStream = gfs.createWriteStream({
-    filename: req.file.filename,
+    filename: req.file.filename + ".mp3",
     contentType: req.file.mimetype
   });
   fs.createReadStream(req.file.path).pipe(writeStream)
 
   await newItem.save();
+
   const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
   return res.json({
     _id: id,
@@ -661,5 +653,98 @@ router.post("/saveMP3", upload.single("mp3file"), async (req, res) => {
     height: newItem.height
   });
 });
+
+/*
+  --enable-demuxer=mov
+ 
+  ffmpeg -y -i input.mp4 -ignore_loop 0 -i dancingbanana.gif -filter_complex 
+  "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy 
+  -codec:v libx264 -max_muxing_queue_size 2048 video.mp4
+ 
+   `ffmpeg -y -i ${path.join(__dirname, "../../video_input/input.mp4")} -ignore_loop 0 \
+    -i ${path.join(__dirname, "../../images/blurrycloud.png")} -filter_complex \
+    "[1:v]scale=560:320[ovrl];[0:v][ovrl]overlay=0:0" -frames:v 900 -codec:a copy \
+    -codec:v libx264 -max_muxing_queue_size 2048 ${path.join(__dirname, "../../video_output/output.mp4"
+*/
+
+/*
+// @route POST /api/edit/addAudToVid/:id
+// @desc  Add sound from an audio file to a video
+router.post("/addAudToVid/:id", upload.none(), async (req, res) => {
+  console.log("Got to edit.js addAudToVid")
+  const audioId = req.body.audio_id
+  const videoId = req.body.vid_id
+  // console.log(audioId)
+  // console.log(videoId)
+  let videoPath = path.join(__dirname, "../../video_output/video.mp4");
+  let audioPath = path.join(__dirname, "../../video_output/audio.mp3");
+  let outputPath = path.join(__dirname, "../../video_output/output.mp4")
+  // 1. Retrieve the video file and save it somewhere
+  // 2. Retrieve the audio file and save it somewhere
+  // 3. Run the node-fluent equivant command of 
+  //     ffmpeg -i input.mp4 -i audio.mp3 -c copy -map 0:v:0 -map 1:a:0 output.mp4
+  let gfs = await gfs_prim
+  const fname = crypto.randomBytes(16).toString("hex") + ".webm";
+  let result = gfs.createWriteStream({
+    filename: fname,
+    mode: "w",
+    contentType: "video/webm"
+  });
+  let itm = await retrievePromise(req.params.id, gfs)
+  ffmpeg(itm)
+    .format('webm')
+    .on("progress", progress => {
+      console.log(`[AddAudToVid1]: ${JSON.stringify(progress)}`);
+    })
+    .on("stderr", function (stderrLine) {
+      console.log("Stderr output [AddAudToVid1]: " + stderrLine);
+    })
+    .on("error", function (err) {
+      return res.json("An error occurred [AddAudToVid1]: ", err.message);
+    })
+    .on("end", async function () {
+      let itm2 = await retrievePromise(audioId, gfs)
+      ffmpeg(itm2)
+        .format('webm')
+        // .outputOptions(["-c copy", "-map 0:v:0", "-map 1:a:0"])
+        .on("progress", progress => {
+          console.log(`[AddAudToVid2]: ${JSON.stringify(progress)}`);
+        })
+        .on("stderr", function (stderrLine) {
+          console.log("Stderr output [AddAudToVid2]: " + stderrLine);
+        })
+        .on("error", function (err) {
+          return res.json("An error occurred [AddAudToVid2]: ", err.message);
+        })
+        .on("end", function () { })
+        .saveToFile(audioPath);
+    }).saveToFile(videoPath);
+
+  console.log("videoPath: ", videoPath)
+  console.log("audioPath: ", audioPath)
+  console.log("outputPath: ", outputPath)
+
+  let command = `ffmpeg -i ${videoPath} -i ${audioPath} -c copy -map 0:v:0 -map 1:a:0 ${outputPath}`
+  console.log("command: ", command)
+  let executeShell = command => {
+    return new Promise((resolve, reject) => {
+      exec(command, function (err, stdout, stderr) {
+        if (stderr !== null) {
+          console.log("reject shell")
+          reject(stderr);
+        } else {
+          console.log("resolve shell")
+          resolve(stdout);
+        }
+      });
+    });
+  };
+  let execShell = await executeShell(command).catch(err => console.log("execShell: ", err));
+
+  Promise.all([gfs, execShell]).then(function (values) {
+    console.log("All promises done")
+  })
+})
+*/
 
 module.exports = router;

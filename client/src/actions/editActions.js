@@ -69,6 +69,7 @@ export const trimClip = (id, body) => (dispatch, getState) => {
 };
 
 export const transitionClip = (id, data) => (dispatch, getState) => {
+  console.log(id, data)
   axios
     .post(`/api/edit/transition/${id}`, data, tokenConfig2(getState), {
       headers: {
@@ -109,21 +110,33 @@ export const saveMP3 = (data) => (dispatch, getState) => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });
 };
-/*
-export const saveMP3 = (file) => (dispatch, getState) => {
-  console.log("saveMP3 editAction");
-  console.log("file: ", file)
-  axios.post("/api/edit/saveMP3/", file, tokenConfig2(getState), {
-    headers: {
-      "Content-Type": "multipart/form-data"
-    }
-  })
+
+export const addAudToVid = (id, data) => (dispatch, getState) => {
+  axios
+    .post(`/api/edit/addAudToVid/${id}`, data, tokenConfig2(getState), {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
     .then(res => dispatch(getItems()))
     .catch(err => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });
-}
-*/
+};
+
+// export const addAudToVid = (id, data) => (dispatch, getState) => {
+//   console.log("addAudToVid editAction");
+//   axios
+//     .post(`/api/edit/addAudToVid/${id}`, data, tokenConfig2(getState), {
+//       headers: {
+//         "Content-Type": "multipart/form-data"
+//       }
+//     })
+//     .then(res => dispatch(getItems()))
+//     .catch(err => {
+//       dispatch(returnErrors(err.response.data, err.response.status));
+//     });
+// }
 
 export const set_sync = () => {
   return {

@@ -83,65 +83,70 @@ class VideoList extends Component {
 
         <TabContent
           activeTab={this.state.selectTab}
-          style={{ maxHeight: 1000, overflow: "auto" }}
+          style={{ maxHeight: 1250, overflow: "auto" }}
         >
           <TabPane tabId="1">
             <Row>
-              {items.map(({ _id, filename, originalname }) => (
-                <Col sm="6" key={_id}>
-                  <Card body>
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      startIcon={<DeleteIcon />}
-                      onClick={() => {
-                        this.props.deleteItem(_id);
-                      }}
-                    >
-                      Delete
-                    </Button>
-                    <Box m={0.5} />
-                    <CardTitle>
-                      {originalname ? originalname : filename}
-                    </CardTitle>
-                    <Player key={_id}>
-                      <source src={"api/items/" + _id} />
-                      <Shortcut
-                        clickable={false}
-                        dblclickable={false}
-                        disabled
-                      />
-                      <ControlBar disabled />
-                      <BigPlayButton disabled />
-                    </Player>
-
-                    <Box m={0.5} />
-                    <ButtonGroup vertical>
+              {items.map(({ _id, filename, originalname }) =>
+                // console.log(filename, originalname)
+                // console.log(filename.split(".")[0])
+                (
+                  <Col sm="6" key={_id}>
+                    <Card body>
                       <Button
                         variant="contained"
-                        color="primary"
-                        endIcon={<VideoLibraryIcon />}
+                        color="secondary"
+                        startIcon={<DeleteIcon />}
                         onClick={() => {
-                          this.props.setSelectItemOne(_id);
+                          this.props.deleteItem(_id);
                         }}
                       >
-                        Load to player one
+                        Delete
                       </Button>
                       <Box m={0.5} />
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        endIcon={<VideoLibraryIcon />}
-                        onClick={() => {
-                          this.props.setSelectItemTwo(_id);
-                        }}
-                      >
-                        Load to player two
-                      </Button>
-                    </ButtonGroup>
-                  </Card>
-                </Col>
-              ))}
+                      <CardTitle>
+                        {originalname ? originalname : filename}
+                      </CardTitle>
+                      <Player key={_id}>
+                        <source src={"api/items/" + _id} />
+                        <Shortcut
+                          clickable={false}
+                          dblclickable={false}
+                          disabled
+                        />
+                        <ControlBar disabled />
+                        <BigPlayButton disabled />
+                      </Player>
+
+                      <Box m={0.5} />
+                      <ButtonGroup vertical>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          endIcon={<VideoLibraryIcon />}
+                          onClick={() => {
+                            this.props.setSelectItemOne(_id);
+                          }}
+                        >
+                          Load to player one
+                        </Button>
+                        <Box m={0.5} />
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          endIcon={<VideoLibraryIcon />}
+                          onClick={() => {
+                            this.props.setSelectItemTwo(_id);
+                          }}
+                        >
+                          Load to player two
+                        </Button>
+                      </ButtonGroup>
+                    </Card>
+                  </Col>
+                )
+              )
+              }
             </Row>
           </TabPane>
           <TabPane tabId="2">

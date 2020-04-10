@@ -61,19 +61,19 @@ class ItemModal extends Component {
   };
 
   render() {
-
     return (
       <div>
         <h1>Hello</h1>
-        <Tooltip title={<React.Fragment>
-          <h4>You can: </h4>
-          <ul>
-            <li><h5>merge two videos</h5></li>
-            <li><h5>add transition effects</h5></li>
-            <li><h5>trim videos, or</h5></li>
-            <li><h5>add captions to videos</h5></li>
-          </ul>
-        </React.Fragment>
+        <Tooltip title={
+          <React.Fragment>
+            <h4>You can: </h4>
+            <ul>
+              <li><h5>merge two videos</h5></li>
+              <li><h5>add transition effects</h5></li>
+              <li><h5>trim videos, or</h5></li>
+              <li><h5>add captions to videos</h5></li>
+            </ul>
+          </React.Fragment>
         }>
           <HelpIcon />
         </Tooltip>
