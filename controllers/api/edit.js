@@ -178,6 +178,7 @@ router.post("/merge", upload.none(), (req, res) => {
     let itemOne = retrievePromise(curr_vid_id, gfs);
     let itemOneCopy = retrievePromise(curr_vid_id, gfs);
     let itemTwo = retrievePromise(merge_vid_id, gfs);
+    let itemTwoCopy = retrievePromise(merge_vid_id, gfs);
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
@@ -188,10 +189,11 @@ router.post("/merge", upload.none(), (req, res) => {
         originalname: fname
       }
     });
-    Promise.all([itemOne, itemOneCopy, itemTwo]).then(function(itm) {
+    Promise.all([itemOne, itemOneCopy, itemTwo, itemTwoCopy]).then(function(itm) {
       let currStream = itm[0];
       let currStreamCopy = itm[1];
       let targetStream = itm[2];
+      let targetStreamCopy = itm[3];
       let path1 = path.join(__dirname, "../../video_input/test1.mp4");
       let path2 = path.join(__dirname, "../../video_input/test2.mp4");
       let path1_base = path.basename(path1).replace(path.extname(path1), ""); //filename w/o extension
@@ -200,14 +202,20 @@ router.post("/merge", upload.none(), (req, res) => {
       let path2_tmp = path.join(path.dirname(path2), path2_base + "_mod2.webm");
       let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
 
-      ffmpeg.ffprobe(currStream, function(err, metadata) {
-        let width = metadata ? metadata.streams[0].width : 640;
-        let height = metadata ? metadata.streams[0].height : 360;
-        let fps = metadata ? metadata.streams[0].r_frame_rate : 30;
-        console.log(width);
-        console.log(height);
-        console.log(fps);
+      let width, height, fps, duration_one, duration_two;
+      ffmpeg.ffprobe(targetStream, function (err, metadata_two) {
+        duration_two = metadata_two ? metadata_two.format.duration : 5;    
+      ffmpeg.ffprobe(currStream, function (err, metadata) {
+        width = metadata ? metadata.streams[0].width : 640;
+        height = metadata ? metadata.streams[0].height : 360;
+        fps = metadata ? metadata.streams[0].r_frame_rate : 30;
+        duration_one = metadata ? metadata.format.duration : 5;
 
+        console.log(metadata);
+        console.log(metadata_two);
+
+        console.log("d1: ", duration_one);
+        console.log("d2: ", duration_two);
         ffmpeg(currStreamCopy)
           .format("webm")
           .withVideoCodec("libvpx")
@@ -227,7 +235,7 @@ router.post("/merge", upload.none(), (req, res) => {
                         console.log('Stderr output [Merge1]: ' + stderrLine);
                       })
           .on("end", function() {
-            ffmpeg(targetStream)
+            ffmpeg(targetStreamCopy)
               .format("webm")
               .withVideoCodec("libvpx")
               .addOptions(["-b:v 0",  "-crf 30"]) //sets bitrate to zero and specify Constant Rate Factor to target certain perceptual quality lvl, prevents quality loss
@@ -252,6 +260,7 @@ router.post("/merge", upload.none(), (req, res) => {
                   ffmpeg({ source: path1_tmp })
                     .mergeAdd(path2_tmp)
                     .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
+                    .outputOption(["-metadata", `duration=${duration_one + duration_two}`])
                     .on("progress", progress => {
                       console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
                     })
@@ -286,6 +295,7 @@ router.post("/merge", upload.none(), (req, res) => {
             .save(path2_tmp);
         })
         .save(path1_tmp);
+      });
       });
     });
   });
@@ -386,7 +396,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
       let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
 
       ffmpeg.ffprobe(itemOneStream, function(err, metadata) {
-        let duration = metadata ? metadata.streams[0].duration : 5; //vid duration in timebase unit
+        let duration = metadata ? metadata.format.duration : 5; //vid duration in timebase unit
         console.log("duration: ", duration);
         ffmpeg(itemCopyStream)
           .format("webm")
@@ -429,6 +439,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
               .on("end", function() {
                 ffmpeg({ source: path1_tmp })
                   .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
+                  .outputOption(["-metadata", `duration=${duration - (timestampEnd - timestampStart)}`])
                   .mergeAdd(path2_tmp)
                   .on("progress", progress => {
                     console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
