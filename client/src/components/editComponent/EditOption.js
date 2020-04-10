@@ -313,10 +313,9 @@ class EditOption extends React.Component {
       "white",
       "cyans"
     ];
-    const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
-    // const audioExts = ["3gp", "aa", "aac", "aax", "act", "aiff", "alac", "amr", "ape", "au", "awb", "dct", "dss", "dvf", "flac", "gsm", "iklax", "ivs", "m4a", "m4b", "m4p", "mmf", "mp3", "mpc", "msv", "nmf", "nsf", "ogg", "oga", "mogg", "opus", "ra", "rm", "raw", "rf64", "sln", "tta", "voc", "vox", "wav", "wma", "wv", "webm", "8svx", "cda"]
-    const audioExts = ["mp3", "aac", "ac3", "eac3", "ogg", "wma", "wav", "l16", "aiff", "au", "pcm"]
-    const videoExts = ["mp4", "m4a", "m4v", "f4v", "f4a", "m4b", "m4r", "f4b", "mov", "3gp", "webm"]
+    // const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
+    // const audioExts = ["mp3", "aac", "ac3", "eac3", "ogg", "wma", "wav", "l16", "aiff", "au", "pcm"]
+    // const videoExts = ["mp4", "m4a", "m4v", "f4v", "f4a", "m4b", "m4r", "f4b", "mov", "3gp", "webm"]
     const { durationVideoOne } = this.props.edit;
     return (
       <div>
@@ -492,7 +491,7 @@ class EditOption extends React.Component {
               <InputLabel>Record</InputLabel>
               <SingleRecorder saveMP3={this.saveMP3} />
             </Grid>
-            <Box m={2} />
+            {/* <Box m={2} />
             <Grid
               container
               direction="column"
@@ -503,24 +502,6 @@ class EditOption extends React.Component {
                 <HelpIcon />
               </Tooltip>
               <Box m={1} />
-              {/* <InputLabel>Video</InputLabel>
-              <Select
-                className="video-dropdown"
-                style={{ minWidth: 180, marginBottom: 10 }}
-                value={this.state.video_dropdownValue}
-                onChange={this.video_dropdownChanged}
-              >
-                {items.filter((item) => (videoExts.includes(item.filename.split(".")[1]))).map(({ _id, filename }) => (
-                  <MenuItem
-                    className="audio-dropdown-item"
-                    key={filename}
-                    value={filename}
-                  >
-                    {filename}
-                  </MenuItem>
-                ))}
-              </Select> 
-              <Box m={1} /> */}
               <InputLabel>Audio</InputLabel>
               <Select
                 className="audio-dropdown"
@@ -545,7 +526,7 @@ class EditOption extends React.Component {
               >
                 Add
               </Button>
-            </Grid>
+            </Grid> */}
           </Grid>
         </Grid>
         <Button color="primary" onClick={() => this.props.set_sync()}>

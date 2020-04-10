@@ -83,7 +83,7 @@ class VideoList extends Component {
 
         <TabContent
           activeTab={this.state.selectTab}
-          style={{ maxHeight: 1250, overflow: "auto" }}
+          style={{ maxHeight: 850, overflow: "auto" }}
         >
           <TabPane tabId="1">
             <Row>
