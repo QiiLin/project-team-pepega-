@@ -133,26 +133,31 @@ router.get('/thumbnail/:id', (req, res) => {
 // @desc  Delete file
 router.delete('/:id', (req, res) => {
   gfs_prim.then(function (gfs) {
-    gfs.remove({ _id: mongoose.Types.ObjectId(req.params.id), root: 'fs' }, (err, gridStore) => {
+    //this gridfs version can only delete via remove, ignore deprecated warnings
+    gfs.remove({ _id: mongoose.Types.ObjectId(req.params.id), root: 'fs' }, (err) => {
       if (err) {
         return res.status(404).json({ err: err });
-      }
-
-      
-
+      }     
       /*Item.deleteOne({ gfs_id : mongoose.Types.ObjectId(req.params.id)})
       .then(() => {
         return res.status(200).json("delete done");
       }).catch(err => res.status(404).json({ err: err }));      */
-      return res.status(200).json("delete done");
+
+      gfs.files.findOne({ metadata: { video_id: mongoose.Types.ObjectId(req.params.id) } }, (err, file) => {
+        if(file){
+          gfs.remove({_id: file._id, root: 'fs' }, (err) => {
+            if (err) {
+              return res.status(404).json({ err: err });
+            } 
+            return res.status(200).json("delete done");
+          });
+        }else{
+          return res.status(200).json("delete done without thumbnail");
+        }
+      });
     });
-  }); 
-  
+  });   
 });
-
-
-
-
 
 // ---------------------------stuff below are old code-----//
 // // @route  GET /api/items

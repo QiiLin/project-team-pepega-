@@ -103,7 +103,11 @@ router.post("/caption/:id", (req, res) => {
       let resultFile = gfs.createWriteStream({
         filename: fname,
         mode: "w",
-        content_type: "video/webm"
+        content_type: "video/webm",
+        metadata: {
+          uploader_id: "test",
+          originalname: fname
+        }
       });
       let currentItem = retrievePromise(req.params.id, gfs);
       let currentItemCopy = retrievePromise(req.params.id, gfs);
@@ -149,7 +153,7 @@ router.post("/caption/:id", (req, res) => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
               // TODO return data with path to access the file in the database
-              
+              generateThumbnail(resultFile.id, fname);
               return res.status(200).end("Caption is added");
             })
             .writeToStream(resultFile);
@@ -167,17 +171,14 @@ router.post("/merge", upload.none(), (req, res) => {
   if (!req.body.curr_vid_id || !req.body.merge_vid_id)
     return res.status(400).end("video id for merging required");
 
-  let result_id;
-  const fname = crypto.randomBytes(16).toString("hex") + ".webm";
+  
   gfs_prim.then(function(gfs) {
     const curr_vid_id = req.body.curr_vid_id;
     const merge_vid_id = req.body.merge_vid_id;
     let itemOne = retrievePromise(curr_vid_id, gfs);
     let itemOneCopy = retrievePromise(curr_vid_id, gfs);
     let itemTwo = retrievePromise(merge_vid_id, gfs);
-    // let tempWriteOne = gfs.createWriteStream({ filename: 'my_1_file'});
-    // let tempWriteTwo = gfs.createWriteStream({ filename: 'my_2_file'});
-    
+    const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
@@ -198,15 +199,7 @@ router.post("/merge", upload.none(), (req, res) => {
       let path1_tmp = path.join(path.dirname(path1), path1_base + "_mod1.webm"); //temp file loc
       let path2_tmp = path.join(path.dirname(path2), path2_base + "_mod2.webm");
       let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
-      let pathOut_path = path.join(
-        __dirname,
-        "../../video_output",
-        path1_base + ".webm"
-      );
 
-      // console.log(path1_tmp);
-      // console.log(path2_tmp);
-      // console.log (pathOut_path);      
       ffmpeg.ffprobe(currStream, function(err, metadata) {
         let width = metadata ? metadata.streams[0].width : 640;
         let height = metadata ? metadata.streams[0].height : 360;
@@ -310,7 +303,11 @@ router.post("/cut/:id", (req, res) => {
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
-      content_type: "video/webm"
+      content_type: "video/webm",
+      metadata: {
+        uploader_id: "test",
+        originalname: fname
+      }
     });
     let itemOne = retrievePromise(req.params.id, gfs);
     itemOne.then(item => {
@@ -330,6 +327,7 @@ router.post("/cut/:id", (req, res) => {
             .json("An error occurred [Cut1]: " + err.message);
         })
         .on("end", function() {
+          generateThumbnail(result.id, fname);
           return res.status(200).json("Operation Complete");
         })
         .writeToStream(result);
@@ -343,6 +341,8 @@ router.post("/cut/:id", (req, res) => {
 router.post("/trim/:id/", upload.none(), (req, res) => {
   let timestampStart = req.body.timestampStart;
   let timestampEnd = req.body.timestampEnd;
+  console.log("start: ", timestampStart);
+  console.log("end: ", timestampEnd);
   if (!timestampStart || !timestampEnd)
     return res.status(400).end("timestamp required");
   if (timestampStart === "0" || timestampStart === "00:00:00.000")
@@ -356,7 +356,11 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
-      content_type: "video/webm"
+      content_type: "video/webm",
+      metadata: {
+        uploader_id: "test",
+        originalname: fname
+      }
     });
     Promise.all([itemOne, itemOneCopy, itemCopy_One]).then(resultItem => {
       let itemOneStream = resultItem[0];
@@ -383,6 +387,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
 
       ffmpeg.ffprobe(itemOneStream, function(err, metadata) {
         let duration = metadata ? metadata.streams[0].duration : 5; //vid duration in timebase unit
+        console.log("duration: ", duration);
         ffmpeg(itemCopyStream)
           .format("webm")
           .withVideoCodec("libvpx")
@@ -451,6 +456,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
                       if (err)
                         console.log("Could not remove Trim2 tmp file:" + err);
                     });
+                    generateThumbnail(result.id, fname);
                     return res.status(200).end("Trimming is completed");
                   })
                   .mergeToFile(result, pathOut_tmp);
@@ -508,7 +514,11 @@ router.post("/transition/:id", upload.none(), (req, res) => {
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
-      content_type: "video/webm"
+      content_type: "video/webm",
+      metadata: {
+        uploader_id: "test",
+        originalname: fname
+      }
     });
     retrievePromise(req.params.id, gfs).then(function(itm) {
       ffmpeg(itm)
@@ -527,7 +537,9 @@ router.post("/transition/:id", upload.none(), (req, res) => {
         .on("error", function(err) {
           res.json("An error occurred [Transition1]: ", err.message);
         })
-        .on("end", function() {})
+        .on("end", function() {
+          generateThumbnail(result.id, fname);
+        })
         .saveToFile(result);
     });
   });
