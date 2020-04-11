@@ -263,7 +263,7 @@ class EditOption extends React.Component {
     // getting stuff for
     const {selectItemOne} = this.props.item;
     const {captions} = this.props.edit;
-    this.props.captionClip(selectItemOne, captions);
+    this.props.captionClip(selectItemOne, captions, this.props.newFileName);
   };
 
   saveMP3 = (file) => {

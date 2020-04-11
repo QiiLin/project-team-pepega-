@@ -8,6 +8,20 @@ const fs = require("fs");
 const http = require('http')
 
 const app = express();
+const helmet = require('helmet');
+// enable helmet
+app.use(helmet());
+// enable helmet Content Security Policy
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    styleSrc: ["'self'", 'maxcdn.bootstrapcdn.com']
+  }
+}))
+// set permittedCrossDomainPolicies for flash and adobe stuff
+app.use(helmet.permittedCrossDomainPolicies())
+// set the same-origin pllicy
+app.use(helmet.referrerPolicy({ policy: 'same-origin' }))
 
 // Body parser middleware
 app.use(express.json({ limit: '10mb' }));
