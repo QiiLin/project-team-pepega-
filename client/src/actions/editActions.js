@@ -15,13 +15,13 @@ import {
     MERGE_CLIP,
     TRIM_CLIP,
     ADD_CHROMA,
-    SAVE_RECORDING
+    SAVE_RECORDING,
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 import { getItems } from "./itemActions";
 
-export const mergeClip = ids => (dispatch, getState) => {
+export const mergeClip = (ids, filename) => (dispatch, getState) => {
     // for (var pair of ids.entries()) {
     //     console.log(pair[0] + ", " + pair[1]);
     // }
@@ -44,9 +44,10 @@ export const mergeClip = ids => (dispatch, getState) => {
         });
 };
 
-export const captionClip = (id, data) => (dispatch, getState) => {
+export const captionClip = (id, data, filename) => (dispatch, getState) => {
     let body = {
-        data: data
+        data: data,
+        filename: filename
     };
     dispatch(setProgress());
     dispatch(setLoading());
@@ -209,6 +210,14 @@ export const setDurationTwo = video_length => {
         payload: video_length
     };
 };
+
+export const setFilename = filename => {
+    console.log(filename)
+    return {
+        type: SET_FILENAME,
+        payload: filename
+    }
+}
 
 export const addCapation = item => {
     return {

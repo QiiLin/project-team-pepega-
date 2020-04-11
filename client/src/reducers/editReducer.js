@@ -13,7 +13,8 @@ import {
   ENABLE_CAPTION,
   ENABLE_USERGUIDE,
   SET_PROGRESS,
-  SET_LOADING
+  SET_LOADING,
+  SET_FILENAME
 } from "../actions/types";
 
 /*
@@ -46,7 +47,8 @@ const initialState = {
   isWanted: false,
   isUserGuide: false,
   isProgress: false,
-  isLoading: false
+  isLoading: false,
+  newFileName: ""
 };
 
 export default function (state = initialState, action) {
@@ -132,6 +134,12 @@ export default function (state = initialState, action) {
       return {
         ...state,
         isLoading: ! state.isLoading
+      }
+    }
+    case SET_FILENAME: {
+      return {
+        ...state,
+        newFileName: action.payload
       }
     }
     default:

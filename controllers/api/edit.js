@@ -76,11 +76,13 @@ function generateThumbnail(id, filename) {
 // @access Private
 router.post("/caption/:id", (req, res) => {
   res.set("Content-Type", "text/plain");
-  console.log(req.body.data);
+  // check if request has valid data
   if (!req.body.data) {
     return res.status(400).end("Bad argument: Missing data");
   }
+  // check if the filename already exist
 
+  // start write the content of subtitle caption 
   let result = "";
   req.body.data.forEach(function (curr, index) {
     let temp = "" + (index + 1) + "\n";
@@ -88,16 +90,14 @@ router.post("/caption/:id", (req, res) => {
     temp += curr.text + "\n";
     result += temp;
   });
-  const fname = crypto.randomBytes(16).toString("hex") + ".webm";
-  // TODO Change path according the database
+  const fname = req.filename.toString("hex") + ".webm";
+  // sub_path
   let sub_path = path
     .join(__dirname, "/../../temp/subtitle/", "t_sub.srt")
     .replace(/\\/g, "\\\\\\\\")
     .replace(":", "\\\\:");
-
-  let srt_path = __dirname + "/../../temp/subtitle/" + "t_sub.srt";
-  let input_path = path.join(__dirname + "/../../temp/video/test.mp4");
-  let out_path = path.join(__dirname + "/../../temp/video/out.mp4");
+  // Note: we need to change this, it doesn't allow 
+  let srt_path = __dirname + "/../../temp/subtitle/" + req.filename + "t_sub.srt";
   console.log(srt_path);
   console.log(sub_path);
   fs.writeFile(srt_path, result, function (err) {
@@ -143,9 +143,9 @@ router.post("/caption/:id", (req, res) => {
               console.log(`[Caption]: ${JSON.stringify(progress)}`);
             })
             .on("error", function (err) {
-              // fs.unlink(srt_path, err => {
-              //     if (err) console.log("Could not remove srt file:" + err);
-              // });
+              fs.unlink(srt_path, err => {
+                  if (err) console.log("Could not remove srt file:" + err);
+              });
               return res
                 .status(500)
                 .json("An error occurred [Caption]: " + err.message);
