@@ -7,13 +7,12 @@ import TimeLineSector from "./editComponent/TimeLineSector";
 import EditOption from "./editComponent/EditOption";
 import { setVideoOneRange, setVideoTwoRange } from "../actions/itemActions";
 import TopBarProgress from "react-topbar-progress-indicator";
+import ItemModal from "./ItemModal";
+import './style/Main.css';
 import { connect } from "react-redux";
 class EditView extends React.Component {
   constructor(props) {
     super(props);
-    // Don't call this.setState() here!
-    // this.state = { counter: 0 };
-    // this.handleClick = this.handleClick.bind(this);
     this.setOneRange = this.setOneRange.bind(this);
     this.setTwoRange = this.setTwoRange.bind(this);
   }
@@ -40,7 +39,7 @@ class EditView extends React.Component {
                   <Row>
                     <Col>
                       {" "}
-                      <VideoContainer />{" "}
+                      <VideoContainer/>{" "}
                     </Col>
                   </Row>
                   <Row>
@@ -49,33 +48,21 @@ class EditView extends React.Component {
                       <VideoCaptionInput />{" "}
                     </Col>
                   </Row>
-                  <Row>
+                  {/* <Row>
                     {" "}
                     <EditOption />{" "}
-                  </Row>
+                  </Row> */}
                 </Container>
               </Col>
             </Row>
             <Row>
-              <Col>
-                {" "}
-                <TimeLineSector
-                  title="Video One Selector"
-                  callback={this.setOneRange}
-                  videoReference="1"
-                />{" "}
+              
+            <Col>
+              <ItemModal />
+            <br/>
+            <EditOption/>
               </Col>
-            </Row>
-            <Row>
-              <Col>
-                {" "}
-                <TimeLineSector
-                  title="Video Two Selector"
-                  callback={this.setTwoRange}
-                  videoReference="2"
-                />{" "}
-              </Col>
-            </Row>
+              </Row>
           </Container>
         ) : (
           <div> </div>

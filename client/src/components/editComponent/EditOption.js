@@ -18,6 +18,7 @@ import {
   trimClip,
   transitionClip,
   addChroma,
+  setEnableCap,
   saveMP3,
   addAudToVid
 } from "../../actions/editActions";
@@ -31,6 +32,14 @@ import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
 import PadTransitionComp from "./PadTransitionComp";
 import FadeTransitionComp from "./FadeTransitionComp";
+import { setVideoOneRange, setVideoTwoRange } from "../../actions/itemActions";
+import TimeLineSector from "./TimeLineSector";
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import {setLoading, setProgress} from "../../actions/editActions";
+
+
+
 import SingleRecorder from "./Recorder";
 
 String.prototype.toHHMMSS = function () {
@@ -79,7 +88,12 @@ class EditOption extends React.Component {
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
+    this.setOneRange = this.setOneRange.bind(this);
   }
+  
+  setOneRange = value => {
+    this.props.setVideoOneRange(value);
+  };
 
   static propTypes = {
     item: PropTypes.object.isRequired,
@@ -314,25 +328,38 @@ class EditOption extends React.Component {
       "white",
       "cyans"
     ];
+    const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
+
+    const classes = makeStyles((theme) => ({
+      root: {
+        flexGrow: 1,
+      },
+      paper: {
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+      },
+    }));
     // const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
     // const audioExts = ["mp3", "aac", "ac3", "eac3", "ogg", "wma", "wav", "l16", "aiff", "au", "pcm"]
     // const videoExts = ["mp4", "m4a", "m4v", "f4v", "f4a", "m4b", "m4r", "f4b", "mov", "3gp", "webm"]
     const { durationVideoOne } = this.props.edit;
     return (
       <div>
-        <Grid key="merge_grid" container>
+        <div>
+          <TimeLineSector title="Here is range select for the video" callback={this.setOneRange} videoReference="1"/>
+          <Button variant="contained" color="primary"onClick={() => this.props.set_sync()}>
+            Sync range selector
+          </Button>
+         </div> 
+         <br/>
           <Grid
-            container
-            direction="column"
-            justify="flex-start"
-            alignItems="flex-start"
+          container
+          direction="row"
+          justify="space-between"
+          alignItems="flex-start"
           >
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
+            <Grid>
               <InputLabel>Select a video to merge</InputLabel>
               <Select
                 className="edit-dropdown"
@@ -350,6 +377,8 @@ class EditOption extends React.Component {
                   </MenuItem>
                 ))}
               </Select>
+              <br/>
+              <Tooltip title="This take few mins" arrow>
               <Button
                 variant="contained"
                 color="primary"
@@ -358,14 +387,9 @@ class EditOption extends React.Component {
               >
                 Merge
               </Button>
+              </Tooltip>
             </Grid>
-            <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
+            <Grid>
               <InputLabel>Add Transition Effect</InputLabel>
               <Select
                 className="transition-dropdown"
@@ -425,14 +449,14 @@ class EditOption extends React.Component {
                 Add Transition Effect
               </Button>
             </Grid>
-            <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
-              <InputLabel>Trim Video</InputLabel>
+            <Grid>
+              <InputLabel>Trim Video
+              <Tooltip title="The Trim range is selected by the range selector ">
+                <HelpIcon />
+              </Tooltip>
+              
+              </InputLabel>
+
               <Button
                 variant="contained"
                 color="primary"
@@ -442,13 +466,7 @@ class EditOption extends React.Component {
                 Trim
               </Button>
             </Grid>
-            <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
+            <Grid>
               {/*<InputLabel>Add special effects</InputLabel>
               <Select
                 className="chroma-dropdown"
@@ -483,59 +501,37 @@ class EditOption extends React.Component {
                 Download
               </Button>*/}
             </Grid>
-            <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start">
+            <Grid>
+            <Tooltip title="The Caption is Added by the input file highlight on the video and the range selector ">
+                <HelpIcon />
+              </Tooltip>
+          <Button              
+          variant="contained"
+          color="primary"
+          onClick={this.props.setEnableCap}>
+            Toggle Caption Input Field
+        </Button>
+        {this.props.isWanted ? (
+          <div>
+              <Button variant="contained"
+                 color="primary"onClick={() => this.addCaption()}>Add to Caption</Button>
+              <Button variant="contained"
+                 color="primary"onClick={() => this.burnVideo()}>Burn it into video</Button>
+            </div>
+        )
+        :
+        (<div> </div>)}
+            </Grid>
+            <Grid>
+               <CaptionListView />
+            </Grid>
+            <Grid>
               <InputLabel>Record</InputLabel>
               <SingleRecorder saveMP3={this.saveMP3} />
             </Grid>
-            {/* <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start">
-              <InputLabel>Add Aduio to Video</InputLabel>
-              <Tooltip title="Please load the video to which you want to add sound">
-                <HelpIcon />
-              </Tooltip>
-              <Box m={1} />
-              <InputLabel>Audio</InputLabel>
-              <Select
-                className="audio-dropdown"
-                style={{ minWidth: 180, marginBottom: 10 }}
-                value={this.state.audio_dropdownValue}
-                onChange={this.audio_dropdownChanged}>
-                {items.filter((item) => (audioExts.includes(item.filename.split(".")[1]))).map(({ _id, filename }) => (
-                  <MenuItem
-                    className="audio-dropdown-item"
-                    key={_id}
-                    value={_id}
-                  >
-                    {filename}
-                  </MenuItem>
-                ))}
-              </Select>
-              <Button
-                variant="contained"
-                color="primary"
-                endIcon={<AddIcon />}
-                onClick={this.addAudToVid_dropdownSubmit.bind(this, selectItemOne)}
-              >
-                Add
-              </Button>
-            </Grid> */}
           </Grid>
-        </Grid>
-        <Button color="primary" onClick={() => this.props.set_sync()}>
-          Sync range selector
-        </Button>
-        <Button onClick={() => this.addCaption()}>Add to Caption</Button>
-        <Button onClick={() => this.burnVideo()}>Burn it into video</Button>
-        <CaptionListView />
+          <br/>
+
       </div>
     );
   }
@@ -546,6 +542,7 @@ const mapStateToProps = state => ({
   edit: state.edit,
   user: state.auth.user,
   duration: state.edit.duration,
+  isWanted: state.edit.isWanted,
   isAuthenticated: state.auth.isAuthenticated
 });
 
@@ -557,6 +554,10 @@ export default connect(mapStateToProps, {
   addCapation,
   captionClip,
   addChroma,
+  setVideoOneRange,
+  setEnableCap,
+  setLoading,
+  setProgress,
   saveMP3,
   addAudToVid
 })(EditOption);

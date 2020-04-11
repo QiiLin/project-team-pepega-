@@ -1,12 +1,16 @@
 const express = require("express");
 const router = express.Router();
-
+const app = require('../../server');
+const longpoll = require("express-longpoll")(app);
 const { gfs_prim, upload } = require("../../middleware/gridSet");
 const mongoose = require("mongoose");
 const auth = require("../../middleware/auth");
 const Item = require("../../models/Item");
 const edit = require("../api/edit");
 //const _ = require("underscore");
+
+// current set the amx listeners to 100
+// longpoll.create("/api/item", { maxListeners: 100 });
 
 // @route POST /upload
 // @desc  Uploads file to DB
@@ -31,6 +35,9 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
     width: width,
     height: height
   });
+  await newItem.save();
+  const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
+  // longpoll.publish("/api/items", items);
   newItem.save();*/
   const { id, uploadDate, filename, md5, contentType } = req.file;
   return res.json({

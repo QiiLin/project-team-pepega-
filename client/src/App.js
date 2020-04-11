@@ -4,12 +4,13 @@ import "./App.css";
 import { Provider } from "react-redux";
 import store from "./store";
 import AppNavbar from "./components/AppNavbar";
-import ItemModal from "./components/ItemModal";
 import EditView from "./components/EditView";
-import { Container } from "reactstrap";
+import { Container, Row, Col } from "reactstrap";
+import StatusPop from "./components/popUpComponent/StatusPop"
 import { loadUser } from "./actions/authActions";
 import "../node_modules/video-react/dist/video-react.css";
 import HandleProgressBar from "./components/ProgressBar";
+import OperationPop from "./components/popUpComponent/OperationPop";
 
 class App extends Component {
   componentDidMount() {
@@ -22,10 +23,9 @@ class App extends Component {
         <div className="App">
           <HandleProgressBar />
           <AppNavbar />
-          <Container>
-            <ItemModal />
-            <EditView />
-          </Container>
+          <OperationPop/>
+          <StatusPop/>
+          <EditView />
         </div>
       </Provider>
     );

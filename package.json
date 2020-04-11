@@ -32,6 +32,7 @@
     "concurrently": "^5.1.0",
     "config": "^3.3.0",
     "express": "^4.17.1",
+    "express-longpoll": "0.0.6",
     "fluent-ffmpeg": "^2.1.2",
     "fluent-ffmpeg-multistream": "^1.0.0",
     "form-data": "^3.0.0",

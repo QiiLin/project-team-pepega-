@@ -14,6 +14,9 @@ import { addItem } from "../actions/itemActions";
 import { PropTypes } from "prop-types";
 import "bootstrap/dist/css/bootstrap.min.css";
 import HelpIcon from "@material-ui/icons/Help";
+import './style/VideoCaptionStyle.css';
+
+const allowedType = {"video/mp4": 1, "video/mp3": 1,"video/webm": 1 }
 
 class ItemModal extends Component {
   constructor(props) {
@@ -54,6 +57,10 @@ class ItemModal extends Component {
     // bodyFormData.set("video", this.state.video);
     bodyFormData.append("video", this.state.video);
     bodyFormData.append("uploader_id", this.props.user._id);
+
+    console.log("---------------");
+    console.log(this.state.video.type);
+    console.log("---------------");
     // Add video through add item action
     this.props.addItem(bodyFormData);
     // Close modal
@@ -63,7 +70,7 @@ class ItemModal extends Component {
   render() {
     return (
       <div>
-        <h1>Hello</h1>
+        {/* <h1>Hello</h1>
         <Tooltip title={
           <React.Fragment>
             <h4>You can: </h4>
@@ -76,13 +83,11 @@ class ItemModal extends Component {
           </React.Fragment>
         }>
           <HelpIcon />
-        </Tooltip>
+        </Tooltip> */}
         {this.props.isAuthenticated ? (
           <div>
-            <h3>Please upload a video</h3>
             <Button
               color="dark"
-              style={{ marginBottom: "50px" }}
               onClick={this.toggle}
             >
               Add Video
@@ -116,6 +121,7 @@ class ItemModal extends Component {
                   onChange={this.fileSelectedHandler}
                   className="form-control-file border"
                 />
+                <p>Note: We currently only support:mp4, mp3, webm.</p>
                 <Button color="dark" style={{ marginTop: "2rem" }} block>
                   Add Video
                 </Button>
