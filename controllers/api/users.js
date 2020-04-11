@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
-const check = require("../../middleware/checkContent")
+const check = require("../../middleware/check")
 
 // User model
 const User = require("../../models/User");
@@ -12,14 +12,24 @@ const User = require("../../models/User");
 // @desc   Register a new user
 // @access public
 router.post("/", check.checkName, check.checkEmail, check.checkPassword, (req, res) => {
-  const { name, email, password } = req.body;
+  const {
+    name,
+    email,
+    password
+  } = req.body;
   if (!name || !email || !password) {
-    return res.status(400).json({ msg: "Please enter all fields" });
+    return res.status(400).json({
+      msg: "Please enter all fields"
+    });
   }
 
   // Check for existing user
-  User.findOne({ email: email }).then(user => {
-    if (user) return res.status(400).json({ msg: "User already exists" });
+  User.findOne({
+    email: email
+  }).then(user => {
+    if (user) return res.status(400).json({
+      msg: "User already exists"
+    });
 
     const newUser = new User({
       name,
@@ -34,10 +44,10 @@ router.post("/", check.checkName, check.checkEmail, check.checkPassword, (req, r
         newUser.password = hash;
         newUser.save().then(user => {
           // when we set a token from react or anywhere, the user id is in there
-          jwt.sign(
-            { id: user.id },
-            config.get("jwtSecret"),
-            {
+          jwt.sign({
+              id: user.id
+            },
+            config.get("jwtSecret"), {
               expiresIn: 3600
             },
             (err, token) => {

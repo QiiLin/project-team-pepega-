@@ -10,11 +10,31 @@ const http = require('http')
 const app = express();
 
 // Body parser middleware
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb'
+}));
 app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' })) // support encoded bodies
+app.use(bodyParser.urlencoded({
+  extended: true,
+  limit: '10mb'
+})) // support encoded bodies
 app.use(methodOverride('_method'));
 const db = config.get("mongoURI");
+
+const session = require("express-session");
+app.use(
+  session({
+    secret: "magic secret",
+    resave: false,
+    saveUninitialized: true
+  })
+)
+
+app.use(function (req, res, next) {
+  req.email = req.session.email ? req.session.email : "";
+  console.log("HTTP request", req.email, req.method, req.url, req.body);
+  next();
+})
 
 // Connect to mongo
 mongoose

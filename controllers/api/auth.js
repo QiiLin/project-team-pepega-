@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
-const check = require("../../middleware/checkContent")
+const check = require("../../middleware/check");
 
 // User model
 const User = require("../../models/User");
@@ -12,21 +12,33 @@ const User = require("../../models/User");
 // @desc   Authenticate the user
 // @access public
 router.post("/", check.checkEmail, check.checkPassword, (req, res) => {
-  const { email, password } = req.body;
+  const {
+    email,
+    password
+  } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ msg: "Please enter all fields" });
+    return res.status(400).json({
+      msg: "Please enter all fields"
+    });
   }
   // Check for existing user
-  User.findOne({ email: email }).then(user => {
-    if (!user) return res.status(400).json({ msg: "User does not exist" });
+  User.findOne({
+    email: email
+  }).then(user => {
+    if (!user) return res.status(400).json({
+      msg: "User does not exist"
+    });
 
     // Validate password
     bcrypt.compare(password, user.password).then(isMatch => {
-      if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
-      jwt.sign(
-        { id: user.id },
-        config.get("jwtSecret"),
-        {
+      if (!isMatch) return res.status(400).json({
+        msg: "Invalid credentials"
+      });
+      req.session.email = user.email;
+      jwt.sign({
+          id: user.id
+        },
+        config.get("jwtSecret"), {
           expiresIn: 3600
         },
         (err, token) => {
