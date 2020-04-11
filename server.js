@@ -10,9 +10,9 @@ const http = require('http')
 const app = express();
 
 // Body parser middleware
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' })) // support encoded bodies
 app.use(methodOverride('_method'));
 const db = config.get("mongoURI");
 
@@ -29,7 +29,7 @@ mongoose
 app.use("/api/items", require("./controllers/api/items"));
 app.use("/api/users", require("./controllers/api/users"));
 app.use("/api/auth", require("./controllers/api/auth"));
-app.use("/api/edit", require("./controllers/api/edit"));
+app.use("/api/edit", require("./controllers/api/edit").router);
 
 // Serve static assets if in production
 if (process.env.NODE_ENV === "production") {

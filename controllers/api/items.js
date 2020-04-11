@@ -6,8 +6,8 @@ const { gfs_prim, upload } = require("../../middleware/gridSet");
 const mongoose = require("mongoose");
 const auth = require("../../middleware/auth");
 const Item = require("../../models/Item");
-const _ = require("underscore");
-const ffmpeg = require("../../controllers/ff_path");
+const edit = require("../api/edit");
+//const _ = require("underscore");
 
 // current set the amx listeners to 100
 // longpoll.create("/api/item", { maxListeners: 100 });
@@ -17,46 +17,17 @@ const ffmpeg = require("../../controllers/ff_path");
 router.post("/upload", upload.single("video"), auth, async (req, res) => {
   console.log("Uploaded file: ", req.file);
 
-  let gfs = await gfs_prim;
-  let resultFile = gfs.createReadStream({
-    filename: req.file.filename,
-    mode: "r",
-    contentType: req.file.contentType
+  edit.generateThumbnail(req.file.id, req.file.filename);
+
+  let metadata = {
+    uploader_id: req.body.uploader_id,
+    originalname: req.file.originalname
+  };
+  gfs_prim.then(function (gfs) {
+    gfs.files.update({ _id: mongoose.Types.ObjectId(req.file.id) }, { '$set': { 'metadata': metadata } })
   });
 
-  let getMetadata = stream => {
-    return new Promise((resolve, reject) => {
-      ffmpeg.ffprobe(stream, function(err, metadata) {
-        if (err) {
-          reject(err);
-        }
-        resolve(metadata);
-      });
-    });
-  };
-
-  let metadata = await getMetadata(resultFile);
-  let width = metadata.streams[0].width;
-  let height = metadata.streams[0].height;
-
-  gfs.files.findOne(
-    { _id: mongoose.Types.ObjectId(req.file.id) },
-    (err, file) => {
-      console.log("gfs file: ", file);
-      // Check if file
-      if (!file || file.length === 0) {
-        return res.status(404).json({
-          err: "No file exists"
-        });
-      }
-      file;
-    }
-  );
-
-  // console.log("outside width: ", width);
-  // console.log("outside height: ", height);
-
-  const newItem = new Item({
+  /*const newItem = new Item({
     uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
     gfs_id: mongoose.Types.ObjectId(req.file.id),
     originalname: req.file.originalname,
@@ -67,23 +38,22 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
   await newItem.save();
   const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
   // longpoll.publish("/api/items", items);
+  newItem.save();*/
+  const { id, uploadDate, filename, md5, contentType } = req.file;
   return res.json({
-    _id: id,
-    uploadDate: uploadDate,
-    filename: filename,
-    md5: md5,
-    contentType: contentType,
-    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
-    originalname: originalname,
-    width: newItem.width,
-    height: newItem.height
+    "_id": id,
+    "uploadDate": uploadDate,
+    "filename": filename,
+    "md5": md5,
+    "contentType": contentType,
+    "metadata": metadata
   });
 });
 
 // @route GET /api/items
 // @desc  Display all files in JSON
 router.get("/", auth, (req, res) => {
-  gfs_prim.then(function(gfs) {
+  gfs_prim.then(function (gfs) {
     gfs.files.find().toArray((err, files) => {
       // Check if files
       if (!files || files.length === 0) {
@@ -92,12 +62,11 @@ router.get("/", auth, (req, res) => {
         });
       }
       console.log("get item is called");
-      // Files
+      // Files 
 
-      Item.find({}, function(err, filesMetadata) {
-        let itm = _.map(files, function(file) {
-          let metadata = _.find(filesMetadata, function(fileMetadataRes) {
-            //match gfs_id of metadata collection to _id of gridfs collection
+      /*Item.find({}, function(err, filesMetadata){
+        let itm = _.map(files, function(file){ 
+          let metadata = _.find(filesMetadata, function(fileMetadataRes){ //match gfs_id of metadata collection to _id of gridfs collection
             return fileMetadataRes.gfs_id.toString() === file._id.toString(); //toString gets rid of mongoose objectid type
           });
           //add fields from metadata collection
@@ -106,99 +75,95 @@ router.get("/", auth, (req, res) => {
           return file;
         });
         return res.json(itm);
-      });
-      //return res.json(files);
+      });*/
+      return res.json(files);
     });
   });
 });
 
 // @route GET /api/items/:id
 // @desc  Display single file object
-router.get("/:id", (req, res) => {
-  // gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
-  //     // Check if file
-  //     if (!file || file.length === 0) {
-  //         return res.status(404).json({
-  //             err: 'No file exists'
-  //         });
-  //     }
-  // // Check if image
-  // // if (file.contentType === 'image/jpeg' || file.contentType === 'image/png') {
-  // // Read output to browser
-  // // } else {
-  // //     res.status(404).json({
-  // //         err: 'Not an image'
-  // //     });
-  // // }
-  //     // File exists
-  //     return res.json(file);
-  // });
-  //console.log("start getting ", req.params.id, req.params._id, mongoose.Types.ObjectId(req.params.id), mongoose.Types.ObjectId(req.params._id), req.params.filename  );
-  gfs_prim.then(function(gfs) {
-    gfs.files.findOne(
-      { _id: mongoose.Types.ObjectId(req.params.id) },
-      (err, file) => {
-        // Check if file
-        if (!file || file.length === 0) {
-          return res.status(404).json({
-            err: "No file exists"
-          });
-        }
-
-        console.log("mid getting");
-
-        const readstream = gfs.createReadStream(file.filename);
-        readstream.pipe(res);
-        readstream.on("end", function() {
-          const readstreamMetadata = Item.find({
-            gfs_id: mongoose.Types.ObjectId(req.params.id)
-          }).stream();
-          readstreamMetadata.pipe(res);
+router.get('/:id', (req, res) => {
+  gfs_prim.then(function (gfs) {
+    gfs.files.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }, (err, file) => {
+      // Check if file
+      if (!file || file.length === 0) {
+        return res.status(404).json({
+          err: 'No file exists'
         });
-        console.log("done getting");
-        return;
       }
-    );
 
-    // TODO:  TRY THIS the below doesn't work
-    // let file_id = req.params.filename;
-    //
-    // gfs.files.find({_id: file_id}).toArray(function (err, files) {
-    //     if (err) {
-    //         res.json(err);
-    //     }
-    //     if (files.length > 0) {
-    //         let mime = files[0].contentType;
-    //         let filename = files[0].filename;
-    //         res.set('Content-Type', mime);
-    //         res.set('Content-Disposition', "inline; filename=" + filename);
-    //         let read_stream = gfs.createReadStream({_id: file_id});
-    //         read_stream.pipe(res);
-    //     } else {
-    //         res.json('File Not Found');
-    //     }
-    // });
+      console.log("mid getting");
+
+      const readstream = gfs.createReadStream(file.filename);
+      readstream.pipe(res);
+      /*readstream.on('end', function() {
+        const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
+        readstreamMetadata.pipe(res);
+      });*/
+      console.log("done getting");
+      return;
+    });
+  });
+});
+
+// @route GET /api/items/thumbnail/:id
+// @desc  Display single file object
+router.get('/thumbnail/:id', (req, res) => {
+  gfs_prim.then(function (gfs) {
+    gfs.files.findOne({ metadata: { video_id: mongoose.Types.ObjectId(req.params.id) } }, (err, file) => {
+      // Check if file
+      if (!file || file.length === 0) {
+        return res.status(404).json({
+          err: 'No file exists'
+        });
+      }
+
+      console.log("mid getting thumbnail", file.filename);
+
+      const readstream = gfs.createReadStream(file.filename);
+      readstream.pipe(res);
+      readstream.on('error', function (err) {
+        console.log('An error occurred!', err);
+        throw err;
+      });
+      /*readstream.on('end', function() {
+        const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
+        readstreamMetadata.pipe(res);
+      });*/
+      console.log("done getting thumbnail");
+      return res.status(200);
+    });
   });
 });
 
 // @route DELETE /files/:id
 // @desc  Delete file
-router.delete("/:id", (req, res) => {
-  gfs_prim.then(function(gfs) {
-    gfs.remove(
-      { _id: mongoose.Types.ObjectId(req.params.id), root: "fs" },
-      (err, gridStore) => {
-        if (err) {
-          return res.status(404).json({ err: err });
-        }
-
-        Item.deleteOne({ gfs_id: mongoose.Types.ObjectId(req.params.id) })
-          .then(() => {
-            return res.status(200).json("delete done");
-          })
-          .catch(err => res.status(404).json({ err: err }));
+router.delete('/:id', (req, res) => {
+  gfs_prim.then(function (gfs) {
+    //this gridfs version can only delete via remove, ignore deprecated warnings
+    gfs.remove({ _id: mongoose.Types.ObjectId(req.params.id), root: 'fs' }, (err) => {
+      if (err) {
+        return res.status(404).json({ err: err });
       }
-    );
+      /*Item.deleteOne({ gfs_id : mongoose.Types.ObjectId(req.params.id)})
+      .then(() => {
+        return res.status(200).json("delete done");
+      }).catch(err => res.status(404).json({ err: err }));      */
+
+      gfs.files.findOne({ metadata: { video_id: mongoose.Types.ObjectId(req.params.id) } }, (err, file) => {
+        if (file) {
+          gfs.remove({ _id: file._id, root: 'fs' }, (err) => {
+            if (err) {
+              return res.status(404).json({ err: err });
+            }
+            return res.status(200).json("delete done");
+          });
+        } else {
+          return res.status(200).json("delete done without thumbnail");
+        }
+      });
+    });
   });
 });
 

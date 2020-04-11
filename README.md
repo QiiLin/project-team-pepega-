@@ -54,7 +54,7 @@
 
 # Instructions
 
-1. npm install-all
+1. npm run install-all
 
 # Run
 

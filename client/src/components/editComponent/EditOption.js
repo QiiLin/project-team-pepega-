@@ -5,9 +5,11 @@ import {
   Button,
   InputLabel,
   MenuItem,
-  Box
+  Box,
+  Tooltip
 } from "@material-ui/core";
 import MergeTypeIcon from "@material-ui/icons/MergeType";
+import HelpIcon from "@material-ui/icons/Help";
 import {
   addCapation,
   captionClip,
@@ -16,12 +18,15 @@ import {
   trimClip,
   transitionClip,
   addChroma,
-  setEnableCap
+  setEnableCap,
+  saveMP3,
+  addAudToVid
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
 import AcUnitIcon from '@material-ui/icons/AcUnit';
 import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
+import AddIcon from '@material-ui/icons/Add';
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
@@ -29,14 +34,13 @@ import PadTransitionComp from "./PadTransitionComp";
 import FadeTransitionComp from "./FadeTransitionComp";
 import { setVideoOneRange, setVideoTwoRange } from "../../actions/itemActions";
 import TimeLineSector from "./TimeLineSector";
-import Tooltip from '@material-ui/core/Tooltip';
-import HelpIcon from "@material-ui/icons/Help";
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import {setLoading, setProgress} from "../../actions/editActions";
 
 
 
+import SingleRecorder from "./Recorder";
 
 String.prototype.toHHMMSS = function () {
   var sec_num = parseInt(this, 10); // don't forget the second param
@@ -77,7 +81,10 @@ class EditOption extends React.Component {
       transition_paddingVidRow: "",
       transition_paddingVidCol: "",
       transition_paddingColor: "",
-      chroma_dropdownValue: ""
+      chroma_dropdownValue: "",
+      record: false,
+      audio_dropdownValue: "",
+      video_dropdownValue: ""
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
@@ -108,6 +115,7 @@ class EditOption extends React.Component {
     let bodyFormData = new FormData();
     bodyFormData.append("curr_vid_id", selectItemOne);
     bodyFormData.append("merge_vid_id", this.state.merge_dropdownValue);
+    bodyFormData.append("uploader_id", this.props.user._id);
 
     // Add video through add item action
     this.props.mergeClip(bodyFormData);
@@ -228,10 +236,10 @@ class EditOption extends React.Component {
     let bodyFormData = new FormData();
     bodyFormData.append("vid_id", selectItemOne);
     bodyFormData.append("command", this.state.chroma_dropdownValue);
-    console.log(
-      "chroma_dropdownSubmit chroma: ",
-      bodyFormData.get("command")
-    );
+    // console.log(
+    //   "chroma_dropdownSubmit chroma: ",
+    //   bodyFormData.get("command")
+    // );
     this.props.addChroma(selectItemOne, bodyFormData);
   };
 
@@ -241,6 +249,36 @@ class EditOption extends React.Component {
     this.setState(() => {
       return {
         chroma_dropdownValue: event.target.value
+      };
+    });
+  };
+
+  addAudToVid_dropdownSubmit = selectItemOne => {
+    console.log("id: ", selectItemOne)
+    let bodyFormData = new FormData();
+    bodyFormData.append("vid_id", selectItemOne);
+    bodyFormData.append("audio_id", this.state.audio_dropdownValue);
+    // bodyFormData.append("video", this.state.video_dropdownValue);
+    this.props.addAudToVid(selectItemOne, bodyFormData)
+  }
+
+  audio_dropdownChanged = event => {
+    event.persist();
+    console.log(event.target.value);
+    this.setState(() => {
+      return {
+        audio_dropdownValue: event.target.value
+      };
+    });
+    console.log(this.state.audio_dropdownValue)
+  };
+
+  video_dropdownChanged = event => {
+    event.persist();
+    console.log(event.target.value);
+    this.setState(() => {
+      return {
+        video_dropdownValue: event.target.value
       };
     });
   };
@@ -265,6 +303,15 @@ class EditOption extends React.Component {
     const { captions } = this.props.edit;
     this.props.captionClip(selectItemOne, captions);
   };
+
+  saveMP3 = (file) => {
+    console.log("saveMP3 called")
+    console.log("file: ", file)
+    // const { selectItemOne } = this.props.item;
+    let bodyFormData = new FormData();
+    bodyFormData.append("mp3file", file);
+    this.props.saveMP3(bodyFormData);
+  }
 
   render() {
     // console.log(this.props.item);
@@ -293,6 +340,9 @@ class EditOption extends React.Component {
         color: theme.palette.text.secondary,
       },
     }));
+    // const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
+    // const audioExts = ["mp3", "aac", "ac3", "eac3", "ogg", "wma", "wav", "l16", "aiff", "au", "pcm"]
+    // const videoExts = ["mp4", "m4a", "m4v", "f4v", "f4a", "m4b", "m4r", "f4b", "mov", "3gp", "webm"]
     const { durationVideoOne } = this.props.edit;
     return (
       <div>
@@ -475,6 +525,10 @@ class EditOption extends React.Component {
             <Grid>
                <CaptionListView />
             </Grid>
+            <Grid>
+              <InputLabel>Record</InputLabel>
+              <SingleRecorder saveMP3={this.saveMP3} />
+            </Grid>
           </Grid>
           <br/>
 
@@ -503,5 +557,7 @@ export default connect(mapStateToProps, {
   setVideoOneRange,
   setEnableCap,
   setLoading,
-  setProgress
+  setProgress,
+  saveMP3,
+  addAudToVid
 })(EditOption);

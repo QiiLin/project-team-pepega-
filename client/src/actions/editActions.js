@@ -11,16 +11,20 @@ import {
     ENABLE_USERGUIDE,
     SET_FILENAME,
     SET_LOADING,
-    SET_PROGRESS
+    SET_PROGRESS,
+    MERGE_CLIP,
+    TRIM_CLIP,
+    ADD_CHROMA,
+    SAVE_RECORDING
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 import { getItems } from "./itemActions";
 
 export const mergeClip = ids => (dispatch, getState) => {
-    for (var pair of ids.entries()) {
-        console.log(pair[0] + ", " + pair[1]);
-    }
+    // for (var pair of ids.entries()) {
+    //     console.log(pair[0] + ", " + pair[1]);
+    // }
     dispatch(setProgress());
     dispatch(setLoading());
 
@@ -120,6 +124,47 @@ export const addChroma = (id, data) => (dispatch, getState) => {
             dispatch(returnErrors(err.response.data, err.response.status));
         });
 };
+
+export const saveMP3 = (data) => (dispatch, getState) => {
+  console.log("file: ", data)
+  axios
+    .post(`/api/edit/saveMP3`, data, tokenConfig2(getState), {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+    .then(res => dispatch(getItems()))
+    .catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
+};
+
+export const addAudToVid = (id, data) => (dispatch, getState) => {
+  axios
+    .post(`/api/edit/addAudToVid/${id}`, data, tokenConfig2(getState), {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+    .then(res => dispatch(getItems()))
+    .catch(err => {
+      dispatch(returnErrors(err.response.data, err.response.status));
+    });
+};
+
+// export const addAudToVid = (id, data) => (dispatch, getState) => {
+//   console.log("addAudToVid editAction");
+//   axios
+//     .post(`/api/edit/addAudToVid/${id}`, data, tokenConfig2(getState), {
+//       headers: {
+//         "Content-Type": "multipart/form-data"
+//       }
+//     })
+//     .then(res => dispatch(getItems()))
+//     .catch(err => {
+//       dispatch(returnErrors(err.response.data, err.response.status));
+//     });
+// }
 
 export const set_sync = () => {
     return {
