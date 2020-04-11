@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, {Component, Fragment} from "react";
 import {
   Collapse,
   Navbar,
@@ -14,7 +14,7 @@ import PropTypes from "prop-types";
 import RegisterModal from "./auth/RegisterModal";
 import Logout from "./auth/Logout";
 import LoginModal from "./auth/LoginModal";
-import { connect } from "react-redux";
+import {connect} from "react-redux";
 import {setEnableGuide} from "../actions/editActions";
 import "./style/Main.css";
 
@@ -34,17 +34,19 @@ class AppNavbar extends Component {
   };
 
   render() {
-    const { isAuthenticated, user } = this.props.auth;
+    const {isAuthenticated, user} = this.props.auth;
 
     const authLinks = (
       <Fragment>
         <NavItem>
           <span className="navbar-text mr-3">
-            <strong>{user ? `Welcome ${user.name}` : ""}</strong>
+            <strong>{user
+                ? `Welcome ${user.name}`
+                : ""}</strong>
           </span>
         </NavItem>
         <NavItem>
-          <Logout />
+          <Logout/>
         </NavItem>
       </Fragment>
     );
@@ -52,10 +54,10 @@ class AppNavbar extends Component {
     const guestLinks = (
       <Fragment>
         <NavItem>
-          <RegisterModal />
+          <RegisterModal/>
         </NavItem>
         <NavItem>
-          <LoginModal />
+          <LoginModal/>
         </NavItem>
       </Fragment>
     );
@@ -67,14 +69,17 @@ class AppNavbar extends Component {
             <NavbarToggler onClick={this.toggle}></NavbarToggler>
             <Collapse isOpen={this.state.isOpen} navbar>
               <Nav className="ml-auto" navbar>
-                {isAuthenticated ? authLinks : guestLinks}
+                {isAuthenticated
+                  ? authLinks
+                  : guestLinks}
                 <NavItem>
                   <NavLink href="https://github.com/UTSCC09/project-team-pepega">
                     GitHub
                   </NavLink>
                 </NavItem>
                 <NavItem className="guide_button" onClick={() => this.props.setEnableGuide()}>
-                  <NavbarText> User Guide</NavbarText>
+                  <NavbarText>
+                    User Guide</NavbarText>
                 </NavItem>
               </Nav>
             </Collapse>
@@ -85,8 +90,6 @@ class AppNavbar extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  auth: state.auth
-});
+const mapStateToProps = state => ({auth: state.auth});
 
 export default connect(mapStateToProps, {setEnableGuide})(AppNavbar);

@@ -11,15 +11,8 @@ class StatusPop extends React.Component {
   constructor(props) {
     super(props);
     this.state = { open: true, maxWidth:'sm'};
-    this.handleClickOpen = this.handleClickOpen.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
-  handleClickOpen = () => {
-    this.setState(state => ({
-      open: true
-    }));
-  };
-
   handleClose = () => {
     this.setState(state => ({
       open: false
