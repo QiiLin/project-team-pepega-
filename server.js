@@ -3,22 +3,26 @@ const mongoose = require("mongoose");
 const path = require("path");
 const config = require("config");
 const bodyParser = require("body-parser");
-const methodOverride = require('method-override');
+const methodOverride = require("method-override");
 const fs = require("fs");
-const http = require('http')
+const https = require("https");
 
 const app = express();
 
 // Body parser middleware
-app.use(express.json({
-  limit: '10mb'
-}));
+app.use(
+  express.json({
+    limit: "10mb",
+  })
+);
 app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({
-  extended: true,
-  limit: '10mb'
-})) // support encoded bodies
-app.use(methodOverride('_method'));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+    limit: "10mb",
+  })
+); // support encoded bodies
+app.use(methodOverride("_method"));
 const db = config.get("mongoURI");
 
 const session = require("express-session");
@@ -26,25 +30,32 @@ app.use(
   session({
     secret: "magic secret",
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
   })
-)
+);
 
 app.use(function (req, res, next) {
   req.email = req.session.email ? req.session.email : "";
   console.log("HTTP request", req.email, req.method, req.url, req.body);
   next();
-})
+});
+
+let privateKey = fs.readFileSync("server.key");
+let certificate = fs.readFileSync("server.crt");
+let config = {
+  key: privateKey,
+  cert: certificate,
+};
 
 // Connect to mongo
 mongoose
   .connect(db, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
   })
   .then(() => console.log("Mongo DB connected"))
-  .catch(err => console.log(err));
+  .catch((err) => console.log(err));
 
 app.use("/api/items", require("./controllers/api/items"));
 app.use("/api/users", require("./controllers/api/users"));
@@ -76,4 +87,8 @@ const port = process.env.PORT || 5000;
   });
 }).listen(3333);*/
 
-app.listen(port, () => console.log(`Server started on port ${port}`));
+https.createServer(config, app).listen(port, function (err) {
+  if (err) console.log(err);
+  else console.log("HTTPS server on https://localhost:%s", PORT);
+});
+// app.listen(port, () => console.log(`Server started on port ${port}`));
