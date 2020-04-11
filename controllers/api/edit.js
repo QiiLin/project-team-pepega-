@@ -9,14 +9,15 @@ const ffmpeg = require("../../controllers/ff_path");
 const Item = require("../../models/Item");
 const mongoose = require("mongoose");
 // import stream from 'stream';
-const { gfs_prim } = require("../../middleware/gridSet");
+//const { gfs_prim } = require("../../middleware/gridSet");
+const { gfs_prim, upload } = require("../../middleware/gridSet");
 // const storage = multer.diskStorage({
 //   destination: path.join(__dirname, "../../video_input/"),
 //   filename: function (req, file, callback) {
 //     callback(null, "recording.mp3")
 //   }
 // });
-const upload = multer({ dest: path.join(__dirname, "../../recordings/") });
+//const upload = multer({ dest: path.join(__dirname, "../../recordings/") });
 const crypto = require("crypto");
 
 function retrievePromise(id, gfs) {
@@ -33,41 +34,42 @@ function retrievePromise(id, gfs) {
 }
 
 function generateThumbnail(id, filename) {
-  gfs_prim.then(function (gfs) {
-    let basename = path.basename(filename).replace(path.extname(filename), ""); //filename w/o extension
-    const fname = basename + ".png";
-    let result = gfs.createWriteStream({
-      filename: fname,
-      mode: "w",
-      content_type: "image/png",
-      metadata: { video_id: id }
-    });
-    //search for newly generated video every 0.5s until exists since this gridfs version has a small delay on write
-    let idInterval = setInterval(function () {
-      retrievePromise(id, gfs).then(function (item) {
-        clearInterval(idInterval);
-        ffmpeg(item)
-          .withVideoCodec("png")
-          .addOptions([
-            "-vframes 1", //output 1 frame
-            "-f image2pipe" //force image to writestream
-          ])
-          .on("progress", progress => {
-            console.log(`[Thumbnail]: ${JSON.stringify(progress)}`);
-          })
-          .on("stderr", function (stderrLine) {
-            console.log("Stderr output [Thumbnail]: " + stderrLine);
-          })
-          .on("error", function (err) {
-            return ("An error occurred [Thumbnail]: ", err.message);
-          })
-          .on("end", function () {
-            return ("Thumbnail is completed");
-          })
-          .saveToFile(result);
+  return new Promise(function (resolve, reject) {
+    gfs_prim.then(function (gfs) {
+      let basename = path.basename(filename).replace(path.extname(filename), ""); //filename w/o extension
+      const fname = basename + ".png";
+      let result = gfs.createWriteStream({
+        filename: fname,
+        mode: "w",
+        content_type: "image/png",
+        metadata: { video_id: id }
       });
-    }, 500);
-
+      //search for newly generated video every 0.5s until exists since this gridfs version has a small delay on write
+      let idInterval = setInterval(function () {
+        retrievePromise(id, gfs).then(function (item) {
+          clearInterval(idInterval);
+          ffmpeg(item)
+            .withVideoCodec("png")
+            .addOptions([
+              "-vframes 1", //output 1 frame
+              "-f image2pipe" //force image to writestream
+            ])
+            .on("progress", progress => {
+              console.log(`[Thumbnail]: ${JSON.stringify(progress)}`);
+            })
+            .on("stderr", function (stderrLine) {
+              console.log("Stderr output [Thumbnail]: " + stderrLine);
+            })
+            .on("error", function (err) {
+              return reject("An error occurred [Thumbnail]: ", err.message);
+            })
+            .on("end", function () {
+              return resolve("Thumbnail is completed");
+            })
+            .saveToFile(result);
+        });
+      }, 500);
+    });
   });
 }
 
@@ -158,8 +160,13 @@ router.post("/caption/:id", (req, res) => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
               // TODO return data with path to access the file in the database
-              generateThumbnail(resultFile.id, fname);
-              return res.status(200).end("Caption is added");
+              generateThumbnail(resultFile.id, fname)
+              .then(() => {
+                return res.status(200).json("Caption is added");
+              })
+              .catch((err) => {
+                return res.status(202).json("Caption is added: ", err)
+              });
             })
             .writeToStream(resultFile);
         });
@@ -294,8 +301,13 @@ router.post("/merge", upload.none(), (req, res) => {
                         if (err)
                           console.log("Could not remove Merge2 tmp file:" + err);
                       });
-                      generateThumbnail(result.id, fname);
-                      return res.status(200).json("Merging is completed");
+                      generateThumbnail(result.id, fname)
+                      .then(() => {
+                        return res.status(200).json("Merging is completed");
+                      })
+                      .catch((err) => {
+                        return res.status(202).json("Merging is completed: ", err)
+                      });
                     })
                     .mergeToFile(result, pathOut_tmp);                
             })
@@ -344,8 +356,13 @@ router.post("/cut/:id", (req, res) => {
             .json("An error occurred [Cut1]: " + err.message);
         })
         .on("end", function () {
-          generateThumbnail(result.id, fname);
-          return res.status(200).json("Operation Complete");
+          generateThumbnail(result.id, fname)
+          .then(() => {
+            return res.status(200).json("Cut is completed");
+          })
+          .catch((err) => {
+            return res.status(202).json("Cut is completed: ", err)
+          });
         })
         .writeToStream(result);
     });
@@ -474,8 +491,13 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
                       if (err)
                         console.log("Could not remove Trim2 tmp file:" + err);
                     });
-                    generateThumbnail(result.id, fname);
-                    return res.status(200).end("Trimming is completed");
+                    generateThumbnail(result.id, fname)
+                    .then(() => {
+                      return res.status(200).json("Trimming is completed");
+                    })
+                    .catch((err) => {
+                      return res.status(202).json("Trimming is completed: ", err)
+                    });
                   })
                   .mergeToFile(result, pathOut_tmp);
               })
@@ -557,7 +579,13 @@ router.post("/transition/:id", upload.none(), (req, res) => {
           return res.json("An error occurred [Transition1]: ", err.message);
         })
         .on("end", function () {
-          generateThumbnail(result.id, fname);
+          generateThumbnail(result.id, fname)
+          .then(() => {
+            return res.status(200).json("Trimming is completed");
+          })
+          .catch((err) => {
+            return res.status(202).json("Trimming is completed: ", err)
+          });
         })
         .saveToFile(result);
     });
@@ -569,7 +597,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
 router.post("/saveMP3", upload.single("mp3file"), async (req, res) => {
   // console.log("edit.js saveMP3");
   // console.log("file in backend: ", req.file)
-  let gfs = await gfs_prim;
+  /*let gfs = await gfs_prim;
 
   gfs.files.findOne(
     { _id: mongoose.Types.ObjectId(req.file.id) },
@@ -595,7 +623,7 @@ router.post("/saveMP3", upload.single("mp3file"), async (req, res) => {
   // Write it to a file in the recordings directory
   const writeStream = gfs.createWriteStream({
     filename: req.file.filename + ".mp3",
-    contentType: req.file.mimetype
+    content_type: req.file.mimetype
   });
   fs.createReadStream(req.file.path).pipe(writeStream)
 
@@ -612,7 +640,16 @@ router.post("/saveMP3", upload.single("mp3file"), async (req, res) => {
     originalname: originalname,
     width: newItem.width,
     height: newItem.height
+  });*/
+
+  let metadata = {
+    uploader_id: "test",//req.body.uploader_id,
+    originalname: req.file.originalname
+  };
+  gfs_prim.then(function (gfs) {
+    gfs.files.update({ _id: mongoose.Types.ObjectId(req.file.id) }, { '$set': { 'metadata': metadata } })
   });
+  return res.json("mp3 file saved")
 });
 
 module.exports = {

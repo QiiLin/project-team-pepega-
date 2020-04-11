@@ -15,9 +15,7 @@ const edit = require("../api/edit");
 // @route POST /upload
 // @desc  Uploads file to DB
 router.post("/upload", upload.single("video"), auth, async (req, res) => {
-  console.log("Uploaded file: ", req.file);
-
-  edit.generateThumbnail(req.file.id, req.file.filename);
+  console.log("Uploaded file: ", req.file);  
 
   let metadata = {
     uploader_id: req.body.uploader_id,
@@ -39,15 +37,22 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
   const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
   // longpoll.publish("/api/items", items);
   newItem.save();*/
-  const { id, uploadDate, filename, md5, contentType } = req.file;
-  return res.json({
+  edit.generateThumbnail(req.file.id, req.file.filename)
+  .then(() => {
+    return res.status(200).json("Upload is completed");
+  })
+  .catch((err) => {
+    return res.status(202).json("Upload is completed: ", err)
+  });
+  /*const { id, uploadDate, filename, md5, contentType } = req.file;  
+  res.json({
     "_id": id,
     "uploadDate": uploadDate,
     "filename": filename,
     "md5": md5,
     "contentType": contentType,
     "metadata": metadata
-  });
+  });*/
 });
 
 // @route GET /api/items
