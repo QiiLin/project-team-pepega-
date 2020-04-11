@@ -21,9 +21,8 @@ import {
   setSelectItemOne,
   setSelectItemTwo
 } from "../../actions/itemActions";
-import { Player, Shortcut, ControlBar, BigPlayButton } from "video-react";
 import PropTypes from "prop-types";
-
+import "../style/Main.css";
 class VideoList extends Component {
   static propTypes = {
     getItems: PropTypes.func.isRequired,
@@ -104,7 +103,7 @@ class VideoList extends Component {
                     </Button>
                     <Box m={0.5} />
                     <CardTitle>{metadata.originalname ? metadata.originalname : filename}</CardTitle>
-                    <img src={"api/items/thumbnail/" + _id} style={{width: '100%', height: '100%'}}></img>
+                    <img src={"api/items/thumbnail/" + _id} className="thumbnail" alt="thumbnail" ></img>
                     {/*<Player key={_id}>
                       <source src={"api/items/" + _id} />
                       <Shortcut
@@ -126,17 +125,6 @@ class VideoList extends Component {
                         }}
                       >
                         Load to player one
-                      </Button>
-                      <Box m={0.5} />
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        endIcon={<VideoLibraryIcon />}
-                        onClick={() => {
-                          this.props.setSelectItemTwo(_id);
-                        }}
-                      >
-                        Load to player two
                       </Button>
                     </ButtonGroup>
                   </Card>
@@ -175,17 +163,6 @@ class VideoList extends Component {
                         }}
                       >
                         Load to player one
-                      </Button>
-                      <Box m={0.5} />
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        endIcon={<VideoLibraryIcon />}
-                        onClick={() => {
-                          this.props.setSelectItemTwo(_id);
-                        }}
-                      >
-                        Load to player two
                       </Button>
                     </ButtonGroup>
                   </Card>

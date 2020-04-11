@@ -15,8 +15,9 @@ import {
 export const loadUser = () => (dispatch, getState) => {
   // User loading
   dispatch({ type: USER_LOADING });
-
-  axios
+  const token = getState().auth.token;
+  if (token) {
+    axios
     .get("/api/auth/user", tokenConfig(getState))
     .then(res =>
       dispatch({
@@ -30,6 +31,7 @@ export const loadUser = () => (dispatch, getState) => {
         type: AUTH_ERROR
       });
     });
+  }
 };
 
 // Register user

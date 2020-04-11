@@ -8,15 +8,11 @@ import {
   FormGroup,
   Label
 } from "reactstrap";
-import { Tooltip } from "@material-ui/core";
 import { connect } from "react-redux";
 import { addItem } from "../actions/itemActions";
 import { PropTypes } from "prop-types";
 import "bootstrap/dist/css/bootstrap.min.css";
-import HelpIcon from "@material-ui/icons/Help";
 import './style/VideoCaptionStyle.css';
-
-const allowedType = {"video/mp4": 1, "video/mp3": 1,"video/webm": 1 }
 
 class ItemModal extends Component {
   constructor(props) {
