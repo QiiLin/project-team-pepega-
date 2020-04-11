@@ -21,7 +21,7 @@ function retrievePromise(id, gfs) {
       if (!file || file.length === 0) {
         return reject("fail fetch", id);
       }
-      const readstream = gfs.createReadStream(file.filename);
+      const readstream = gfs.createReadStream(file._id);
       return resolve(readstream);
     });
   });

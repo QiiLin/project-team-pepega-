@@ -4,7 +4,7 @@ import { setDurationOne, setDurationTwo } from "../../actions/editActions";
 import { Player } from "video-react";
 import { connect } from "react-redux";
 
-class VideoContainer extends Component {
+class VideoContainer extends Component {  
   constructor(props) {
     super(props);
     // Don't call this.setState() here!
@@ -52,6 +52,9 @@ class VideoContainer extends Component {
     // Note selectedFile is from VideoList
     // TODO: Update the placeholder for video
     const { selectItemOne, selectItemTwo } = this.props.item;
+    const playerOneSource = selectItemOne
+      ? "api/items/" + selectItemOne
+      : "http://www.w3schools.com/html/mov_bbb.mp4";    
     return (
       <div>
         <Tabs value={this.state.selectTab} onChange={this.handleTabClick}>

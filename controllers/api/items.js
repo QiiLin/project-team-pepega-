@@ -1,16 +1,20 @@
 const express = require("express");
 const router = express.Router();
-
-const {gfs_prim, upload} = require('../../middleware/gridSet');
+const app = require('../../server');
+const longpoll = require("express-longpoll")(app);
+const { gfs_prim, upload } = require("../../middleware/gridSet");
 const mongoose = require("mongoose");
 const auth = require("../../middleware/auth");
 const Item = require("../../models/Item");
 const edit = require("../api/edit");
 //const _ = require("underscore");
 
+// current set the amx listeners to 100
+// longpoll.create("/api/item", { maxListeners: 100 });
+
 // @route POST /upload
 // @desc  Uploads file to DB
-router.post('/upload', upload.single('video'), auth, (req, res) => {
+router.post("/upload", upload.single("video"), auth, async (req, res) => {
   console.log("Uploaded file: ", req.file);
 
   edit.generateThumbnail(req.file.id, req.file.filename);
@@ -20,17 +24,22 @@ router.post('/upload', upload.single('video'), auth, (req, res) => {
     originalname: req.file.originalname
   };
   gfs_prim.then(function (gfs) {
-    gfs.files.update({_id: mongoose.Types.ObjectId(req.file.id)}, {'$set': {'metadata': metadata}})
+    gfs.files.update({ _id: mongoose.Types.ObjectId(req.file.id) }, { '$set': { 'metadata': metadata } })
   });
-  
+
   /*const newItem = new Item({
     uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
     gfs_id: mongoose.Types.ObjectId(req.file.id),
     originalname: req.file.originalname,
-    file_path: req.file.path 
+    file_path: req.file.path,
+    width: width,
+    height: height
   });
+  await newItem.save();
+  const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
+  // longpoll.publish("/api/items", items);
   newItem.save();*/
-  const { id, uploadDate, filename, md5, contentType} = req.file;
+  const { id, uploadDate, filename, md5, contentType } = req.file;
   return res.json({
     "_id": id,
     "uploadDate": uploadDate,
@@ -41,30 +50,29 @@ router.post('/upload', upload.single('video'), auth, (req, res) => {
   });
 });
 
-
 // @route GET /api/items
 // @desc  Display all files in JSON
-router.get('/', auth, (req, res) => {
+router.get("/", auth, (req, res) => {
   gfs_prim.then(function (gfs) {
     gfs.files.find().toArray((err, files) => {
       // Check if files
       if (!files || files.length === 0) {
         return res.status(404).json({
-          err: 'No files exist'
+          err: "No files exist"
         });
       }
       console.log("get item is called");
       // Files 
-      
+
       /*Item.find({}, function(err, filesMetadata){
         let itm = _.map(files, function(file){ 
           let metadata = _.find(filesMetadata, function(fileMetadataRes){ //match gfs_id of metadata collection to _id of gridfs collection
             return fileMetadataRes.gfs_id.toString() === file._id.toString(); //toString gets rid of mongoose objectid type
           });
           //add fields from metadata collection
-          file.uploader_id = metadata ? metadata.uploader_id : '';
-          file.originalname = metadata ? metadata.originalname : '';
-          return file; 
+          file.uploader_id = metadata ? metadata.uploader_id : "";
+          file.originalname = metadata ? metadata.originalname : "";
+          return file;
         });
         return res.json(itm);
       });*/
@@ -86,8 +94,8 @@ router.get('/:id', (req, res) => {
       }
 
       console.log("mid getting");
-
-      const readstream = gfs.createReadStream(file.filename);
+      res.set("Content-Type", file.contentType);
+      const readstream = gfs.createReadStream(file._id);      
       readstream.pipe(res);
       /*readstream.on('end', function() {
         const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
@@ -113,7 +121,7 @@ router.get('/thumbnail/:id', (req, res) => {
 
       console.log("mid getting thumbnail", file.filename);
 
-      const readstream = gfs.createReadStream(file.filename);
+      const readstream = gfs.createReadStream(file._id);
       readstream.pipe(res);
       readstream.on('error', function (err) {
         console.log('An error occurred!', err);
@@ -137,26 +145,26 @@ router.delete('/:id', (req, res) => {
     gfs.remove({ _id: mongoose.Types.ObjectId(req.params.id), root: 'fs' }, (err) => {
       if (err) {
         return res.status(404).json({ err: err });
-      }     
+      }
       /*Item.deleteOne({ gfs_id : mongoose.Types.ObjectId(req.params.id)})
       .then(() => {
         return res.status(200).json("delete done");
       }).catch(err => res.status(404).json({ err: err }));      */
 
       gfs.files.findOne({ metadata: { video_id: mongoose.Types.ObjectId(req.params.id) } }, (err, file) => {
-        if(file){
-          gfs.remove({_id: file._id, root: 'fs' }, (err) => {
+        if (file) {
+          gfs.remove({ _id: file._id, root: 'fs' }, (err) => {
             if (err) {
               return res.status(404).json({ err: err });
-            } 
+            }
             return res.status(200).json("delete done");
           });
-        }else{
+        } else {
           return res.status(200).json("delete done without thumbnail");
         }
       });
     });
-  });   
+  });
 });
 
 // ---------------------------stuff below are old code-----//
