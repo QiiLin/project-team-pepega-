@@ -3,33 +3,15 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
-const validator = require("validator")
+const check = require("../../middleware/checkContent")
 
 // User model
 const User = require("../../models/User");
 
-let checkName = (req, res, next) => {
-  if (!validator.isAlphanumeric(req.body.name))
-    return res.status(400).end("bad input");
-  next();
-}
-
-let checkEmail = (req, res, next) => {
-  if (!validator.isEmail(req.body.email))
-    return res.status(400).end("bad input")
-  next();
-}
-
-let checkPassword = (req, res, next) => {
-  if (!validator.isAlphanumeric(req.body.password))
-    return res.status(400).end("bad input");
-  next();
-}
-
 // @route  POST /api/users
 // @desc   Register a new user
 // @access public
-router.post("/", checkName, checkEmail, checkPassword, (req, res) => {
+router.post("/", check.checkName, check.checkEmail, check.checkPassword, (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ msg: "Please enter all fields" });

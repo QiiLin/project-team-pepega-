@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
-const auth = require("../../middleware/auth");
+const check = require("../../middleware/checkContent")
 
 // User model
 const User = require("../../models/User");
@@ -11,7 +11,7 @@ const User = require("../../models/User");
 // @route  POST /api/auth
 // @desc   Authenticate the user
 // @access public
-router.post("/", (req, res) => {
+router.post("/", check.checkEmail, check.checkPassword, (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ msg: "Please enter all fields" });
@@ -48,7 +48,7 @@ router.post("/", (req, res) => {
 // @route  GET /api/auth/user
 // @desc   Get user data
 // @access Private
-router.get("/user", auth, (req, res) => {
+router.get("/user", (req, res) => {
   User.findById(req.user.id)
     .select("-password")
     .then(user => res.json(user));
