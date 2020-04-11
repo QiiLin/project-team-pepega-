@@ -10,3 +10,6 @@
 .guide_button:hover {
     cursor: pointer;
 }
+.alignCenter {
+    margin-left: 34%;
+}

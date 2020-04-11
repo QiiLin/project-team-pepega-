@@ -8,7 +8,10 @@ import {
     RESET_CAPTION,
     DELETE_CAPTION,
     ENABLE_CAPTION,
-    ENABLE_USERGUIDE
+    ENABLE_USERGUIDE,
+    SET_FILENAME,
+    SET_LOADING,
+    SET_PROGRESS
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
@@ -18,6 +21,8 @@ export const mergeClip = ids => (dispatch, getState) => {
     for (var pair of ids.entries()) {
         console.log(pair[0] + ", " + pair[1]);
     }
+    dispatch(setProgress());
+    dispatch(setLoading());
 
     axios
     // Attach token to request in the header
@@ -26,7 +31,10 @@ export const mergeClip = ids => (dispatch, getState) => {
                 "Content-Type": "multipart/form-data"
             }
         })
-        .then(res => dispatch(getItems()))
+        .then(res => {
+            dispatch(getItems());
+            dispatch(setLoading());
+        })
         .catch(err => {
             dispatch(returnErrors(err.response.data, err.response.status));
         });
@@ -36,6 +44,8 @@ export const captionClip = (id, data) => (dispatch, getState) => {
     let body = {
         data: data
     };
+    dispatch(setProgress());
+    dispatch(setLoading());
     axios
     // Attach token to request in the header
         .post("/api/edit/caption/" + id, body, tokenConfig(getState))
@@ -46,6 +56,7 @@ export const captionClip = (id, data) => (dispatch, getState) => {
                 payload: res.data
             });
             dispatch(getItems());
+            dispatch(setLoading());
         })
         .catch(err => {
             dispatch(returnErrors(err.response.data, err.response.status));
@@ -53,6 +64,8 @@ export const captionClip = (id, data) => (dispatch, getState) => {
 };
 
 export const trimClip = (id, body) => (dispatch, getState) => {
+    dispatch(setProgress());
+    dispatch(setLoading());
     axios
     // Attach token to request in the header
         .post(`/api/edit/trim/${id}`, body, tokenConfig2(getState), {
@@ -60,7 +73,11 @@ export const trimClip = (id, body) => (dispatch, getState) => {
                 "Content-Type": "multipart/form-data"
             }
         })
-        .then(res => dispatch(getItems()))
+        .then(res => 
+            {
+                dispatch(getItems());
+                dispatch(setLoading());
+            })
         .catch(err => {
             dispatch(returnErrors(err.response.data, err.response.status));
         });
@@ -100,14 +117,25 @@ export const set_sync = () => {
     };
 };
 
+export const setProgress = () => {
+    console.log("wqe");
+    return {
+        type: SET_PROGRESS
+    }
+}
+
+export const setLoading = () => {
+    console.log("load updated")
+    return {
+        type: SET_LOADING
+    }
+}
 export const setEnableCap = () => {
-    console.log("ee")
     return {
         type: ENABLE_CAPTION
     }
 };
 export const setEnableGuide = () => {
-    console.log("ee")
     return {
         type: ENABLE_USERGUIDE
     }

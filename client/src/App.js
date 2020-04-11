@@ -10,7 +10,7 @@ import StatusPop from "./components/popUpComponent/StatusPop"
 import { loadUser } from "./actions/authActions";
 import "../node_modules/video-react/dist/video-react.css";
 import HandleProgressBar from "./components/ProgressBar";
-
+import OperationPop from "./components/popUpComponent/OperationPop";
 
 class App extends Component {
   componentDidMount() {
@@ -23,6 +23,7 @@ class App extends Component {
         <div className="App">
           <HandleProgressBar />
           <AppNavbar />
+          <OperationPop/>
           <StatusPop/>
           <EditView />
         </div>

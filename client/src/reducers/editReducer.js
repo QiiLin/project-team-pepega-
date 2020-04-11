@@ -11,7 +11,9 @@ import {
   TRANSITION_CLIP,
   ADD_CHROMA,
   ENABLE_CAPTION,
-  ENABLE_USERGUIDE
+  ENABLE_USERGUIDE,
+  SET_PROGRESS,
+  SET_LOADING
 } from "../actions/types";
 
 /*
@@ -42,7 +44,9 @@ const initialState = {
   ],
   captionValue: "",
   isWanted: false,
-  isUserGuide: false
+  isUserGuide: false,
+  isProgress: false,
+  isLoading: false
 };
 
 export default function(state = initialState, action) {
@@ -117,6 +121,18 @@ export default function(state = initialState, action) {
       return {
         ...state,
         isUserGuide: !state.isUserGuide
+      }
+    }
+    case SET_PROGRESS: {
+      return {
+        ...state,
+        isProgress: !state.isProgress
+      }
+    }
+    case SET_LOADING: {
+      return {
+        ...state,
+        isLoading: ! state.isLoading
       }
     }
     default:

@@ -38,3 +38,10 @@ export const ADD_CHROMA = "ADD_CHROMA";
 export const ENABLE_CAPTION = "ENABLE_CAPTION";
 
 export const ENABLE_USERGUIDE = "ENABLE_USERGUIDE";
+
+export const SET_PROGRESS = "SET_PROGRESS";
+
+export const SET_FILENAME = "SET_FILENAME";
+
+export const SET_LOADING = "SET_LOADING";
+

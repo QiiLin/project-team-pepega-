@@ -11,7 +11,7 @@ class CaptionListView extends React.Component {
         return (
             <ListGroup>
                 {captions.map(({start_time, end_time, text, index}) => (
-                    <div>
+                    <div key={index}>
                     <ListGroupItem>{start_time} {end_time} {text}
                     </ListGroupItem>
                     <Button

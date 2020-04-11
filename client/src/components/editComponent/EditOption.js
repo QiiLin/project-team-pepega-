@@ -30,10 +30,10 @@ import FadeTransitionComp from "./FadeTransitionComp";
 import { setVideoOneRange, setVideoTwoRange } from "../../actions/itemActions";
 import TimeLineSector from "./TimeLineSector";
 import Tooltip from '@material-ui/core/Tooltip';
-
+import HelpIcon from "@material-ui/icons/Help";
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-
+import {setLoading, setProgress} from "../../actions/editActions";
 
 
 
@@ -306,7 +306,7 @@ class EditOption extends React.Component {
           <Grid
           container
           direction="row"
-          justify="space-evenly"
+          justify="space-between"
           alignItems="flex-start"
           >
             <Grid>
@@ -400,7 +400,13 @@ class EditOption extends React.Component {
               </Button>
             </Grid>
             <Grid>
-              <InputLabel>Trim Video</InputLabel>
+              <InputLabel>Trim Video
+              <Tooltip title="The Trim range is selected by the range selector ">
+                <HelpIcon />
+              </Tooltip>
+              
+              </InputLabel>
+
               <Button
                 variant="contained"
                 color="primary"
@@ -446,6 +452,9 @@ class EditOption extends React.Component {
               </Button>*/}
             </Grid>
             <Grid>
+            <Tooltip title="The Caption is Added by the input file highlight on the video and the range selector ">
+                <HelpIcon />
+              </Tooltip>
           <Button              
           variant="contained"
           color="primary"
@@ -455,16 +464,16 @@ class EditOption extends React.Component {
         {this.props.isWanted ? (
           <div>
               <Button variant="contained"
-          color="primary"onClick={() => this.addCaption()}>Add to Caption</Button>
-        <Button           variant="contained"
-          color="primary"onClick={() => this.burnVideo()}>Burn it into video</Button>
+                 color="primary"onClick={() => this.addCaption()}>Add to Caption</Button>
+              <Button variant="contained"
+                 color="primary"onClick={() => this.burnVideo()}>Burn it into video</Button>
             </div>
         )
         :
         (<div> </div>)}
             </Grid>
             <Grid>
-        <CaptionListView />
+               <CaptionListView />
             </Grid>
           </Grid>
           <br/>
@@ -492,5 +501,7 @@ export default connect(mapStateToProps, {
   captionClip,
   addChroma,
   setVideoOneRange,
-  setEnableCap
+  setEnableCap,
+  setLoading,
+  setProgress
 })(EditOption);
