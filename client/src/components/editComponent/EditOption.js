@@ -15,7 +15,8 @@ import {
   set_sync,
   trimClip,
   transitionClip,
-  addChroma
+  addChroma,
+  setEnableCap
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
@@ -448,21 +449,19 @@ class EditOption extends React.Component {
           <Button              
           variant="contained"
           color="primary"
-          onClick={this.trim_Submit.bind(this, selectItemOne)}>
-            Enable Add Caption
+          onClick={this.props.setEnableCap}>
+            Toggle Caption Input Field
         </Button>
-        {this.state.isWanted ? (
+        {this.props.isWanted ? (
           <div>
-              <Button           variant="contained"
+              <Button variant="contained"
           color="primary"onClick={() => this.addCaption()}>Add to Caption</Button>
         <Button           variant="contained"
           color="primary"onClick={() => this.burnVideo()}>Burn it into video</Button>
             </div>
         )
         :
-        (<div> </div>)};
-      
-            
+        (<div> </div>)}
             </Grid>
             <Grid>
         <CaptionListView />
@@ -480,6 +479,7 @@ const mapStateToProps = state => ({
   edit: state.edit,
   user: state.auth.user,
   duration: state.edit.duration,
+  isWanted: state.edit.isWanted,
   isAuthenticated: state.auth.isAuthenticated
 });
 
@@ -491,5 +491,6 @@ export default connect(mapStateToProps, {
   addCapation,
   captionClip,
   addChroma,
-  setVideoOneRange
+  setVideoOneRange,
+  setEnableCap
 })(EditOption);

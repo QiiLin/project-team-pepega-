@@ -21,10 +21,14 @@ class VideoCaptionInput extends React.Component {
     render() {
         return (
             <div>
+            {this.props.isWanted ? (            
+            <div>
                 <InputGroup size="lg">
                     <Input className="transparent-input" onChange={this.handleChange}/>
                 </InputGroup>
                 <br/>
+            </div>):
+            (<div></div>) }
             </div>
         );
     };
@@ -35,6 +39,7 @@ class VideoCaptionInput extends React.Component {
 const mapStateToProps = state => ({
     item: state.item,
     user: state.auth.user,
+    isWanted: state.edit.isWanted,
     isAuthenticated: state.auth.isAuthenticated
 });
 

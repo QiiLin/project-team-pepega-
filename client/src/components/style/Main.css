@@ -6,3 +6,7 @@
     max-height: 600px;
     overflow: auto
 }
+
+.guide_button:hover {
+    cursor: pointer;
+}

@@ -11,6 +11,7 @@ import { loadUser } from "./actions/authActions";
 import "../node_modules/video-react/dist/video-react.css";
 import HandleProgressBar from "./components/ProgressBar";
 
+
 class App extends Component {
   componentDidMount() {
     store.dispatch(loadUser());

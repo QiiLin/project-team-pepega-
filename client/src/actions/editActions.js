@@ -6,7 +6,9 @@ import {
     ADD_CAPTION,
     SET_CAPTION,
     RESET_CAPTION,
-    DELETE_CAPTION
+    DELETE_CAPTION,
+    ENABLE_CAPTION,
+    ENABLE_USERGUIDE
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
@@ -96,6 +98,19 @@ export const set_sync = () => {
     return {
         type: SET_SYNC
     };
+};
+
+export const setEnableCap = () => {
+    console.log("ee")
+    return {
+        type: ENABLE_CAPTION
+    }
+};
+export const setEnableGuide = () => {
+    console.log("ee")
+    return {
+        type: ENABLE_USERGUIDE
+    }
 };
 
 export const setDurationOne = video_length => {

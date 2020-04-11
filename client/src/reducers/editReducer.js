@@ -9,7 +9,9 @@ import {
   SET_SYNC,
   TRIM_CLIP,
   TRANSITION_CLIP,
-  ADD_CHROMA
+  ADD_CHROMA,
+  ENABLE_CAPTION,
+  ENABLE_USERGUIDE
 } from "../actions/types";
 
 /*
@@ -38,7 +40,9 @@ const initialState = {
     //     text: "12 ------17"
     // }
   ],
-  captionValue: ""
+  captionValue: "",
+  isWanted: false,
+  isUserGuide: false
 };
 
 export default function(state = initialState, action) {
@@ -102,6 +106,18 @@ export default function(state = initialState, action) {
         ...state,
         captions: state.captions.filter(item => item.index !== action.payload)
       };
+    }
+    case ENABLE_CAPTION: {
+      return {
+        ...state,
+        isWanted: !state.isWanted
+      }
+    }
+    case ENABLE_USERGUIDE: {
+      return {
+        ...state,
+        isUserGuide: !state.isUserGuide
+      }
     }
     default:
       return state;
