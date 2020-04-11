@@ -8,21 +8,33 @@ const validator = require("validator")
 // User model
 const User = require("../../models/User");
 
+let checkName = (req, res, next) => {
+  if (!validator.isAlphanumeric(req.body.name))
+    return res.status(400).end("bad input");
+  next();
+}
+
+let checkEmail = (req, res, next) => {
+  if (!validator.isEmail(req.body.email))
+    return res.status(400).end("bad input")
+  next();
+}
+
+let checkPassword = (req, res, next) => {
+  if (!validator.isAlphanumeric(req.body.password))
+    return res.status(400).end("bad input");
+  next();
+}
+
 // @route  POST /api/users
 // @desc   Register a new user
 // @access public
-router.post("/", (req, res) => {
+router.post("/", checkName, checkEmail, checkPassword, (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
     return res.status(400).json({ msg: "Please enter all fields" });
   }
 
-  // let checkName = validator.isAlphanumeric(name)
-  // let checkEmail = validator.isAlphanumeric(email)
-  // let checkPassword = validator.isAlphanumeric(password)
-  // if (!checkName || !checkEmail || !checkPassword) {
-  //   return res.status(400).json({ msg: "Bad input" })
-  // }
   // Check for existing user
   User.findOne({ email: email }).then(user => {
     if (user) return res.status(400).json({ msg: "User already exists" });
