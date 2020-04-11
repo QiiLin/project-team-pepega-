@@ -7,9 +7,11 @@ const methodOverride = require("method-override");
 const csurf = require('csurf')
 const app = express();
 const helmet = require('helmet');
-var cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
+const cookie = require('cookie');
+
 // enable helmet
-app.use(helmet());
+// app.use(helmet());
 // // enable helmet Content Security Policy
 // This fails on the production
 // app.use(helmet.contentSecurityPolicy({
@@ -19,9 +21,9 @@ app.use(helmet());
 //   }
 // }))
 // set permittedCrossDomainPolicies for flash and adobe stuff
-app.use(helmet.permittedCrossDomainPolicies())
-// set the same-origin pllicy
-app.use(helmet.referrerPolicy({ policy: 'same-origin' }))
+// app.use(helmet.permittedCrossDomainPolicies())
+// // set the same-origin pllicy
+// app.use(helmet.referrerPolicy({ policy: 'same-origin' }))
 
 // Body parser middleware
 app.use(
@@ -40,37 +42,14 @@ app.use(methodOverride("_method"));
 const db = config.get("mongoURI");
 const secret = config.get("sessionSecret");
 const session = require("express-session");
-
-app.use(
-  session({
-    secret:  secret,
+app.use(cookieParser());
+app.use(session({
+    name : 'app.sid',
+    secret: "1234567890QWERTY",
     resave: false,
-    saveUninitialized: false,
-    cookie: {httpOnly: true, sameSite: true, secure: true}
-  })
-);
-
-app.use(csurf({ cookie: false }))
-
-app.use(function (req, res, next) {
-  // if (!req.session._csrf) {
-  //   console.log("tt");
-  //   req.session._csrf = req.csrfToken();
-  //   console.log(req.session._csrf);
-  // }
-  next();
-});
-
-// // for debug try
-// app.get('/', function(req, res, next) {
-//   if (!req.session._csrf) {
-//     console.log("test");
-//     // init the toke
-//     req.session._csrf = req.csrfToken();
-//   }
-//   return res.status(200);
-//  });
-
+    saveUninitialized: true,
+    cookie: {httpOnly: true, sameSite: true, secure: false}
+}));
 
 // Connect to mongo
 mongoose
@@ -104,14 +83,10 @@ if (process.env.NODE_ENV === "production") {
 
   // Set static folder
   app.use(express.static("client/build"));
-
   app.get("*", (req, res) => {
-
-    req.session._csrf = req.csrfToken();
-    console.log("ee");
+    res.cookie('XSRF-TOKEN', req.csrfToken())
     // Current directory, go into client/build, and load the index.html file
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-    res.end();
   });
 
 const port = process.env.PORT || 5000;
@@ -130,4 +105,4 @@ const port = process.env.PORT || 5000;
 }).listen(3333);*/
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
-module.exports = app;
+module.exports = {app};

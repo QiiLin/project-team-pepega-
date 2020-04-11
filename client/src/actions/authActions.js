@@ -118,6 +118,7 @@ export const tokenConfig = getState => {
   if (token) {
     config.headers["x-auth-token"] = token;
   }
+  config.withCredentials = true;
 
   return config;
 };
@@ -136,6 +137,6 @@ export const tokenConfig2 = getState => {
   if (token) {
     config.headers["x-auth-token"] = token;
   }
-
+  config.withCredentials = true;
   return config;
 };
