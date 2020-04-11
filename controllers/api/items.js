@@ -22,7 +22,13 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
     originalname: req.file.originalname
   };
   gfs_prim.then(function (gfs) {
-    gfs.files.update({ _id: mongoose.Types.ObjectId(req.file.id) }, { '$set': { 'metadata': metadata } })
+    gfs.files.update({
+      _id: mongoose.Types.ObjectId(req.file.id)
+    }, {
+      '$set': {
+        'metadata': metadata
+      }
+    })
   });
 
   /*const newItem = new Item({
@@ -90,7 +96,9 @@ router.get("/", auth, (req, res) => {
 // @desc  Display single file object
 router.get('/:id', (req, res) => {
   gfs_prim.then(function (gfs) {
-    gfs.files.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }, (err, file) => {
+    gfs.files.findOne({
+      _id: mongoose.Types.ObjectId(req.params.id)
+    }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
         return res.status(404).json({
@@ -116,7 +124,11 @@ router.get('/:id', (req, res) => {
 // @desc  Display single file object
 router.get('/thumbnail/:id', (req, res) => {
   gfs_prim.then(function (gfs) {
-    gfs.files.findOne({ metadata: { video_id: mongoose.Types.ObjectId(req.params.id) } }, (err, file) => {
+    gfs.files.findOne({
+      metadata: {
+        video_id: mongoose.Types.ObjectId(req.params.id)
+      }
+    }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
         return res.status(404).json({
@@ -147,20 +159,34 @@ router.get('/thumbnail/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   gfs_prim.then(function (gfs) {
     //this gridfs version can only delete via remove, ignore deprecated warnings
-    gfs.remove({ _id: mongoose.Types.ObjectId(req.params.id), root: 'fs' }, (err) => {
+    gfs.remove({
+      _id: mongoose.Types.ObjectId(req.params.id),
+      root: 'fs'
+    }, (err) => {
       if (err) {
-        return res.status(404).json({ err: err });
+        return res.status(404).json({
+          err: err
+        });
       }
       /*Item.deleteOne({ gfs_id : mongoose.Types.ObjectId(req.params.id)})
       .then(() => {
         return res.status(200).json("delete done");
       }).catch(err => res.status(404).json({ err: err }));      */
 
-      gfs.files.findOne({ metadata: { video_id: mongoose.Types.ObjectId(req.params.id) } }, (err, file) => {
+      gfs.files.findOne({
+        metadata: {
+          video_id: mongoose.Types.ObjectId(req.params.id)
+        }
+      }, (err, file) => {
         if (file) {
-          gfs.remove({ _id: file._id, root: 'fs' }, (err) => {
+          gfs.remove({
+            _id: file._id,
+            root: 'fs'
+          }, (err) => {
             if (err) {
-              return res.status(404).json({ err: err });
+              return res.status(404).json({
+                err: err
+              });
             }
             return res.status(200).json("delete done");
           });

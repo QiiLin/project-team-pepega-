@@ -10,13 +10,13 @@ import {
 } from "../actions/types";
 
 const initialState = {
-  token: localStorage.getItem("token"),
+  token: sessionStorage.getItem("token"),
   isAuthenticated: null,
   isLoading: false,
   user: null
 };
 
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
     case USER_LOADING:
       return {
@@ -27,31 +27,31 @@ export default function(state = initialState, action) {
       return {
         ...state,
         isAuthenticated: true,
-        isLoading: false,
-        user: action.payload
+          isLoading: false,
+          user: action.payload
       };
     case LOGIN_SUCCESS:
     case REGISTER_SUCCESS:
-      localStorage.setItem("token", action.payload.token);
+      sessionStorage.setItem("token", action.payload.token);
       return {
         ...state,
         // Get the token and the user
         ...action.payload,
-        isAuthenticated: true,
-        isLoading: false
+          isAuthenticated: true,
+          isLoading: false
       };
 
     case AUTH_ERROR:
     case LOGIN_FAIL:
     case LOGOUT_SUCCESS:
     case REGISTER_FAIL:
-      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
       return {
         ...state,
         token: null,
-        user: null,
-        isAuthenticated: false,
-        isLoading: false
+          user: null,
+          isAuthenticated: false,
+          isLoading: false
       };
     default:
       return state;
