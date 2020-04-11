@@ -15,8 +15,6 @@ import OperationPop from "./components/popUpComponent/OperationPop";
 class App extends Component {
   componentDidMount() {
     store.dispatch(loadUser());
-    fetch('http://localhost:5000/')
-    .then(response => console.log(response.json()));
   }
 
   render() {
