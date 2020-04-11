@@ -3,6 +3,8 @@ import { AppBar, Tabs, Tab, Box } from "@material-ui/core/";
 import { setDurationOne, setDurationTwo } from "../../actions/editActions";
 import { Player } from "video-react";
 import { connect } from "react-redux";
+import '../style/Main.css';
+// import PlayerComp from "./PlayerComp";
 
 class VideoContainer extends Component {  
   constructor(props) {
@@ -15,7 +17,7 @@ class VideoContainer extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     // subscribe state change
     this.player1.subscribeToStateChange(this.handleStateChangeOne.bind(this));
-    this.player2.subscribeToStateChange(this.handleStateChangeTwo.bind(this));
+    // this.player2.subscribeToStateChange(this.handleStateChangeTwo.bind(this));
   }
 
   changeCurrentTime(seconds) {
@@ -29,7 +31,6 @@ class VideoContainer extends Component {
     this.setState({
       player1: state
     });
-    console.log("weqweqweqwe");
     const { player } = this.player1.getState();
     this.props.setDurationOne(player.duration);
   }
@@ -39,7 +40,6 @@ class VideoContainer extends Component {
     this.setState({
       player2: state
     });
-    console.log("weqweqweqwe2");
     const { player } = this.player2.getState();
     this.props.setDurationTwo(player.duration);
   }
@@ -57,59 +57,23 @@ class VideoContainer extends Component {
       : "http://www.w3schools.com/html/mov_bbb.mp4";    
     return (
       <div>
-        <Tabs value={this.state.selectTab} onChange={this.handleTabClick}>
-          <Tab label="Player One" value="1" />
-          <Tab label="Player Two" value="2" />
-        </Tabs>
         <Box
           display={this.state.selectTab === "1" ? "block" : "none"}
           value="1"
         >
-          {selectItemOne ? (
-            <Player
-              key={selectItemOne}
-              ref={player => {
-                this.player1 = player;
-              }}
-            >
-              <source src={"api/items/" + selectItemOne} />
-            </Player>
-          ) : (
-            <Player
-              key={selectItemOne}
-              ref={player => {
-                this.player1 = player;
-              }}
-            >
-              <source src={"http://www.w3schools.com/html/mov_bbb.mp4"} />
-            </Player>
-          )}
-        </Box>
-        <Box
-          display={this.state.selectTab === "2" ? "block" : "none"}
-          value="2"
-        >
-          {selectItemTwo ? (
-            <Player
-              key={selectItemTwo}
-              ref={player => {
-                this.player2 = player;
-              }}
-            >
-              <source src={"api/items/" + selectItemTwo} />
-            </Player>
-          ) : (
-            <Player
-              key={selectItemTwo}
-              ref={player => {
-                this.player2 = player;
-              }}
-            >
-              <source
-                src={"http://techslides.com/demos/sample-videos/small.webm"}
-              />
-            </Player>
-          )}
+          <div>
+            <div>
+              <Player
+                fluid={false} width={"100%"} height={630}
+                key={selectItemOne}
+                ref={player => {
+                  this.player1 = player;
+                }}
+              >
+                <source src={playerOneSource} />
+              </Player>
+            </div>
+          </div>
         </Box>
       </div>
     );

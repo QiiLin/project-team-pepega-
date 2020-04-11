@@ -9,10 +9,9 @@ import {
   CardTitle,
   Row,
   Col,
-  Media,
   ButtonGroup
 } from "reactstrap";
-import { Button, Box, CardMedia } from "@material-ui/core";
+import { Button, Box } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import VideoLibraryIcon from "@material-ui/icons/VideoLibrary";
 import { connect } from "react-redux";
@@ -84,12 +83,12 @@ class VideoList extends Component {
 
         <TabContent
           activeTab={this.state.selectTab}
-          style={{ maxHeight: 600, overflow: "auto" }}
+          className="overflow_class"
         >
           <TabPane tabId="1">
-            <Row>              
+            <Row>
               {items
-                .filter(({metadata}) => (metadata == null ? false : metadata.video_id === undefined))
+                .filter(({contentType}) => (contentType.includes("video") ? true : false))
                 .map(({ _id, filename, metadata }) => (                      
                 <Col sm="6" key={_id}>
                   <Card body>
@@ -147,20 +146,51 @@ class VideoList extends Component {
           </TabPane>
           <TabPane tabId="2">
             <Row>
-              {/*<Col sm="6">*/}
-              {/*<Card body>*/}
-              {/*<CardTitle>Special Title Treatment</CardTitle>*/}
-              {/*<CardText>With supporting text below as a natural lead-in to additional content.</CardText>*/}
-              {/*<Button>Go somewhere</Button>*/}
-              {/*</Card>*/}
-              {/*</Col>*/}
-              {/*<Col sm="6">*/}
-              {/*<Card body>*/}
-              {/*<CardTitle>Special Title Treatment</CardTitle>*/}
-              {/*<CardText>With supporting text below as a natural lead-in to additional content.</CardText>*/}
-              {/*<Button>Go somewhere</Button>*/}
-              {/*</Card>*/}
-              {/*</Col>*/}
+            {items
+                .filter(({contentType}) => (contentType.includes("audio") ? true : false))
+                .map(({ _id, filename, metadata }) => (                      
+                <Col sm="6" key={_id}>
+                  <Card body>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      startIcon={<DeleteIcon />}
+                      onClick={() => {
+                        this.props.deleteItem(_id);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                    <Box m={0.5} />
+                    <CardTitle>{metadata.originalname ? metadata.originalname : filename}</CardTitle>
+                    {/*<img src={"api/items/thumbnail/" + _id} style={{width: '100%', height: '100%'}}></img>*/}                    
+                    <Box m={0.5} />
+                    <ButtonGroup vertical>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        endIcon={<VideoLibraryIcon />}
+                        onClick={() => {
+                          this.props.setSelectItemOne(_id);
+                        }}
+                      >
+                        Load to player one
+                      </Button>
+                      <Box m={0.5} />
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        endIcon={<VideoLibraryIcon />}
+                        onClick={() => {
+                          this.props.setSelectItemTwo(_id);
+                        }}
+                      >
+                        Load to player two
+                      </Button>
+                    </ButtonGroup>
+                  </Card>
+                </Col>
+              ))}
             </Row>
           </TabPane>
         </TabContent>

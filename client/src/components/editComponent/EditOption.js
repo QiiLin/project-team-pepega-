@@ -6,26 +6,43 @@ import {
   InputLabel,
   MenuItem,
   Box,
-  Input,
   Tooltip
 } from "@material-ui/core";
 import MergeTypeIcon from "@material-ui/icons/MergeType";
+import HelpIcon from "@material-ui/icons/Help";
 import {
   addCapation,
   captionClip,
   mergeClip,
   set_sync,
   trimClip,
-  transitionClip
+  transitionClip,
+  addChroma,
+  setEnableCap,
+  saveMP3,
+  addAudToVid
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
-import { HelpIcon } from "@material-ui/icons/Help";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
+import AcUnitIcon from '@material-ui/icons/AcUnit';
+import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
+import AddIcon from '@material-ui/icons/Add';
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 import CaptionListView from "../CaptionListView";
+import PadTransitionComp from "./PadTransitionComp";
+import FadeTransitionComp from "./FadeTransitionComp";
+import { setVideoOneRange, setVideoTwoRange } from "../../actions/itemActions";
+import TimeLineSector from "./TimeLineSector";
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import {setLoading, setProgress} from "../../actions/editActions";
 
-String.prototype.toHHMMSS = function() {
+
+
+import SingleRecorder from "./Recorder";
+
+String.prototype.toHHMMSS = function () {
   var sec_num = parseInt(this, 10); // don't forget the second param
   var hours = Math.floor(sec_num / 3600);
   var minutes = Math.floor((sec_num - hours * 3600) / 60);
@@ -43,12 +60,12 @@ String.prototype.toHHMMSS = function() {
   return hours + ":" + minutes + ":" + seconds;
 };
 
-let createStringOptions = () => {
-  let options = [];
-  for (let i = 0; i < 100; i++) {
-    options.push(i.toString());
+let createStringOptions = options => {
+  let optionsList = [];
+  for (let i = 0; i < options; i++) {
+    optionsList.push(i.toString());
   }
-  return options;
+  return optionsList;
 };
 
 class EditOption extends React.Component {
@@ -63,11 +80,20 @@ class EditOption extends React.Component {
       transition_paddingVidHeight: "",
       transition_paddingVidRow: "",
       transition_paddingVidCol: "",
-      transition_paddingColor: ""
+      transition_paddingColor: "",
+      chroma_dropdownValue: "",
+      record: false,
+      audio_dropdownValue: "",
+      video_dropdownValue: ""
     };
     this.addCaption = this.addCaption.bind(this);
     this.burnVideo = this.burnVideo.bind(this);
+    this.setOneRange = this.setOneRange.bind(this);
   }
+  
+  setOneRange = value => {
+    this.props.setVideoOneRange(value);
+  };
 
   static propTypes = {
     item: PropTypes.object.isRequired,
@@ -206,6 +232,57 @@ class EditOption extends React.Component {
     });
   };
 
+  chroma_dropdownSubmit = selectItemOne => {
+    let bodyFormData = new FormData();
+    bodyFormData.append("vid_id", selectItemOne);
+    bodyFormData.append("command", this.state.chroma_dropdownValue);
+    // console.log(
+    //   "chroma_dropdownSubmit chroma: ",
+    //   bodyFormData.get("command")
+    // );
+    this.props.addChroma(selectItemOne, bodyFormData);
+  };
+
+  chroma_dropdownChanged = event => {
+    event.persist();
+    console.log(event.target.value);
+    this.setState(() => {
+      return {
+        chroma_dropdownValue: event.target.value
+      };
+    });
+  };
+
+  addAudToVid_dropdownSubmit = selectItemOne => {
+    console.log("id: ", selectItemOne)
+    let bodyFormData = new FormData();
+    bodyFormData.append("vid_id", selectItemOne);
+    bodyFormData.append("audio_id", this.state.audio_dropdownValue);
+    // bodyFormData.append("video", this.state.video_dropdownValue);
+    this.props.addAudToVid(selectItemOne, bodyFormData)
+  }
+
+  audio_dropdownChanged = event => {
+    event.persist();
+    console.log(event.target.value);
+    this.setState(() => {
+      return {
+        audio_dropdownValue: event.target.value
+      };
+    });
+    console.log(this.state.audio_dropdownValue)
+  };
+
+  video_dropdownChanged = event => {
+    event.persist();
+    console.log(event.target.value);
+    this.setState(() => {
+      return {
+        video_dropdownValue: event.target.value
+      };
+    });
+  };
+
   addCaption = () => {
     const { videoOneSelection } = this.props.item;
     const { captionValue, captions } = this.props.edit;
@@ -227,6 +304,15 @@ class EditOption extends React.Component {
     this.props.captionClip(selectItemOne, captions);
   };
 
+  saveMP3 = (file) => {
+    console.log("saveMP3 called")
+    console.log("file: ", file)
+    // const { selectItemOne } = this.props.item;
+    let bodyFormData = new FormData();
+    bodyFormData.append("mp3file", file);
+    this.props.saveMP3(bodyFormData);
+  }
+
   render() {
     // console.log(this.props.item);
     // console.log(this.props.item.videoOneSelection);
@@ -242,21 +328,38 @@ class EditOption extends React.Component {
       "white",
       "cyans"
     ];
+    const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
+
+    const classes = makeStyles((theme) => ({
+      root: {
+        flexGrow: 1,
+      },
+      paper: {
+        padding: theme.spacing(2),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+      },
+    }));
+    // const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
+    // const audioExts = ["mp3", "aac", "ac3", "eac3", "ogg", "wma", "wav", "l16", "aiff", "au", "pcm"]
+    // const videoExts = ["mp4", "m4a", "m4v", "f4v", "f4a", "m4b", "m4r", "f4b", "mov", "3gp", "webm"]
+    const { durationVideoOne } = this.props.edit;
     return (
       <div>
-        <Grid key="merge_grid" container>
+        <div>
+          <TimeLineSector title="Here is range select for the video" callback={this.setOneRange} videoReference="1"/>
+          <Button variant="contained" color="primary"onClick={() => this.props.set_sync()}>
+            Sync range selector
+          </Button>
+         </div> 
+         <br/>
           <Grid
-            container
-            direction="column"
-            justify="flex-start"
-            alignItems="flex-start"
+          container
+          direction="row"
+          justify="space-between"
+          alignItems="flex-start"
           >
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
+            <Grid>
               <InputLabel>Select a video to merge</InputLabel>
               <Select
                 className="edit-dropdown"
@@ -274,6 +377,8 @@ class EditOption extends React.Component {
                   </MenuItem>
                 ))}
               </Select>
+              <br/>
+              <Tooltip title="This take few mins" arrow>
               <Button
                 variant="contained"
                 color="primary"
@@ -282,18 +387,10 @@ class EditOption extends React.Component {
               >
                 Merge
               </Button>
+              </Tooltip>
             </Grid>
-            <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
+            <Grid>
               <InputLabel>Add Transition Effect</InputLabel>
-              {/* <Tooltip title="To add a transition effect, indicate the start and end frame in the format of dd (eg. 00, 30)"> */}
-              {/* <HelpIcon /> */}
-              {/* </Tooltip> */}
               <Select
                 className="transition-dropdown"
                 style={{ minWidth: 180, marginBottom: 10 }}
@@ -310,96 +407,35 @@ class EditOption extends React.Component {
                   </MenuItem>
                 ))}
               </Select>
+
               {/* If the user chose fade=in or fade=out */}
               {this.state.transition_dropdownValue.includes("fade") ? (
-                <div>
-                  <InputLabel>Add Transition Start Frame</InputLabel>
-                  <Select
-                    id="startFrame"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_startFrame}
-                    onChange={this.transition_startFrameChanged}
-                  >
-                    {createStringOptions().map(option => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <InputLabel>Add Transition End Frame</InputLabel>
-                  <Select
-                    id="endFrame"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_endFrame}
-                    onChange={this.transition_endFrameChanged}
-                  >
-                    {createStringOptions().map(option => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </div>
+                <FadeTransitionComp
+                  transStart={this.state.transition_startFrame}
+                  transStartChanged={this.transition_startFrameChanged}
+                  transEnd={this.state.transition_endFrame}
+                  transEndChanged={this.transition_endFrameChanged}
+                  createStringOptions={createStringOptions}
+                  duration={durationVideoOne}
+                />
               ) : null}
 
               {/* If the user chooses pad */}
               {this.state.transition_dropdownValue.includes("pad") ? (
-                <div>
-                  <InputLabel>Add Video Width</InputLabel>
-                  <Input
-                    id="padVidWidth"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_paddingVidWidth}
-                    onChange={this.transition_paddingVidWidthChanged}
-                  ></Input>
-
-                  <InputLabel>Add Video Height</InputLabel>
-                  <Input
-                    id="padVidHeight"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_paddingVidHeight}
-                    onChange={this.transition_paddingVidHeightChanged}
-                  ></Input>
-                  <InputLabel>Add Row</InputLabel>
-                  <Select
-                    id="row"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_paddingVidRow}
-                    onChange={this.transition_paddingVidRowChanged}
-                  >
-                    {createStringOptions().map(option => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <InputLabel>Add Column</InputLabel>
-                  <Select
-                    id="col"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.transition_paddingVidCol}
-                    onChange={this.transition_paddingVidColChanged}
-                  >
-                    {createStringOptions().map(option => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <InputLabel>Add Color</InputLabel>
-                  <Select
-                    id="color"
-                    style={{ minWidth: 180, marginBottom: 10 }}
-                    value={this.state.transition_paddingColor}
-                    onChange={this.transition_paddingColorChanged}
-                  >
-                    {colors.map(color => (
-                      <MenuItem key={color} value={color}>
-                        {color}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </div>
+                <PadTransitionComp
+                  padVidWidth={this.state.transition_paddingVidWidth}
+                  padVidWidthChanged={this.transition_paddingVidWidthChanged}
+                  padVidHeight={this.state.transition_paddingVidHeight}
+                  padVidHeightChanged={this.transition_paddingVidHeightChanged}
+                  padVidRow={this.state.transition_paddingVidRow}
+                  padVidRowChanged={this.transition_paddingVidRowChanged}
+                  padVidCol={this.state.transition_paddingVidCol}
+                  padVidColChanged={this.transition_paddingVidColChanged}
+                  padVidColor={this.state.transition_paddingColor}
+                  padVidColorChanged={this.transition_paddingColorChanged}
+                  createStringOptions={createStringOptions}
+                  colors={colors}
+                />
               ) : null}
               <Button
                 variant="contained"
@@ -410,17 +446,17 @@ class EditOption extends React.Component {
                   selectItemOne
                 )}
               >
-                Add Effect
+                Add Transition Effect
               </Button>
             </Grid>
-            <Box m={2} />
-            <Grid
-              container
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-start"
-            >
-              <InputLabel>Trim Video</InputLabel>
+            <Grid>
+              <InputLabel>Trim Video
+              <Tooltip title="The Trim range is selected by the range selector ">
+                <HelpIcon />
+              </Tooltip>
+              
+              </InputLabel>
+
               <Button
                 variant="contained"
                 color="primary"
@@ -430,15 +466,72 @@ class EditOption extends React.Component {
                 Trim
               </Button>
             </Grid>
-          </Grid>
-          <Grid></Grid>
-        </Grid>
-        <Button color="primary" onClick={() => this.props.set_sync()}>
-          Sync range selector
+            <Grid>
+              {/*<InputLabel>Add special effects</InputLabel>
+              <Select
+                className="chroma-dropdown"
+                style={{ minWidth: 180, marginBottom: 10 }}
+                value={this.state.chroma_dropdownValue}
+                onChange={this.chroma_dropdownChanged}
+              >
+                {chromaChoices.map(type => (
+                  <MenuItem
+                    className="chroma-dropdown-item"
+                    key={type}
+                    value={type}
+                  >
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+
+              <Button
+                variant="contained"
+                color="primary"
+                endIcon={<AcUnitIcon />}
+                onClick={this.chroma_dropdownSubmit.bind(this, selectItemOne)}
+              >
+                Add Special Effect
+                </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                endIcon={<SystemUpdateAltIcon />}
+                href="http://localhost:3333">
+                Download
+              </Button>*/}
+            </Grid>
+            <Grid>
+            <Tooltip title="The Caption is Added by the input file highlight on the video and the range selector ">
+                <HelpIcon />
+              </Tooltip>
+          <Button              
+          variant="contained"
+          color="primary"
+          onClick={this.props.setEnableCap}>
+            Toggle Caption Input Field
         </Button>
-        <Button onClick={() => this.addCaption()}>Add to Caption</Button>
-        <Button onClick={() => this.burnVideo()}>Burn it into video</Button>
-        <CaptionListView />
+        {this.props.isWanted ? (
+          <div>
+              <Button variant="contained"
+                 color="primary"onClick={() => this.addCaption()}>Add to Caption</Button>
+              <Button variant="contained"
+                 color="primary"onClick={() => this.burnVideo()}>Burn it into video</Button>
+            </div>
+        )
+        :
+        (<div> </div>)}
+            </Grid>
+            <Grid>
+               <CaptionListView />
+            </Grid>
+            <Grid>
+              <InputLabel>Record</InputLabel>
+              <SingleRecorder saveMP3={this.saveMP3} />
+            </Grid>
+          </Grid>
+          <br/>
+
       </div>
     );
   }
@@ -449,6 +542,7 @@ const mapStateToProps = state => ({
   edit: state.edit,
   user: state.auth.user,
   duration: state.edit.duration,
+  isWanted: state.edit.isWanted,
   isAuthenticated: state.auth.isAuthenticated
 });
 
@@ -458,5 +552,12 @@ export default connect(mapStateToProps, {
   transitionClip,
   set_sync,
   addCapation,
-  captionClip
+  captionClip,
+  addChroma,
+  setVideoOneRange,
+  setEnableCap,
+  setLoading,
+  setProgress,
+  saveMP3,
+  addAudToVid
 })(EditOption);

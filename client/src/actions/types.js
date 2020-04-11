@@ -30,3 +30,19 @@ export const SET_CAPTION = "SET_CAPTION";
 export const RESET_CAPTION = "RESET_CAPTION";
 
 export const DELETE_CAPTION = "DELETE_CAPTION";
+
+export const SET_PROGRESS_BAR = "SET_PROGRESS_BAR";
+
+export const ADD_CHROMA = "ADD_CHROMA";
+
+export const ENABLE_CAPTION = "ENABLE_CAPTION";
+
+export const ENABLE_USERGUIDE = "ENABLE_USERGUIDE";
+
+export const SET_PROGRESS = "SET_PROGRESS";
+
+export const SET_FILENAME = "SET_FILENAME";
+
+export const SET_LOADING = "SET_LOADING";
+
+export const SAVE_RECORDING = "SAVE_RECORDING";

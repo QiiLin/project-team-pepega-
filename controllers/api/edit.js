@@ -8,14 +8,19 @@ const ffmpeg = require("../../controllers/ff_path");
 // Item model
 const Item = require("../../models/Item");
 const mongoose = require("mongoose");
-let createJSONfilter = transitionType => {};
 // import stream from 'stream';
 const { gfs_prim } = require("../../middleware/gridSet");
-const upload = multer();
+// const storage = multer.diskStorage({
+//   destination: path.join(__dirname, "../../video_input/"),
+//   filename: function (req, file, callback) {
+//     callback(null, "recording.mp3")
+//   }
+// });
+const upload = multer({ dest: path.join(__dirname, "../../recordings/") });
 const crypto = require("crypto");
 
 function retrievePromise(id, gfs) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     gfs.files.findOne({ _id: mongoose.Types.ObjectId(id) }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
@@ -27,19 +32,19 @@ function retrievePromise(id, gfs) {
   });
 }
 
-function generateThumbnail(id, filename) {  
-  gfs_prim.then(function(gfs) {
+function generateThumbnail(id, filename) {
+  gfs_prim.then(function (gfs) {
     let basename = path.basename(filename).replace(path.extname(filename), ""); //filename w/o extension
     const fname = basename + ".png";
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
       content_type: "image/png",
-      metadata: {video_id: id}
+      metadata: { video_id: id }
     });
     //search for newly generated video every 0.5s until exists since this gridfs version has a small delay on write
-    let idInterval = setInterval(function(){
-      retrievePromise(id, gfs).then(function(item) {
+    let idInterval = setInterval(function () {
+      retrievePromise(id, gfs).then(function (item) {
         clearInterval(idInterval);
         ffmpeg(item)
           .withVideoCodec("png")
@@ -50,20 +55,20 @@ function generateThumbnail(id, filename) {
           .on("progress", progress => {
             console.log(`[Thumbnail]: ${JSON.stringify(progress)}`);
           })
-          .on("stderr", function(stderrLine) {
+          .on("stderr", function (stderrLine) {
             console.log("Stderr output [Thumbnail]: " + stderrLine);
           })
-          .on("error", function(err) {
+          .on("error", function (err) {
             return ("An error occurred [Thumbnail]: ", err.message);
           })
-          .on("end", function() {
+          .on("end", function () {
             return ("Thumbnail is completed");
           })
           .saveToFile(result);
-      });   
-    }, 500);   
-    
-  });  
+      });
+    }, 500);
+
+  });
 }
 
 // @route  POST /api/caption
@@ -77,7 +82,7 @@ router.post("/caption/:id", (req, res) => {
   }
 
   let result = "";
-  req.body.data.forEach(function(curr, index) {
+  req.body.data.forEach(function (curr, index) {
     let temp = "" + (index + 1) + "\n";
     temp += curr.start_time + " --> " + curr.end_time + "\n";
     temp += curr.text + "\n";
@@ -95,10 +100,10 @@ router.post("/caption/:id", (req, res) => {
   let out_path = path.join(__dirname + "/../../temp/video/out.mp4");
   console.log(srt_path);
   console.log(sub_path);
-  fs.writeFile(srt_path, result, function(err) {
+  fs.writeFile(srt_path, result, function (err) {
     if (err) throw err;
     console.log("Saved!");
-    gfs_prim.then(function(gfs) {
+    gfs_prim.then(function (gfs) {
       // get read stream from DB
       let resultFile = gfs.createWriteStream({
         filename: fname,
@@ -114,7 +119,7 @@ router.post("/caption/:id", (req, res) => {
       Promise.all([currentItem, currentItemCopy]).then(Items => {
         let currStream = Items[0];
         let readItem = Items[1];
-        ffmpeg.ffprobe(currStream, function(err, metadata) {
+        ffmpeg.ffprobe(currStream, function (err, metadata) {
           let width = metadata ? metadata.streams[0].width : 640;
           let height = metadata ? metadata.streams[0].height : 360;
           let fps = metadata ? metadata.streams[0].r_frame_rate : 30;
@@ -126,7 +131,7 @@ router.post("/caption/:id", (req, res) => {
             .input(readItem)
             .format("webm")
             .withVideoCodec("libvpx")
-            .addOptions(["-b:v 0",  "-crf 30"])
+            .addOptions(["-b:v 0", "-crf 30"])
             .withVideoBitrate(1024)
             .withAudioCodec("libvorbis")
             .withFpsInput(fps)
@@ -137,7 +142,7 @@ router.post("/caption/:id", (req, res) => {
             .on("progress", progress => {
               console.log(`[Caption]: ${JSON.stringify(progress)}`);
             })
-            .on("error", function(err) {
+            .on("error", function (err) {
               // fs.unlink(srt_path, err => {
               //     if (err) console.log("Could not remove srt file:" + err);
               // });
@@ -145,10 +150,10 @@ router.post("/caption/:id", (req, res) => {
                 .status(500)
                 .json("An error occurred [Caption]: " + err.message);
             })
-            .on("stderr", function(stderrLine) {
+            .on("stderr", function (stderrLine) {
               console.log("Stderr output [Subtitle]:: " + stderrLine);
             })
-            .on("end", function() {
+            .on("end", function () {
               fs.unlink(srt_path, err => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
@@ -168,11 +173,13 @@ router.post("/caption/:id", (req, res) => {
 // @access Private
 router.post("/merge", upload.none(), (req, res) => {
   res.set("Content-Type", "text/plain");
+  console.log(req.body.curr_vid_id)
+  console.log(req.body.merge_vid_id)
   if (!req.body.curr_vid_id || !req.body.merge_vid_id)
     return res.status(400).end("video id for merging required");
 
-  
-  gfs_prim.then(function(gfs) {
+
+  gfs_prim.then(function (gfs) {
     const curr_vid_id = req.body.curr_vid_id;
     const merge_vid_id = req.body.merge_vid_id;
     let itemOne = retrievePromise(curr_vid_id, gfs);
@@ -220,7 +227,7 @@ router.post("/merge", upload.none(), (req, res) => {
           .format("webm")
           .withVideoCodec("libvpx")
           //.addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
-          .addOptions(["-b:v 0",  "-crf 30"])
+          .addOptions(["-b:v 0", "-crf 30"])
           .withVideoBitrate(1024)
           .withAudioCodec("libvorbis")
           .withFpsInput(fps)
@@ -228,7 +235,7 @@ router.post("/merge", upload.none(), (req, res) => {
           .on("progress", progress => {
             console.log(`[Merge1]: ${JSON.stringify(progress)}`);
           })
-          .on("error", function(err) {
+          .on("error", function (err) {
             res.json("An error occurred [Merge1]: " + err.message);
           })
           .on('stderr', function(stderrLine) {
@@ -238,7 +245,7 @@ router.post("/merge", upload.none(), (req, res) => {
             ffmpeg(targetStreamCopy)
               .format("webm")
               .withVideoCodec("libvpx")
-              .addOptions(["-b:v 0",  "-crf 30"]) //sets bitrate to zero and specify Constant Rate Factor to target certain perceptual quality lvl, prevents quality loss
+              .addOptions(["-b:v 0", "-crf 30"]) //sets bitrate to zero and specify Constant Rate Factor to target certain perceptual quality lvl, prevents quality loss
               .withVideoBitrate(1024)
               .withAudioCodec("libvorbis")
               .withFpsInput(fps)
@@ -246,7 +253,7 @@ router.post("/merge", upload.none(), (req, res) => {
               .on("progress", progress => {
                 console.log(`[Merge2]: ${JSON.stringify(progress)}`);
               })
-              .on("error", function(err) {
+              .on("error", function (err) {
                 fs.unlink(path1_tmp, err => {
                   if (err)
                     console.log("Could not remove Merge1 tmp file:" + err);
@@ -324,19 +331,19 @@ router.post("/cut/:id", (req, res) => {
       ffmpeg(item)
         .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
         .setDuration(req.body.timestampDuration)
-        .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
+        .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
         .on("progress", progress => {
           console.log(`[Cut1]: ${JSON.stringify(progress)}`);
         })
-        .on("stderr", function(stderrLine) {
+        .on("stderr", function (stderrLine) {
           console.log("Stderr output [Cut1]: " + stderrLine);
         })
-        .on("error", function(err) {
+        .on("error", function (err) {
           return res
             .status(500)
             .json("An error occurred [Cut1]: " + err.message);
         })
-        .on("end", function() {
+        .on("end", function () {
           generateThumbnail(result.id, fname);
           return res.status(200).json("Operation Complete");
         })
@@ -358,7 +365,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
   if (timestampStart === "0" || timestampStart === "00:00:00.000")
     //starting at 0 not allowed by library
     timestampStart = "00:00:00.001";
-  gfs_prim.then(function(gfs) {
+  gfs_prim.then(function (gfs) {
     let itemOne = retrievePromise(req.params.id, gfs);
     let itemOneCopy = retrievePromise(req.params.id, gfs);
     let itemCopy_One = retrievePromise(req.params.id, gfs);
@@ -401,24 +408,24 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
         ffmpeg(itemCopyStream)
           .format("webm")
           .withVideoCodec("libvpx")
-          .addOptions(["-b:v 0",  "-crf 30"])
+          .addOptions(["-b:v 0", "-crf 30"])
           .withVideoBitrate(1024)
           .withAudioCodec("libvorbis")
           .setDuration(timestampStart)
           .on("progress", progress => {
             console.log(`[Trim1]: ${JSON.stringify(progress)}`);
           })
-          .on("stderr", function(stderrLine) {
+          .on("stderr", function (stderrLine) {
             console.log("Stderr output [Trim1]: " + stderrLine);
           })
-          .on("error", function(err) {
+          .on("error", function (err) {
             res.json("An error occurred [Trim1]: " + err.message);
           })
-          .on("end", function() {
+          .on("end", function () {
             ffmpeg(itemCopyOneStream)
               .format("webm")
               .withVideoCodec("libvpx")
-              .addOptions(["-b:v 0",  "-crf 30"])
+              .addOptions(["-b:v 0", "-crf 30"])
               .withVideoBitrate(1024)
               .withAudioCodec("libvorbis")
               .setStartTime(timestampEnd)
@@ -426,17 +433,17 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
               .on("progress", progress => {
                 console.log(`[Trim2]: ${JSON.stringify(progress)}`);
               })
-              .on("stderr", function(stderrLine) {
+              .on("stderr", function (stderrLine) {
                 console.log("Stderr output [Trim2]: " + stderrLine);
               })
-              .on("error", function(err) {
+              .on("error", function (err) {
                 fs.unlink(path1_tmp, err => {
                   if (err)
                     console.log("Could not remove Trim2 tmp file:" + err);
                 });
                 res.json("An error occurred [Trim2]: " + err.message);
               })
-              .on("end", function() {
+              .on("end", function () {
                 ffmpeg({ source: path1_tmp })
                   .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
                   .outputOption(["-metadata", `duration=${duration - (timestampEnd - timestampStart)}`])
@@ -444,7 +451,7 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
                   .on("progress", progress => {
                     console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
                   })
-                  .on("error", function(err) {
+                  .on("error", function (err) {
                     fs.unlink(path1_tmp, err => {
                       if (err)
                         console.log("Could not remove Trim1 tmp file:" + err);
@@ -455,10 +462,10 @@ router.post("/trim/:id/", upload.none(), (req, res) => {
                     });
                     res.json("An error occurred [TrimCombine]: " + err.message);
                   })
-                  .on("stderr", function(stderrLine) {
+                  .on("stderr", function (stderrLine) {
                     console.log("Stderr output [MergeCombine]:: " + stderrLine);
                   })
-                  .on("end", function() {
+                  .on("end", function () {
                     fs.unlink(path1_tmp, err => {
                       if (err)
                         console.log("Could not remove Trim1 tmp file:" + err);
@@ -509,18 +516,19 @@ router.post("/transition/:id", upload.none(), (req, res) => {
   // console.log(req.body.transition_paddingColor);
   // console.log(req.body.transition_paddingVidRow);
   // console.log(req.body.transition_paddingVidCol);
+  console.log(req.body.transitionType);
   console.log(req.body.transitionStartFrame, req.body.transitionEndFrame);
   let transitionType;
   res.set("Content-Type", "text/plain");
   if (!req.body.transitionType) {
     return res.status(400).end("transition type required");
   } else if (req.body.transitionType === "pad") {
-    transitionType = `${req.body.transitionType}=${req.body.transition_paddingVidWidth}:${req.body.transition_paddingVidHeight}:${req.body.transition_paddingVidCol}:${req.body.transition_paddingVidRow}:${req.body.transition_paddingColor}`;
-  } else {
+    transitionType = `${req.body.transitionType}=width=${req.body.transition_paddingVidWidth}:height=${req.body.transition_paddingVidHeight}:x=${req.body.transition_paddingVidCol}:y=${req.body.transition_paddingVidRow}:color=${req.body.transition_paddingColor}`;
+  } else if (req.body.transitionType.includes("fade")) {
     transitionType = `${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`;
   }
   console.log(transitionType);
-  gfs_prim.then(function(gfs) {
+  gfs_prim.then(function (gfs) {
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
@@ -531,28 +539,79 @@ router.post("/transition/:id", upload.none(), (req, res) => {
         originalname: fname
       }
     });
-    retrievePromise(req.params.id, gfs).then(function(itm) {
+    retrievePromise(req.params.id, gfs).then(function (itm) {
       ffmpeg(itm)
         .format("webm")
         .withVideoCodec("libvpx")
-        .addOptions(["-b:v 0",  "-crf 30"])
+        .addOptions(["-b:v 0", "-crf 30"])
         .withVideoBitrate(1024)
         .withAudioCodec("libvorbis")
         .videoFilters(transitionType)
         .on("progress", progress => {
           console.log(`[Transition1]: ${JSON.stringify(progress)}`);
         })
-        .on("stderr", function(stderrLine) {
+        .on("stderr", function (stderrLine) {
           console.log("Stderr output [Transition1]: " + stderrLine);
         })
-        .on("error", function(err) {
-          res.json("An error occurred [Transition1]: ", err.message);
+        .on("error", function (err) {
+          return res.json("An error occurred [Transition1]: ", err.message);
         })
-        .on("end", function() {
+        .on("end", function () {
           generateThumbnail(result.id, fname);
         })
         .saveToFile(result);
     });
+  });
+});
+
+// @route POST /api/edit/saveMP3
+// @desc  Save the user recording into the database once the Stop button is pressed
+router.post("/saveMP3", upload.single("mp3file"), async (req, res) => {
+  // console.log("edit.js saveMP3");
+  // console.log("file in backend: ", req.file)
+  let gfs = await gfs_prim;
+
+  gfs.files.findOne(
+    { _id: mongoose.Types.ObjectId(req.file.id) },
+    (err, file) => {
+      // Check if file
+      if (!file || file.length === 0) {
+        return res.status(404).json({
+          err: "No file exists"
+        });
+      }
+    }
+  );
+
+  const newItem = new Item({
+    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
+    gfs_id: mongoose.Types.ObjectId(req.file.id),
+    originalname: req.file.originalname,
+    file_path: req.file.path,
+    width: 0,
+    height: 0
+  });
+
+  // Write it to a file in the recordings directory
+  const writeStream = gfs.createWriteStream({
+    filename: req.file.filename + ".mp3",
+    contentType: req.file.mimetype
+  });
+  fs.createReadStream(req.file.path).pipe(writeStream)
+
+  await newItem.save();
+
+  const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
+  return res.json({
+    _id: id,
+    uploadDate: uploadDate,
+    filename: filename,
+    md5: md5,
+    contentType: contentType,
+    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
+    originalname: originalname,
+    width: newItem.width,
+    height: newItem.height
   });
 });
 

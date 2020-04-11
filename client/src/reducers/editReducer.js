@@ -8,7 +8,12 @@ import {
   SET_DURATION_TWO,
   SET_SYNC,
   TRIM_CLIP,
-  TRANSITION_CLIP
+  TRANSITION_CLIP,
+  ADD_CHROMA,
+  ENABLE_CAPTION,
+  ENABLE_USERGUIDE,
+  SET_PROGRESS,
+  SET_LOADING
 } from "../actions/types";
 
 /*
@@ -37,10 +42,15 @@ const initialState = {
     //     text: "12 ------17"
     // }
   ],
-  captionValue: ""
+  captionValue: "",
+  isWanted: false,
+  isUserGuide: false,
+  isProgress: false,
+  isLoading: false
 };
 
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
+  // console.log(action);
   switch (action.type) {
     case MERGE_CLIP:
       return {
@@ -74,6 +84,11 @@ export default function(state = initialState, action) {
         ...state,
         durationVideoTwo: action.payload
       };
+    case ADD_CHROMA:
+      return {
+        ...state,
+        items: action.payload
+      };
     case ADD_CAPTION:
       return {
         ...state,
@@ -94,6 +109,30 @@ export default function(state = initialState, action) {
         ...state,
         captions: state.captions.filter(item => item.index !== action.payload)
       };
+    }
+    case ENABLE_CAPTION: {
+      return {
+        ...state,
+        isWanted: !state.isWanted
+      }
+    }
+    case ENABLE_USERGUIDE: {
+      return {
+        ...state,
+        isUserGuide: !state.isUserGuide
+      }
+    }
+    case SET_PROGRESS: {
+      return {
+        ...state,
+        isProgress: !state.isProgress
+      }
+    }
+    case SET_LOADING: {
+      return {
+        ...state,
+        isLoading: ! state.isLoading
+      }
     }
     default:
       return state;

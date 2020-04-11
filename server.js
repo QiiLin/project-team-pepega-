@@ -4,13 +4,15 @@ const path = require("path");
 const config = require("config");
 const bodyParser = require("body-parser");
 const methodOverride = require('method-override');
+const fs = require("fs");
+const http = require('http')
 
 const app = express();
 
 // Body parser middleware
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' })) // support encoded bodies
 app.use(methodOverride('_method'));
 const db = config.get("mongoURI");
 
@@ -23,7 +25,6 @@ mongoose
   })
   .then(() => console.log("Mongo DB connected"))
   .catch(err => console.log(err));
-
 
 app.use("/api/items", require("./controllers/api/items"));
 app.use("/api/users", require("./controllers/api/users"));
@@ -42,4 +43,18 @@ if (process.env.NODE_ENV === "production") {
 }
 const port = process.env.PORT || 5000;
 
+/*http.createServer(function (req, res) {
+  fs.readFile(path.join(__dirname, "/video_output/output.mp4"), function (err, content) {
+    if (err) {
+      res.writeHead(400, { 'Content-type': 'text/html' })
+      console.log(err);
+      res.end("No such file");
+    } else {
+      res.setHeader('Content-disposition', 'attachment; filename=output.mp4');
+      res.end(content);
+    }
+  });
+}).listen(3333);*/
+
 app.listen(port, () => console.log(`Server started on port ${port}`));
+module.exports = app;

@@ -7,13 +7,16 @@ import {
   Nav,
   NavItem,
   NavLink,
-  Container
+  Container,
+  NavbarText
 } from "reactstrap";
 import PropTypes from "prop-types";
 import RegisterModal from "./auth/RegisterModal";
 import Logout from "./auth/Logout";
 import LoginModal from "./auth/LoginModal";
 import { connect } from "react-redux";
+import {setEnableGuide} from "../actions/editActions";
+import "./style/Main.css";
 
 class AppNavbar extends Component {
   state = {
@@ -70,6 +73,9 @@ class AppNavbar extends Component {
                     GitHub
                   </NavLink>
                 </NavItem>
+                <NavItem className="guide_button" onClick={() => this.props.setEnableGuide()}>
+                  <NavbarText> User Guide</NavbarText>
+                </NavItem>
               </Nav>
             </Collapse>
           </Container>
@@ -83,4 +89,4 @@ const mapStateToProps = state => ({
   auth: state.auth
 });
 
-export default connect(mapStateToProps, null)(AppNavbar);
+export default connect(mapStateToProps, {setEnableGuide})(AppNavbar);
