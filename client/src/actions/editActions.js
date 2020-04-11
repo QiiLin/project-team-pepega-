@@ -56,10 +56,8 @@ export const captionClip = (id, data, filename) => (dispatch, getState) => {
         .post("/api/edit/caption/" + id, body, tokenConfig(getState))
         .then(res => {
             // reset the caption list
-            dispatch({
-                type: RESET_CAPTION,
-                payload: res.data
-            });
+            dispatch(resetCaptions());
+            dispatch(setEnableCap());
             dispatch(getItems());
             dispatch(setLoading());
         })
@@ -232,7 +230,7 @@ export const setCaption = item => {
         payload: item
     };
 };
-export const resetCaptions = cap => {
+export const resetCaptions = () => {
     return {
         type: RESET_CAPTION
     };

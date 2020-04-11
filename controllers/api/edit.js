@@ -92,14 +92,14 @@ router.post("/caption/:id", (req, res) => {
     temp += curr.text + "\n";
     result += temp;
   });
-  const fname = req.filename.toString("hex") + ".webm";
-  // sub_path
+  const fname = req.body.filename.toString("hex") + ".webm";
+  // sub_path, issue with ffmpeg on windows filesystems that requires multiple escaping characters
   let sub_path = path
-    .join(__dirname, "/../../temp/subtitle/", "t_sub.srt")
+    .join(__dirname, "/../../temp/subtitle/", req.body.filename + "t_sub.srt")
     .replace(/\\/g, "\\\\\\\\")
     .replace(":", "\\\\:");
   // Note: we need to change this, it doesn't allow 
-  let srt_path = __dirname + "/../../temp/subtitle/" + req.filename + "t_sub.srt";
+  let srt_path = __dirname + "/../../temp/subtitle/" + req.body.filename + "t_sub.srt";
   console.log(srt_path);
   console.log(sub_path);
   fs.writeFile(srt_path, result, function (err) {
@@ -125,9 +125,11 @@ router.post("/caption/:id", (req, res) => {
           let width = metadata ? metadata.streams[0].width : 640;
           let height = metadata ? metadata.streams[0].height : 360;
           let fps = metadata ? metadata.streams[0].r_frame_rate : 30;
+          let duration = metadata ? metadata.format.duration : 5;
           console.log(width);
           console.log(height);
           console.log(fps);
+          console.log(duration);
           // adding caption
           ffmpeg()
             .input(readItem)
@@ -141,6 +143,7 @@ router.post("/caption/:id", (req, res) => {
               `-vf scale=${width}:${height},setsar=1`,
               `-vf subtitles=${sub_path}`
             ])
+            .outputOption(["-metadata", `duration=${duration}`])
             .on("progress", progress => {
               console.log(`[Caption]: ${JSON.stringify(progress)}`);
             })
@@ -344,6 +347,7 @@ router.post("/cut/:id", (req, res) => {
         .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
         .setDuration(req.body.timestampDuration)
         .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
+        .outputOption(["-metadata", `duration=${req.body.timestampDuration - req.body.timestampOldStart}`])
         .on("progress", progress => {
           console.log(`[Cut1]: ${JSON.stringify(progress)}`);
         })
@@ -540,7 +544,7 @@ router.post("/transition/:id", upload.none(), (req, res) => {
   // console.log(req.body.transition_paddingVidCol);
   console.log(req.body.transitionType);
   console.log(req.body.transitionStartFrame, req.body.transitionEndFrame);
-  let transitionType;
+  let transitionType;  
   res.set("Content-Type", "text/plain");
   if (!req.body.transitionType) {
     return res.status(400).end("transition type required");
@@ -549,8 +553,10 @@ router.post("/transition/:id", upload.none(), (req, res) => {
   } else if (req.body.transitionType.includes("fade")) {
     transitionType = `${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`;
   }
-  console.log(transitionType);
+  console.log(transitionType);  
   gfs_prim.then(function (gfs) {
+    let item = retrievePromise(req.params.id, gfs);
+    let itemCopy = retrievePromise(req.params.id, gfs);
     const fname = crypto.randomBytes(16).toString("hex") + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
@@ -561,33 +567,40 @@ router.post("/transition/:id", upload.none(), (req, res) => {
         originalname: fname
       }
     });
-    retrievePromise(req.params.id, gfs).then(function (itm) {
-      ffmpeg(itm)
-        .format("webm")
-        .withVideoCodec("libvpx")
-        .addOptions(["-b:v 0", "-crf 30"])
-        .withVideoBitrate(1024)
-        .withAudioCodec("libvorbis")
-        .videoFilters(transitionType)
-        .on("progress", progress => {
-          console.log(`[Transition1]: ${JSON.stringify(progress)}`);
-        })
-        .on("stderr", function (stderrLine) {
-          console.log("Stderr output [Transition1]: " + stderrLine);
-        })
-        .on("error", function (err) {
-          return res.json("An error occurred [Transition1]: ", err.message);
-        })
-        .on("end", function () {
-          generateThumbnail(result.id, fname)
-          .then(() => {
-            return res.status(200).json("Trimming is completed");
+    
+    Promise.all([item, itemCopy]).then(function(itm) {
+      let currStream = itm[0];
+      let currStreamCopy = itm[1];
+      ffmpeg.ffprobe(currStream, function(err, metadata) {
+        let duration = metadata ? metadata.format.duration : 5;
+        ffmpeg(currStreamCopy)
+          .format("webm")
+          .withVideoCodec("libvpx")
+          .addOptions(["-b:v 0", "-crf 30"])
+          .outputOption(["-metadata", `duration=${duration}`])
+          .withVideoBitrate(1024)
+          .withAudioCodec("libvorbis")
+          .videoFilters(transitionType)
+          .on("progress", progress => {
+            console.log(`[Transition1]: ${JSON.stringify(progress)}`);
           })
-          .catch((err) => {
-            return res.status(202).json("Trimming is completed: ", err)
-          });
-        })
-        .saveToFile(result);
+          .on("stderr", function (stderrLine) {
+            console.log("Stderr output [Transition1]: " + stderrLine);
+          })
+          .on("error", function (err) {
+            return res.json("An error occurred [Transition1]: ", err.message);
+          })
+          .on("end", function () {
+            generateThumbnail(result.id, fname)
+            .then(() => {
+              return res.status(200).json("Trimming is completed");
+            })
+            .catch((err) => {
+              return res.status(202).json("Trimming is completed: ", err)
+            });
+          })
+          .saveToFile(result);
+      });
     });
   });
 });
