@@ -4,8 +4,8 @@ const path = require("path");
 const config = require("config");
 const bodyParser = require("body-parser");
 const methodOverride = require("method-override");
-const fs = require("fs");
-const https = require("https");
+// const fs = require("fs");
+// const https = require("https");
 
 const app = express();
 
@@ -31,6 +31,11 @@ app.use(
     secret: "magic secret",
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      sameSite: true,
+      secure: true
+    }
   })
 );
 
@@ -39,13 +44,6 @@ app.use(function (req, res, next) {
   console.log("HTTP request", req.email, req.method, req.url, req.body);
   next();
 });
-
-let privateKey = fs.readFileSync("server.key");
-let certificate = fs.readFileSync("server.crt");
-let config = {
-  key: privateKey,
-  cert: certificate,
-};
 
 // Connect to mongo
 mongoose
@@ -87,8 +85,4 @@ const port = process.env.PORT || 5000;
   });
 }).listen(3333);*/
 
-https.createServer(config, app).listen(port, function (err) {
-  if (err) console.log(err);
-  else console.log("HTTPS server on https://localhost:%s", PORT);
-});
-// app.listen(port, () => console.log(`Server started on port ${port}`));
+app.listen(port, () => console.log(`Server started on port ${port}`));
