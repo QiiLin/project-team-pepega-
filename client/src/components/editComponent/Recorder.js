@@ -3,7 +3,7 @@ import MicRecorder from 'mic-recorder-to-mp3';
 import { Button } from "@material-ui/core";
 import AdjustIcon from '@material-ui/icons/Adjust';
 import StopIcon from '@material-ui/icons/Stop';
-
+import "../style/Main.css"
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
 class SingleRecorder extends React.Component {
@@ -60,8 +60,8 @@ class SingleRecorder extends React.Component {
 
     render() {
         return (
-            <div className="App">
-                <header className="App-header">
+            <div >
+                <header className="allignBase" >
                     <audio src={this.state.blobURL} controls="controls" style={{ width: 600 }} />
                     <Button
                         variant="contained"

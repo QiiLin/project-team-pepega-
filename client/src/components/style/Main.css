@@ -13,3 +13,6 @@
 .alignCenter {
     margin-left: 34%;
 }
+.allignBase {
+    display: grid;
+}
