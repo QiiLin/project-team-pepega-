@@ -84,19 +84,26 @@ export const trimClip = (id, body) => (dispatch, getState) => {
 };
 
 export const transitionClip = (id, data) => (dispatch, getState) => {
+    dispatch(setProgress());
+    dispatch(setLoading());
     axios
         .post(`/api/edit/transition/${id}`, data, tokenConfig2(getState), {
             headers: {
                 "Content-Type": "multipart/form-data"
             }
         })
-        .then(res => dispatch(getItems()))
+        .then(res =>    {
+            dispatch(getItems());
+            dispatch(setLoading());
+        })
         .catch(err => {
             dispatch(returnErrors(err.response.data, err.response.status));
         });
 };
 
 export const addChroma = (id, data) => (dispatch, getState) => {
+    dispatch(setProgress());
+    dispatch(setLoading());
     console.log("addChroma editAction");
     console.log(id, data);
     axios
@@ -105,7 +112,10 @@ export const addChroma = (id, data) => (dispatch, getState) => {
                 "Content-Type": "multipart/form-data"
             }
         })
-        .then(res => dispatch(getItems()))
+        .then(res =>    {
+            dispatch(getItems());
+            dispatch(setLoading());
+        })
         .catch(err => {
             dispatch(returnErrors(err.response.data, err.response.status));
         });
