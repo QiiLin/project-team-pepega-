@@ -50,7 +50,10 @@ export const register = ({name, email, password}) => (dispatch, getState) => {
 
   axios
     .post("/api/users", body, tokenConfig(getState))
-    .then(res => dispatch({type: REGISTER_SUCCESS, payload: res.data}))
+    .then(res =>{
+      console.log(res);
+      dispatch({type: REGISTER_SUCCESS, payload: res.data})
+    })
     .catch(err => {
       dispatch(returnErrors(err.response.data, err.response.status, "REGISTER_FAIL"));
       dispatch({type: REGISTER_FAIL});
@@ -69,7 +72,9 @@ export const login = ({email, password}) => (dispatch, getState) => {
 
   axios
     .post("/api/auth", body, tokenConfig(getState))
-    .then(res => dispatch({type: LOGIN_SUCCESS, payload: res.data}))
+    .then(res => {      console.log(res); 
+      dispatch({type: LOGIN_SUCCESS, payload: res.data});
+    })
     .catch(err => {
       dispatch(returnErrors(err.response.data, err.response.status, "LOGIN_FAIL"));
       dispatch({type: LOGIN_FAIL});

@@ -33,6 +33,7 @@ import TimeLineSector from "./TimeLineSector";
 import {setLoading, setProgress} from "../../actions/editActions";
 import TextField from '@material-ui/core/TextField';
 import SingleRecorder from "./Recorder";
+import { returnErrors } from "../../actions/errorActions";
 
 /**
  * This function will take the number string in term of second
@@ -171,15 +172,19 @@ class EditOption extends React.Component {
   addCaption = () => {
     const {videoOneSelection} = this.props.item;
     const {captionValue, captions} = this.props.edit;
-    let startTime = parseInt(videoOneSelection[0], 10) + "";
-    let endTime = parseInt(videoOneSelection[1], 10) + "";
-    let curr = {
-      start_time: toHHMMSS(startTime) + ",000",
-      end_time: toHHMMSS(endTime) + ",000",
-      text: captionValue,
-      index: captions.length + 1
-    };
-    this.props.addCaption(curr);
+    if(isNaN(videoOneSelection[0]) || isNaN(videoOneSelection[1])){
+      returnErrors("Range selector must be set", 400);
+    }else{
+      let startTime = parseInt(videoOneSelection[0], 10) + "";
+      let endTime = parseInt(videoOneSelection[1], 10) + "";
+      let curr = {
+        start_time: toHHMMSS(startTime) + ",000",
+        end_time: toHHMMSS(endTime) + ",000",
+        text: captionValue,
+        index: captions.length + 1
+      };
+      this.props.addCaption(curr);
+    }
   };
 
   // perform burn caption list into video by invoking captionClip function
@@ -322,6 +327,25 @@ class EditOption extends React.Component {
                 Cut
               </Button>
           </Grid>
+          {/*<Grid>
+            <InputLabel>Select a video to insert audio</InputLabel>
+            <Select
+              className="edit-dropdown"
+              style={{
+              minWidth: 180
+            }}
+              value={this.state.merge_dropdownValue}
+              onChange={this.merge_dropdownChanged}>
+              {items
+                .filter(({contentType}) => (contentType.includes("video") ? true : false))
+                .filter(({metadata}) => (metadata == null ? false : !(metadata.originalname === undefined)))
+                .map(({_id, metadata}) => (
+                <MenuItem className="edit-dropdown-item" key={_id} value={_id}>
+                  {metadata.originalname}
+                </MenuItem>
+              ))}
+            </Select>
+          </Grid>*/}
         </Grid>
         <br/>
         <Grid container direction="row" justify="space-around" alignItems="flex-start">
