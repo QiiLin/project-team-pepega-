@@ -29,7 +29,8 @@ export const mergeClip = (id, uploader_id, merge_vid_id, filename) => (dispatch,
     axios
     // Attach token to request in the header
         .post(`/api/edit/merge/${id}`, body, tokenConfig(getState))
-        .then(() => {
+        .then((res) => {
+            console.log(res);
             dispatch(getItems());
             dispatch(setLoading());
         })
@@ -49,7 +50,8 @@ export const captionClip = (id, uploader_id, data, filename) => (dispatch, getSt
     axios
     // Attach token to request in the header
         .post(`/api/edit/caption/${id}`, body, tokenConfig(getState))
-        .then(() => {
+        .then((res) => {
+            console.log(res);
             // reset the caption list
             dispatch(resetCaptions());
             dispatch(setEnableCap());
@@ -73,7 +75,8 @@ export const trimClip = (id, uploader_id, videoSelection, filename) => (dispatch
     axios
     // Attach token to request in the header
         .post(`/api/edit/trim/${id}`, body, tokenConfig(getState))
-        .then(() => {
+        .then((res) => {
+            console.log(res);
             dispatch(getItems());
             dispatch(setLoading());
         })
@@ -94,7 +97,8 @@ export const cutClip = (id, uploader_id, videoSelection, filename) => (dispatch,
     axios
     // Attach token to request in the header
         .post(`/api/edit/cut/${id}`, body, tokenConfig(getState))
-        .then(() => {
+        .then((res) => {
+            console.log(res);
             dispatch(getItems());
             dispatch(setLoading());
         })
@@ -115,7 +119,8 @@ export const transitionClip = (id, uploader_id, videoSelection, transitionType, 
     dispatch(setLoading());
     axios
         .post(`/api/edit/transition/${id}`, body, tokenConfig(getState))
-        .then(() => {
+        .then((res) => {
+            console.log(res);
             dispatch(getItems());
             dispatch(setLoading());
         })
@@ -132,7 +137,10 @@ export const saveMP3 = (data) => (dispatch, getState) => {
         "Content-Type": "multipart/form-data"
       }
     })
-    .then(() => dispatch(getItems()))
+    .then((res) => {
+        console.log(res);
+        dispatch(getItems());
+    })
     .catch(err => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });
@@ -145,7 +153,10 @@ export const addAudToVid = (id, data) => (dispatch, getState) => {
         "Content-Type": "multipart/form-data"
       }
     })
-    .then(res => dispatch(getItems()))
+    .then(res => {
+        console.log(res);
+        dispatch(getItems());
+    })
     .catch(err => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });

@@ -11,6 +11,11 @@ import {
   REGISTER_FAIL
 } from "./types";
 
+
+axios.defaults.xsrfHeaderName = "x-csrf-token";
+axios.defaults.xsrfCookieName = "X-XSRF-TOKEN"
+axios.defaults.withCredentials = true;
+
 /**
  * Thisfunction fires request to backend,
  * if the user login, then load user data. 
