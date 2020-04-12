@@ -52,11 +52,10 @@ app.use(session({
     cookie: {
       httpOnly: true, 
       sameSite: true, 
-      secure: false,
+      secure: true,
       maxAge: 60 * 60 * 1000, 
     }
 }));
-
 
 const csrfProtection = csurf({cookie:false});
 app.use(csrfProtection);
