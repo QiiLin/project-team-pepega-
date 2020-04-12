@@ -86,24 +86,19 @@ export const trimClip = (id, uploader_id, videoSelection, filename) => (dispatch
         });
 };
 
-export const transitionClip = (id, uploader_id, videoSelection, transitionType, paddingColor, filename) => (dispatch, getState) => {
+export const transitionClip = (id, uploader_id, videoSelection, transitionType, filename) => (dispatch, getState) => {
     let body = {
         uploader_id: uploader_id,
         transitionType: transitionType,
         transitionStartFrame: videoSelection[0],
         transitionEndFrame: videoSelection[1],
-        transition_paddingColor: paddingColor,
         filename: filename
     };
     dispatch(setProgress());
     dispatch(setLoading());
     axios
-        .post(`/api/edit/transition/${id}`, body, tokenConfig2(getState), {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
-        .then(res =>    {
+        .post(`/api/edit/transition/${id}`, body, tokenConfig(getState))
+        .then(() => {
             dispatch(getItems());
             dispatch(setLoading());
         })

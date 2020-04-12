@@ -30,15 +30,12 @@ import AddIcon from '@material-ui/icons/Add';
 import {connect} from "react-redux";
 import {PropTypes} from "prop-types";
 import CaptionListView from "../CaptionListView";
-import PadTransitionComp from "./PadTransitionComp";
 import {setVideoOneRange, setVideoTwoRange} from "../../actions/itemActions";
 import TimeLineSector from "./TimeLineSector";
 import {makeStyles} from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import {setLoading, setProgress} from "../../actions/editActions";
-import {InputGroup, Input} from 'reactstrap';
 import TextField from '@material-ui/core/TextField';
-
 import SingleRecorder from "./Recorder";
 
 String.prototype.toHHMMSS = function () {
@@ -73,7 +70,6 @@ class EditOption extends React.Component {
     this.state = {
       merge_dropdownValue: "",
       transition_dropdownValue: "",
-      transition_paddingColor: "",
       record: false,
       audio_dropdownValue: "",
       video_dropdownValue: ""
@@ -114,31 +110,19 @@ class EditOption extends React.Component {
     });
   };
 
-  transition_dropdownSubmit = selectItemOne => {
-    /*let bodyFormData = new FormData();
-    bodyFormData.append("vid_id", selectItemOne);
-    // console.log(this.state.transition_dropdownValue);
-    bodyFormData.append("transitionType", this.state.transition_dropdownValue);
-    bodyFormData.append("transition_paddingColor", this.state.transition_paddingColor);*/
-    
+  transition_dropdownSubmit = selectItemOne => {    
     const {videoOneSelection} = this.props.item;
     const {_id} = this.props.user;
 
     // Add transition effects through an item action
     this
       .props
-      .transitionClip(selectItemOne, _id, videoOneSelection, this.state.transition_dropdownValue, this.state.transition_paddingColor, this.props.newFileName);
+      .transitionClip(selectItemOne, _id, videoOneSelection, this.state.transition_dropdownValue, this.props.newFileName);
   };
 
   transition_dropdownChanged = event => {
     this.setState(() => {
       return {transition_dropdownValue: event.target.value};
-    });
-  };
-
-  transition_paddingColorChanged = event => {
-    this.setState(() => {
-      return {transition_paddingColor: event.target.value};
     });
   };
 
@@ -216,18 +200,7 @@ class EditOption extends React.Component {
     const {items, selectItemOne} = this.props.item;
     const transitionTypes = [
       {"description": "Fade In", "command": "fade=in"},
-      {"description": "Fade Out", "command": "fade=out"},
-      {"description": "Background", "command":  "pad"}];
-    const colors = [
-      "red",
-      "green",
-      "blue",
-      "yellow",
-      "violet",
-      "black",
-      "white",
-      "cyans"
-    ];
+      {"description": "Fade Out", "command": "fade=out"}];
 
     const classes = makeStyles((theme) => ({
       root: {
@@ -251,18 +224,18 @@ class EditOption extends React.Component {
           callback={this.setOneRange}
           videoReference="1"/>
         <div>
-          <Button
+          {/*<Button
             variant="contained"
             color="primary"
             onClick={() => this.props.set_sync()}>
             Sync range selector
-          </Button>
+          </Button>*/}
+          <TextField label="New File Name" onChange={this.handleChange}/>
           <Tooltip
             title="This file name is for the following operation, if it is not specificed, the
           generated random id will be used as the new filename">
             <HelpIcon/>
-          </Tooltip>
-          <TextField label="New File Name" onChange={this.handleChange}/>
+          </Tooltip>          
         </div>
         <br/>
         <Grid container direction="row" justify="space-around" alignItems="flex-start">
@@ -312,17 +285,7 @@ class EditOption extends React.Component {
                 </MenuItem>
               ))}
             </Select>
-
-            {/* If the user chooses pad */}
-            {this
-              .state
-              .transition_dropdownValue
-              .includes("pad")
-              ? (<PadTransitionComp
-                padVidColor={this.state.transition_paddingColor}
-                padVidColorChanged={this.transition_paddingColorChanged}
-                colors={colors}/>)
-              : null}
+            <br/>
             <Button
               variant="contained"
               color="primary"
@@ -340,7 +303,7 @@ class EditOption extends React.Component {
               </Tooltip>
 
             </InputLabel>
-
+            <br/>
             <Button
               variant="contained"
               color="primary"

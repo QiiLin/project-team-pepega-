@@ -564,18 +564,10 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
 router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
-  console.log(req.body.transitionType);
-  console.log(req.body.transitionStartFrame, req.body.transitionEndFrame);
-  let transitionType;  
   res.set("Content-Type", "text/plain");
   if (!req.body.transitionType) {
     return res.status(400).end("transition type required");
-  } else if (req.body.transitionType === "pad") {
-    transitionType = `${req.body.transitionType}=width=${req.body.transition_paddingVidWidth}:height=${req.body.transition_paddingVidHeight}:x=${req.body.transition_paddingVidCol}:y=${req.body.transition_paddingVidRow}:color=${req.body.transition_paddingColor}`;
-  } else if (req.body.transitionType.includes("fade")) {
-    transitionType = `${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`;
   }
-  console.log(transitionType);  
   gfs_prim.then(function (gfs) {
     let item = retrievePromise(req.params.id, gfs);
     let itemCopy = retrievePromise(req.params.id, gfs);
@@ -602,7 +594,7 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
           .outputOption(["-metadata", `duration=${duration}`])
           .withVideoBitrate(1024)
           .withAudioCodec("libvorbis")
-          .videoFilters(transitionType)
+          .videoFilters(`${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`)
           .on("progress", progress => {
             console.log(`[Transition1]: ${JSON.stringify(progress)}`);
           })
@@ -630,53 +622,6 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
 // @route POST /api/edit/saveMP3
 // @desc  Save the user recording into the database once the Stop button is pressed
 router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async (req, res) => {
-  // console.log("edit.js saveMP3");
-  // console.log("file in backend: ", req.file)
-  /*let gfs = await gfs_prim;
-
-  gfs.files.findOne(
-    { _id: mongoose.Types.ObjectId(req.file.id) },
-    (err, file) => {
-      // Check if file
-      if (!file || file.length === 0) {
-        return res.status(404).json({
-          err: "No file exists"
-        });
-      }
-    }
-  );
-
-  const newItem = new Item({
-    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
-    gfs_id: mongoose.Types.ObjectId(req.file.id),
-    originalname: req.file.originalname,
-    file_path: req.file.path,
-    width: 0,
-    height: 0
-  });
-
-  // Write it to a file in the recordings directory
-  const writeStream = gfs.createWriteStream({
-    filename: req.file.filename + ".mp3",
-    content_type: req.file.mimetype
-  });
-  fs.createReadStream(req.file.path).pipe(writeStream)
-
-  await newItem.save();
-
-  const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
-  return res.json({
-    _id: id,
-    uploadDate: uploadDate,
-    filename: filename,
-    md5: md5,
-    contentType: contentType,
-    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
-    originalname: originalname,
-    width: newItem.width,
-    height: newItem.height
-  });*/
-
   let metadata = {
     uploader_id: "test",//req.body.uploader_id,
     originalname: req.file.originalname
