@@ -58,7 +58,12 @@ app.use(session({
 }));
 
 
-const csrfProtection = csurf({cookie:false});
+const csrfProtection = csurf({cookie: {
+  httpOnly: true, 
+  sameSite: true, 
+  secure: true,
+  maxAge: 60 * 60
+}});
 app.use(csrfProtection);
 
 app.use(function (req, res, next) {
@@ -97,12 +102,12 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-  // // Set static folder
-  // app.use(express.static("client/build"));
-  // app.get("*", (req, res) => {
-  //   // Current directory, go into client/build, and load the index.html file
-  //   res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-  // });
+  // Set static folder
+  app.use(express.static("client/build"));
+  app.get("*", (req, res) => {
+    // Current directory, go into client/build, and load the index.html file
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
 
 const port = process.env.PORT || 5000;
 

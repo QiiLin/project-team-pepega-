@@ -11,11 +11,6 @@ import {
   REGISTER_FAIL
 } from "./types";
 
-
-axios.defaults.xsrfHeaderName = "x-csrf-token";
-axios.defaults.xsrfCookieName = "X-XSRF-TOKEN"
-axios.defaults.withCredentials = true;
-
 /**
  * Thisfunction fires request to backend,
  * if the user login, then load user data. 
@@ -97,7 +92,9 @@ export const logout = () => (dispatch, getState)=> {
 
 // Setup config/headers and token with json content
 export const tokenConfig = getState => {
-
+  axios.defaults.xsrfHeaderName = "x-csrf-token";  
+  axios.defaults.xsrfCookieName = "X-XSRF-TOKEN";
+  axios.defaults.withCredentials = true;
   // Headers
   const config = {
     // headers: {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -113,6 +110,11 @@ export const tokenConfig = getState => {
 
 // Setup config/headers and token with form content
 export const tokenConfig2 = getState => {
+  
+
+  axios.defaults.xsrfHeaderName = "x-csrf-token";  
+  axios.defaults.xsrfCookieName = "X-XSRF-TOKEN";
+  axios.defaults.withCredentials = true;
   // Headers
   const config = {
     headers: {
