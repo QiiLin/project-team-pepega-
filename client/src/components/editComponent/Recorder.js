@@ -6,6 +6,9 @@ import StopIcon from '@material-ui/icons/Stop';
 import "../style/Main.css"
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
+/**
+ * This create the Recorder interface to record user voice
+ */
 class SingleRecorder extends React.Component {
     constructor(props) {
         super(props);
@@ -15,7 +18,7 @@ class SingleRecorder extends React.Component {
             isBlocked: false,
         };
     }
-
+    // Setting up start function to start the recording
     start = () => {
         if (this.state.isBlocked) {
             console.log('Permission Denied');
@@ -28,6 +31,7 @@ class SingleRecorder extends React.Component {
         }
     };
 
+    // Setting up stop function to save the file
     stop = () => {
         Mp3Recorder
             .stop()

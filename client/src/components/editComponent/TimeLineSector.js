@@ -17,15 +17,18 @@ let roundUp = videoLength => {
   return parseFloat(videoLength.toFixed(2));
 };
 
+/**
+ * This creates a timeline selector to select the vidoe start and end
+ * Which is being used for other edit action
+ */
 class TimeLineSector extends React.Component {
-  //TODO get data for the represented video and set the range of this correctly
   constructor(props) {
     super(props);
-    // Don't call this.setState() here!
     this.state = { newValue: [0, 100] };
     this.handleChange = this.handleChange.bind(this);
   }
 
+  // handle video switching on different vidoes
   componentDidMount() {
     const { durationVideoOne, durationVideoTwo } = this.props.currentEdit;
     this.setState(state => ({
@@ -35,7 +38,7 @@ class TimeLineSector extends React.Component {
       ]
     }));
   }
-
+  // bind change with the state
   handleChange = (event, newValue) => {
     this.setState(state => ({
       newValue: newValue
@@ -44,9 +47,8 @@ class TimeLineSector extends React.Component {
   };
 
   render() {
-    // const classes = useStyles();
+    // get the duration of videos
     const { durationVideoOne, durationVideoTwo } = this.props.currentEdit;
-
     return (
       <div className={useStyles.root}>
         <Typography id="range-slider" gutterBottom>

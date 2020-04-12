@@ -53,18 +53,24 @@ app.use(session({
       httpOnly: true, 
       sameSite: true, 
       secure: false,
-      maxAge: 60 * 60 * 1000, 
+      maxAge: 60 * 60, 
     }
 }));
 
-// const csrfProtection = csurf({cookie:false});
-// app.use(csrfProtection);
 
-// app.use(function (req, res, next) {
-//   var csrfToken = req.csrfToken();
-//   res.cookie('X-XSRF-TOKEN', csrfToken, {secure: false, sameSite:true});
-//   next();
-// });
+const csrfProtection = csurf({cookie: {
+  httpOnly: true, 
+  sameSite: true, 
+  secure: false,
+  maxAge: 60 * 60
+}});
+app.use(csrfProtection);
+
+app.use(function (req, res, next) {
+  var csrfToken = req.csrfToken();
+  res.cookie('X-XSRF-TOKEN', csrfToken, {secure: false, sameSite:true});
+  next();
+});
 
 // Connect to mongo
 mongoose
@@ -80,10 +86,8 @@ app.use("/api/items", require("./controllers/api/items"));
 app.use("/api/users", require("./controllers/api/users"));
 app.use("/api/auth", require("./controllers/api/auth"));
 app.use("/api/edit", require("./controllers/api/edit").router);
-// app.all('*', function (req, res) {
-//   res.cookie('XSRF-TOKEN', req.csrfToken())
-//   res.render('index')
-// })
+
+
 // Serve static assets if in production
 if (process.env.NODE_ENV === "production") {
   // Set static folder
@@ -104,19 +108,5 @@ if (process.env.NODE_ENV === "production") {
   });
 
 const port = process.env.PORT || 5000;
-
-/*http.createServer(function (req, res) {
-  fs.readFile(path.join(__dirname, "/video_output/output.mp4"), function (err, content) {
-    if (err) {
-      res.writeHead(400, { 'Content-type': 'text/html' })
-      console.log(err);
-      res.end("No such file");
-    } else {
-      res.setHeader('Content-disposition', 'attachment; filename=output.mp4');
-      res.end(content);
-    }
-  });
-}).listen(3333);*/
-
 app.listen(port, () => console.log(`Server started on port ${port}`));
 module.exports = {app};

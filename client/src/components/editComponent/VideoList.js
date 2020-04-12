@@ -23,6 +23,9 @@ import {
 } from "../../actions/itemActions";
 import PropTypes from "prop-types";
 import "../style/Main.css";
+/**
+ * This component create card list view for each video
+ */
 class VideoList extends Component {
   static propTypes = {
     getItems: PropTypes.func.isRequired,
@@ -31,16 +34,15 @@ class VideoList extends Component {
   };
   constructor(props) {
     super(props);
-    // Don't call this.setState() here!
     this.state = { selectTab: "1" };
     this.toggle = this.toggle.bind(this);
-    this.pause = this.pause.bind(this);
   }
-  // Run when making an api request (or calling an actions)
+  // Start fethc items when the component mounted
   componentDidMount() {
     this.props.getItems();
   }
 
+  // toggle between the tabs
   toggle = tab => {
     if (tab !== this.state.selectTab) {
       this.setState(state => ({
@@ -49,11 +51,8 @@ class VideoList extends Component {
     }
   };
 
-  pause() {
-    this.player.pause();
-  }
-
   render() {
+    // get item from redux
     const { items } = this.props.item;
     return (
       <div>
@@ -105,16 +104,6 @@ class VideoList extends Component {
                     <Box m={0.5} />
                     <CardTitle>{metadata.originalname ? metadata.originalname : filename}</CardTitle>
                     <img src={"api/items/thumbnail/" + _id} className="thumbnail" alt="thumbnail" ></img>
-                    {/*<Player key={_id}>
-                      <source src={"api/items/" + _id} />
-                      <Shortcut
-                        clickable={false}
-                        dblclickable={false}
-                        disabled
-                      />
-                      <ControlBar disabled />
-                      <BigPlayButton disabled />
-                    </Player>*/}
                     <Box m={0.5} />
                     <ButtonGroup vertical>
                       <Button
@@ -152,8 +141,7 @@ class VideoList extends Component {
                       Delete
                     </Button>
                     <Box m={0.5} />
-                    <CardTitle>{metadata.originalname ? metadata.originalname : filename}</CardTitle>
-                    {/*<img src={"api/items/thumbnail/" + _id} style={{width: '100%', height: '100%'}}></img>*/}                    
+                    <CardTitle>{metadata.originalname ? metadata.originalname : filename}</CardTitle>                
                     <Box m={0.5} />
                     <ButtonGroup vertical>
                       <Button

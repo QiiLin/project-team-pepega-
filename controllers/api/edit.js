@@ -8,7 +8,7 @@ const ffmpeg = require("../../controllers/ff_path");
 // Item model
 const Item = require("../../models/Item");
 const mongoose = require("mongoose");
-const { gfs_prim, upload } = require("../../middleware/gridSet");
+const { gfs_prim, upload } = require("../gridSet");
 const crypto = require("crypto");
 const validator = require('validator');
 

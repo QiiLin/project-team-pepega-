@@ -10,6 +10,10 @@ import {setProgress} from "../../actions/editActions";
 import {clearErrors} from "../../actions/errorActions";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import "../style/Main.css";
+
+/**
+ * This Component creates pop up dialog for the status of the operation
+ */
 class OperationPop extends React.Component {
   constructor(props) {
     super(props);
@@ -39,7 +43,6 @@ class OperationPop extends React.Component {
       return <span className="alignCenter"><CircularProgress/>
       </span>;
     }
-    let res = this.renderResultContent();
     return this.renderResultContent();
   }
 

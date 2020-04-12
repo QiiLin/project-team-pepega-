@@ -1,7 +1,6 @@
 import axios from "axios";
 import {
   GET_ITEMS,
-  ADD_ITEM,
   DELETE_ITEM,
   ITEMS_LOADING,
   SET_SELECTED_ITEM_ONE,

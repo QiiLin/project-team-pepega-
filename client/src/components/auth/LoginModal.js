@@ -16,6 +16,10 @@ import { PropTypes } from "prop-types";
 import { login } from "../../actions/authActions";
 import { clearErrors } from "../../actions/errorActions";
 
+/**
+ * This component creates the login view to 
+ * hanlde user action and make correct request
+ */
 class LoginModal extends Component {
   state = {
     modal: false,

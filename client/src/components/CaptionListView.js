@@ -1,10 +1,13 @@
 import React from 'react';
-import {Card, ListGroup, ListGroupItem} from 'reactstrap';
+import {ListGroup, ListGroupItem} from 'reactstrap';
 import {connect} from "react-redux";
 import {Button} from "@material-ui/core";
-import DeleteIcon from "./editComponent/VideoList";
 import {deleteCaption} from "../actions/editActions";
 
+/**
+ * This is the component for display the 
+ * already added caption view.
+ */
 class CaptionListView extends React.Component {
     render() {
         const { captions } = this.props.edit;

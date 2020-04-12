@@ -1,25 +1,24 @@
 import React, { Component } from "react";
-import { AppBar, Tabs, Tab, Box } from "@material-ui/core/";
+import { Box } from "@material-ui/core/";
 import { setDurationOne, setDurationTwo } from "../../actions/editActions";
 import { Player } from "video-react";
 import { connect } from "react-redux";
 import '../style/Main.css';
-// import PlayerComp from "./PlayerComp";
 
+/**
+ * This Component creates the video player
+ */
 class VideoContainer extends Component {  
   constructor(props) {
     super(props);
-    // Don't call this.setState() here!
-    this.state = { selectTab: "1" };
     this.changeCurrentTime = this.changeCurrentTime.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    // subscribe state change
+    // subscribe state change wiht the video player library
     this.player1.subscribeToStateChange(this.handleStateChangeOne.bind(this));
-    // this.player2.subscribeToStateChange(this.handleStateChangeTwo.bind(this));
   }
-
+  
   changeCurrentTime(seconds) {
     return () => {
       this.player1.seek(seconds);
@@ -35,23 +34,9 @@ class VideoContainer extends Component {
     this.props.setDurationOne(player.duration);
   }
 
-  handleStateChangeTwo(state) {
-    // copy player state to this component's state
-    this.setState({
-      player2: state
-    });
-    const { player } = this.player2.getState();
-    this.props.setDurationTwo(player.duration);
-  }
-
-  handleTabClick = (event, value) => {
-    this.setState({ selectTab: value });
-  };
-
   render() {
-    // Note selectedFile is from VideoList
-    // TODO: Update the placeholder for video
-    const { selectItemOne, selectItemTwo } = this.props.item;
+    // Get the video item from the 
+    const { selectItemOne } = this.props.item;
     const playerOneSource = selectItemOne
       ? "api/items/" + selectItemOne
       : "https://www.w3schools.com/html/mov_bbb.mp4";    

@@ -11,11 +11,6 @@ import {
   REGISTER_FAIL
 } from "./types";
 
-
-axios.defaults.xsrfHeaderName = "x-csrf-token";
-axios.defaults.xsrfCookieName = "X-XSRF-TOKEN"
-axios.defaults.withCredentials = true;
-
 /**
  * Thisfunction fires request to backend,
  * if the user login, then load user data. 
@@ -45,9 +40,9 @@ export const loadUser = () => (dispatch, getState) => {
 /**
  * This function fires the user registeration request
  * Base on the result status dispatch different event
- * @param name
- * @param email
- * @param password
+ * @param {String} name
+ * @param {String} email
+ * @param {String} password
  */
 export const register = ({name, email, password}) => (dispatch, getState) => {
   // build the request body
@@ -55,7 +50,10 @@ export const register = ({name, email, password}) => (dispatch, getState) => {
 
   axios
     .post("/api/users", body, tokenConfig(getState))
-    .then(res => dispatch({type: REGISTER_SUCCESS, payload: res.data}))
+    .then(res =>{
+      console.log(res);
+      dispatch({type: REGISTER_SUCCESS, payload: res.data})
+    })
     .catch(err => {
       dispatch(returnErrors(err.response.data, err.response.status, "REGISTER_FAIL"));
       dispatch({type: REGISTER_FAIL});
@@ -65,8 +63,8 @@ export const register = ({name, email, password}) => (dispatch, getState) => {
 /**
  * This function fires the login api call,
  * and based on the result status dispatch different event
- * @param email
- * @param password
+ * @param {String} email
+ * @param {String} password
  */
 export const login = ({email, password}) => (dispatch, getState) => {
   // build the request body
@@ -74,7 +72,9 @@ export const login = ({email, password}) => (dispatch, getState) => {
 
   axios
     .post("/api/auth", body, tokenConfig(getState))
-    .then(res => dispatch({type: LOGIN_SUCCESS, payload: res.data}))
+    .then(res => {      console.log(res); 
+      dispatch({type: LOGIN_SUCCESS, payload: res.data});
+    })
     .catch(err => {
       dispatch(returnErrors(err.response.data, err.response.status, "LOGIN_FAIL"));
       dispatch({type: LOGIN_FAIL});
@@ -97,7 +97,9 @@ export const logout = () => (dispatch, getState)=> {
 
 // Setup config/headers and token with json content
 export const tokenConfig = getState => {
-
+  axios.defaults.xsrfHeaderName = "x-csrf-token";  
+  axios.defaults.xsrfCookieName = "X-XSRF-TOKEN";
+  axios.defaults.withCredentials = true;
   // Headers
   const config = {
     // headers: {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -113,6 +115,11 @@ export const tokenConfig = getState => {
 
 // Setup config/headers and token with form content
 export const tokenConfig2 = getState => {
+  
+
+  axios.defaults.xsrfHeaderName = "x-csrf-token";  
+  axios.defaults.xsrfCookieName = "X-XSRF-TOKEN";
+  axios.defaults.withCredentials = true;
   // Headers
   const config = {
     headers: {

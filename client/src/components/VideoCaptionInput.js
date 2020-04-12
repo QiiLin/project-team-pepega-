@@ -5,12 +5,11 @@ import {connect} from "react-redux";
 import {setCaption} from "../actions/editActions";
 
 class VideoCaptionInput extends React.Component {
-
-
     constructor(props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
     }
+
     handleChange(event) {
         // this.setState({value: event.target.value});
         this.props.setCaption(event.target.value)
