@@ -18,6 +18,9 @@ import {connect} from "react-redux";
 import {setEnableGuide} from "../actions/editActions";
 import "./style/Main.css";
 
+/**
+ * This create the top level nav bars
+ */
 class AppNavbar extends Component {
   state = {
     isOpen: false

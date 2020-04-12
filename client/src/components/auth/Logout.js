@@ -4,6 +4,9 @@ import { logout } from "../../actions/authActions";
 import { connect } from "react-redux";
 import { PropTypes } from "prop-types";
 
+/**
+ * Simple logout component to handle user request
+ */
 export class Logout extends Component {
   static propTypes = {
     logout: PropTypes.func.isRequired

@@ -16,6 +16,10 @@ import { PropTypes } from "prop-types";
 import { register } from "../../actions/authActions";
 import { clearErrors } from "../../actions/errorActions";
 
+/**
+ * This component create registerModal
+ * to allow user register the account
+ */
 class RegisterModal extends Component {
   state = {
     modal: false,

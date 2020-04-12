@@ -5,7 +5,6 @@ import {
   Button,
   InputLabel,
   MenuItem,
-  Box,
   Tooltip
 } from "@material-ui/core";
 import MergeTypeIcon from "@material-ui/icons/MergeType";
@@ -26,22 +25,22 @@ import {
 import EjectIcon from "@material-ui/icons/Eject";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
 import LocalDiningIcon from '@material-ui/icons/LocalDining';
-import AcUnitIcon from '@material-ui/icons/AcUnit';
-import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
-import AddIcon from '@material-ui/icons/Add';
 import {connect} from "react-redux";
 import {PropTypes} from "prop-types";
 import CaptionListView from "../CaptionListView";
-import {setVideoOneRange, setVideoTwoRange} from "../../actions/itemActions";
+import {setVideoOneRange} from "../../actions/itemActions";
 import TimeLineSector from "./TimeLineSector";
 import {makeStyles} from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
 import {setLoading, setProgress} from "../../actions/editActions";
 import TextField from '@material-ui/core/TextField';
 import SingleRecorder from "./Recorder";
 
+/**
+ * This function will take the number string in term of second
+ * and convert to the HHMMSS format.
+ */
 String.prototype.toHHMMSS = function () {
-  var sec_num = parseInt(this, 10); // don't forget the second param
+  var sec_num = parseInt(this, 10);
   var hours = Math.floor(sec_num / 3600);
   var minutes = Math.floor((sec_num - hours * 3600) / 60);
   var seconds = sec_num - hours * 3600 - minutes * 60;
@@ -58,6 +57,10 @@ String.prototype.toHHMMSS = function () {
   return hours + ":" + minutes + ":" + seconds;
 };
 
+/**
+ * This componenet create all the edit button 
+ * in a container
+ */
 class EditOption extends React.Component {
   constructor(props) {
     super(props);
@@ -72,7 +75,8 @@ class EditOption extends React.Component {
     this.setOneRange = this.setOneRange.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
-
+  
+  // update the range selector and make align with redux
   setOneRange = value => {
     this.props.setVideoOneRange(value);
   };
@@ -84,13 +88,14 @@ class EditOption extends React.Component {
     isAuthenticated: PropTypes.bool
   };
 
+  // preform trim operation by invoking action function
   trim_Submit = selectItemOne => {
     const {videoOneSelection} = this.props.item;
     const {_id} = this.props.user;
-
     this.props.trimClip(selectItemOne, _id, videoOneSelection, this.props.newFileName);
   };
 
+  // preform cut operation by invoking action function
   cut_Submit = selectItemOne => {
     const {videoOneSelection} = this.props.item;
     const {_id} = this.props.user;
@@ -98,34 +103,35 @@ class EditOption extends React.Component {
     this.props.cutClip(selectItemOne, _id, videoOneSelection, this.props.newFileName);
   };
 
+  // perform merge operation by invoking action function
   merge_dropdownSubmit = selectItemOne => {
     const {_id} = this.props.user;
     // Add video through add item action
     this.props.mergeClip(selectItemOne, _id, this.state.merge_dropdownValue, this.props.newFileName);
   };
 
+  // bind the state change with the merge drop down menu
   merge_dropdownChanged = event => {
     this.setState(() => {
       return {merge_dropdownValue: event.target.value};
     });
   };
 
+  // perform transition operation by invoking action function
   transition_dropdownSubmit = selectItemOne => {    
     const {videoOneSelection} = this.props.item;
     const {_id} = this.props.user;
-
     // Add transition effects through an item action
-    this
-      .props
-      .transitionClip(selectItemOne, _id, videoOneSelection, this.state.transition_dropdownValue, this.props.newFileName);
+    this.props.transitionClip(selectItemOne, _id, videoOneSelection, this.state.transition_dropdownValue, this.props.newFileName);
   };
-
+  // bind the state change with the transition drop down menu
   transition_dropdownChanged = event => {
     this.setState(() => {
       return {transition_dropdownValue: event.target.value};
     });
   };
 
+  // bind the state change with the chroma drop down menu
   chroma_dropdownChanged = event => {
     event.persist();
     console.log(event.target.value);
@@ -134,15 +140,16 @@ class EditOption extends React.Component {
     });
   };
 
+  // perform add Audio to Video operation by invoking addAudtoVid function
   addAudToVid_dropdownSubmit = selectItemOne => {
     console.log("id: ", selectItemOne)
     let bodyFormData = new FormData();
     bodyFormData.append("vid_id", selectItemOne);
     bodyFormData.append("audio_id", this.state.audio_dropdownValue);
-    // bodyFormData.append("video", this.state.video_dropdownValue);
     this.props.addAudToVid(selectItemOne, bodyFormData)
   }
 
+  // bind the audio select dropdown selection with current state
   audio_dropdownChanged = event => {
     event.persist();
     console.log(event.target.value);
@@ -152,6 +159,7 @@ class EditOption extends React.Component {
     console.log(this.state.audio_dropdownValue)
   };
 
+  // bind the video select dropdown selection with current state
   video_dropdownChanged = event => {
     event.persist();
     console.log(event.target.value);
@@ -160,6 +168,7 @@ class EditOption extends React.Component {
     });
   };
 
+  // perform add caption to caption list by invoking addCaption function
   addCaption = () => {
     const {videoOneSelection} = this.props.item;
     const {captionValue, captions} = this.props.edit;
@@ -174,6 +183,7 @@ class EditOption extends React.Component {
     this.props.addCaption(curr);
   };
 
+  // perform burn caption list into video by invoking captionClip function
   burnVideo = () => {
     // getting stuff for
     const {selectItemOne} = this.props.item;
@@ -182,6 +192,8 @@ class EditOption extends React.Component {
     this.props.captionClip(selectItemOne, _id, captions, this.props.newFileName);
   };
 
+  
+  // perform saveMP3 to backend and by invoking saveMP3 function
   saveMP3 = (file) => {
     const {_id} = this.props.user;
     let bodyFormData = new FormData();
@@ -191,32 +203,17 @@ class EditOption extends React.Component {
     this.props.saveMP3(bodyFormData);
   }
 
+  // build the change of the input filename with the redux
   handleChange = (event) => {
     this.props.setFilename(event.target.value);
   }
 
   render() {
-    // console.log(this.props.item); console.log(this.props.item.videoOneSelection);
+    // setting up values for the drop down
     const {items, selectItemOne} = this.props.item;
     const transitionTypes = [
       {"description": "Fade In", "command": "fade=in"},
       {"description": "Fade Out", "command": "fade=out"}];
-
-    const classes = makeStyles((theme) => ({
-      root: {
-        flexGrow: 1
-      },
-      paper: {
-        padding: theme.spacing(2),
-        textAlign: 'center',
-        color: theme.palette.text.secondary
-      }
-    }));
-    // const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope",
-    // "Circular" const audioExts = ["mp3", "aac", "ac3", "eac3", "ogg", "wma",
-    // "wav", "l16", "aiff", "au", "pcm"] const videoExts = ["mp4", "m4a", "m4v",
-    // "f4v", "f4a", "m4b", "m4r", "f4b", "mov", "3gp", "webm"]
-    const {durationVideoOne} = this.props.edit;
     return (
       <div>
         <TimeLineSector
@@ -224,12 +221,6 @@ class EditOption extends React.Component {
           callback={this.setOneRange}
           videoReference="1"/>
         <div>
-          {/*<Button
-            variant="contained"
-            color="primary"
-            onClick={() => this.props.set_sync()}>
-            Sync range selector
-          </Button>*/}
           <TextField label="New File Name" onChange={this.handleChange}/>
           <Tooltip
             title="This file name is for the following operation, if it is not specificed, the

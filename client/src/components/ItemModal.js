@@ -14,6 +14,10 @@ import { PropTypes } from "prop-types";
 import "bootstrap/dist/css/bootstrap.min.css";
 import './style/VideoCaptionStyle.css';
 
+/**
+ * This component create a pop up dialog for 
+ * user to input and upload their own vidoe file.
+ */
 class ItemModal extends Component {
   constructor(props) {
     super(props);
@@ -29,16 +33,19 @@ class ItemModal extends Component {
     isAuthenticated: PropTypes.bool
   };
 
+  // bind the modle with the current state
   toggle = () => {
     this.setState({
       modal: !this.state.modal
     });
   };
-
+  
+  // bind the upload filename with the current state
   onChange = e => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
+  // bind the state with the uploaded file
   fileSelectedHandler = e => {
     console.log("fileSelectedHandler: ", e.target.files[0]);
     this.setState({
@@ -46,17 +53,14 @@ class ItemModal extends Component {
     });
   };
 
+  // submit hanlde that fires addItem aciton function from redux
   onSubmit = e => {
     e.preventDefault();
-
     let bodyFormData = new FormData();
     // bodyFormData.set("video", this.state.video);
     bodyFormData.append("video", this.state.video);
     bodyFormData.append("uploader_id", this.props.user._id);
-
-    console.log("---------------");
     console.log(this.state.video.type);
-    console.log("---------------");
     // Add video through add item action
     this.props.addItem(bodyFormData);
     // Close modal
@@ -66,20 +70,6 @@ class ItemModal extends Component {
   render() {
     return (
       <div>
-        {/* <h1>Hello</h1>
-        <Tooltip title={
-          <React.Fragment>
-            <h4>You can: </h4>
-            <ul>
-              <li><h5>merge two videos</h5></li>
-              <li><h5>add transition effects</h5></li>
-              <li><h5>trim videos, or</h5></li>
-              <li><h5>add captions to videos</h5></li>
-            </ul>
-          </React.Fragment>
-        }>
-          <HelpIcon />
-        </Tooltip> */}
         {this.props.isAuthenticated ? (
           <div>
             <Button
@@ -99,18 +89,6 @@ class ItemModal extends Component {
             <Form onSubmit={this.onSubmit}>
               <FormGroup>
                 <Label for="item">Video: </Label>
-                {/* <br />
-                Example:
-                <Badge>
-                  https://media.w3.org/2010/05/sintel/trailer_hd.mp4
-                </Badge> */}
-                {/* <Input
-                  type="file"
-                  // this should match whatever that is in the state
-                  name="name"
-                  id="item"
-                  onChange={this.onChange}
-                /> */}
                 <input
                   type="file"
                   id="fileInput"

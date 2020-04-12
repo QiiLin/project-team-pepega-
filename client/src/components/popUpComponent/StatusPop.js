@@ -7,6 +7,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { connect } from "react-redux";
 import { setEnableGuide } from "../../actions/editActions";
+/**
+ * This component create pop up dialog for user guide
+ */
 class StatusPop extends React.Component {
   constructor(props) {
     super(props);
