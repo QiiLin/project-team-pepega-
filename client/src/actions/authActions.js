@@ -45,9 +45,9 @@ export const loadUser = () => (dispatch, getState) => {
 /**
  * This function fires the user registeration request
  * Base on the result status dispatch different event
- * @param name
- * @param email
- * @param password
+ * @param {String} name
+ * @param {String} email
+ * @param {String} password
  */
 export const register = ({name, email, password}) => (dispatch, getState) => {
   // build the request body
@@ -65,8 +65,8 @@ export const register = ({name, email, password}) => (dispatch, getState) => {
 /**
  * This function fires the login api call,
  * and based on the result status dispatch different event
- * @param email
- * @param password
+ * @param {String} email
+ * @param {String} password
  */
 export const login = ({email, password}) => (dispatch, getState) => {
   // build the request body

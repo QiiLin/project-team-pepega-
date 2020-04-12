@@ -17,6 +17,15 @@ import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 import { getItems } from "./itemActions";
 
+/**
+ * This function will build the request body and
+ * fires th merge request and add a merged video
+ * to the video list
+ * @param {String} id 
+ * @param {String} uploader_id 
+ * @param {String} merge_vid_id 
+ * @param {String} filename 
+ */
 export const mergeClip = (id, uploader_id, merge_vid_id, filename) => (dispatch, getState) => {
     let body = {
         uploader_id: uploader_id,
@@ -39,6 +48,15 @@ export const mergeClip = (id, uploader_id, merge_vid_id, filename) => (dispatch,
         });
 };
 
+/**
+ * This function will build the request body and
+ * fires th caption request and add a captioned video
+ * to the video list
+ * @param {String} id 
+ * @param {String} uploader_id 
+ * @param {Array of String} data 
+ * @param {String} filename 
+ */
 export const captionClip = (id, uploader_id, data, filename) => (dispatch, getState) => {
     let body = {
         uploader_id: uploader_id,
@@ -63,6 +81,14 @@ export const captionClip = (id, uploader_id, data, filename) => (dispatch, getSt
         });
 };
 
+/**
+ * 
+ * 
+ * @param {String} id 
+ * @param {String} uploader_id 
+ * @param {String} videoSelection 
+ * @param {String} filename 
+ */
 export const trimClip = (id, uploader_id, videoSelection, filename) => (dispatch, getState) => {
     let body = {
         uploader_id: uploader_id,
