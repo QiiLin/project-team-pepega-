@@ -94,7 +94,7 @@ router.get("/", auth, (req, res) => {
 
 // @route GET /api/items/:id
 // @desc  Display single file object
-router.get('/:id', (req, res) => {
+router.get('/:id', auth, (req, res) => {
   gfs_prim.then(function (gfs) {
     gfs.files.findOne({
       _id: mongoose.Types.ObjectId(req.params.id)
@@ -122,7 +122,7 @@ router.get('/:id', (req, res) => {
 
 // @route GET /api/items/thumbnail/:id
 // @desc  Display single file object
-router.get('/thumbnail/:id', (req, res) => {
+router.get('/thumbnail/:id', auth, (req, res) => {
   gfs_prim.then(function (gfs) {
     gfs.files.findOne({
       metadata: {
@@ -156,7 +156,7 @@ router.get('/thumbnail/:id', (req, res) => {
 
 // @route DELETE /files/:id
 // @desc  Delete file
-router.delete('/:id', (req, res) => {
+router.delete('/:id', auth, (req, res) => {
   gfs_prim.then(function (gfs) {
     //this gridfs version can only delete via remove, ignore deprecated warnings
     gfs.remove({

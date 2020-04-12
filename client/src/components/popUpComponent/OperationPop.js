@@ -36,8 +36,8 @@ class OperationPop extends React.Component {
   }
   renderProgressContent() {
     if (this.props.loading) {
-      return <div className="alignCenter"><CircularProgress/>
-      </div>;
+      return <span className="alignCenter"><CircularProgress/>
+      </span>;
     }
     let res = this.renderResultContent();
     return this.renderResultContent();
