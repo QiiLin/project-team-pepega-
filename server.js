@@ -52,11 +52,12 @@ app.use(session({
     cookie: {
       httpOnly: true, 
       sameSite: true, 
-      secure: false,
+      secure: true,
       maxAge: 60 * 60 * 1000, 
     }
 }));
-
+console.log(process.env.NODE_ENV);
+console.log(process.env.NODE_ENV === "production");
 // app.use(function (req, res, next) {	
 //   console.log("before")
 //   console.log(req.cookies);	

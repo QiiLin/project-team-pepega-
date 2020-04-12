@@ -13,6 +13,10 @@ import {
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 
+/**
+ * This function is getting all the file from
+ * the backend and display it
+ */
 export const getItems = () => (dispatch, getState) => {
   setTimeout(function() {
     console.log("invoke");
@@ -30,6 +34,10 @@ export const getItems = () => (dispatch, getState) => {
   }, 500);
 };
 
+/**
+ * This function is adding 
+ * the backend and display it
+ */
 export const addItem = item => (dispatch, getState) => {
   console.log("addItem called");
   console.log("addItem item: ", item);
