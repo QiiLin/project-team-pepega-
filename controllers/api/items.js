@@ -107,6 +107,32 @@ router.get('/:id', (req, res) => {
   });
 });
 
+
+
+router.get('/download/:id', (req, res) => {
+  gfs_prim.then(function (gfs) {
+    gfs.files.findOne({ _id: mongoose.Types.ObjectId(req.params.id) }, (err, file) => {
+      // Check if file
+      if (!file || file.length === 0) {
+        return res.status(404).json({
+          err: 'No file exists'
+        });
+      }
+      console.log("mid getting");
+      res.set('Content-Type', file.contentType);
+      res.set('Content-Disposition', 'attachment; filename="' + file.filename + '"');
+      const readstream = gfs.createReadStream(file.filename);
+      readstream.pipe(res);
+      /*readstream.on('end', function() {
+        const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
+        readstreamMetadata.pipe(res);
+      });*/
+      console.log("done getting");
+      return;
+    });
+  });
+});
+
 // @route GET /api/items/thumbnail/:id
 // @desc  Display single file object
 router.get('/thumbnail/:id', (req, res) => {
