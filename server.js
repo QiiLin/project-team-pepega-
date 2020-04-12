@@ -52,19 +52,19 @@ app.use(session({
     cookie: {
       httpOnly: true, 
       sameSite: true, 
-      secure: true,
+      secure: false,
       maxAge: 60 * 60 * 1000, 
     }
 }));
 
-const csrfProtection = csurf({cookie:false});
-app.use(csrfProtection);
+// const csrfProtection = csurf({cookie:false});
+// app.use(csrfProtection);
 
-app.use(function (req, res, next) {
-  var csrfToken = req.csrfToken();
-  res.cookie('X-XSRF-TOKEN', csrfToken, {secure: false, sameSite:true});
-  next();
-});
+// app.use(function (req, res, next) {
+//   var csrfToken = req.csrfToken();
+//   res.cookie('X-XSRF-TOKEN', csrfToken, {secure: false, sameSite:true});
+//   next();
+// });
 
 // Connect to mongo
 mongoose
