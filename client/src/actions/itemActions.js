@@ -35,7 +35,7 @@ export const getVideoFile = (id, filename) => (dispatch, getState) => {
             responseType: 'blob', 
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/pdf'
+                'Accept': 'application/mp4'
             }
         })
         .then((response) => {
