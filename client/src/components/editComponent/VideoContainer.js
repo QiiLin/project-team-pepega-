@@ -51,7 +51,7 @@ class VideoContainer extends Component {
   render() {
     // Note selectedFile is from VideoList
     // TODO: Update the placeholder for video
-    const { selectItemOne, selectItemTwo } = this.props.item;
+    const { selectItemOne } = this.props.item;
     const playerOneSource = selectItemOne
       ? "api/items/" + selectItemOne
       : "http://www.w3schools.com/html/mov_bbb.mp4";

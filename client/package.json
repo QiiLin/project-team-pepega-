@@ -11,6 +11,7 @@
     "axios": "^0.19.2",
     "bootstrap": "^4.4.1",
     "form-data": "^3.0.0",
+    "js-file-download": "^0.4.11",
     "mic-recorder-to-mp3": "^2.2.1",
     "react": "^16.13.0",
     "react-audio-recorder": "^2.2.0",

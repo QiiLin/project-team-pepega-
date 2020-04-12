@@ -19,7 +19,8 @@ import {
   deleteItem,
   getItems,
   setSelectItemOne,
-  setSelectItemTwo
+  setSelectItemTwo,
+  getVideoFile
 } from "../../actions/itemActions";
 import { Player, Shortcut, ControlBar, BigPlayButton } from "video-react";
 import PropTypes from "prop-types";
@@ -133,10 +134,12 @@ class VideoList extends Component {
                         color="primary"
                         endIcon={<VideoLibraryIcon />}
                         onClick={() => {
-                          this.props.setSelectItemTwo(_id);
+                          this.props.getVideoFile(_id, filename);
                         }}
+                        // href= {"api/items/download/" + _id} 
+                        // download="file.mp4"
                       >
-                        Load to player two
+                        Download The video
                       </Button>
                     </ButtonGroup>
                   </Card>
@@ -209,5 +212,6 @@ export default connect(mapStateToProps, {
   getItems,
   deleteItem,
   setSelectItemOne,
-  setSelectItemTwo
+  setSelectItemTwo,
+  getVideoFile
 })(VideoList);

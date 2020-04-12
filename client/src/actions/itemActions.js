@@ -12,7 +12,7 @@ import {
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
-
+import {fileDownload } from "js-file-download";
 export const getItems = () => (dispatch, getState) => {
   setTimeout(function() {
     console.log("invoke");
@@ -20,9 +20,7 @@ export const getItems = () => (dispatch, getState) => {
     axios
       .get("/api/items", tokenConfig2(getState))
       .then(res => {
-        console.log(res.data);
         dispatch({ type: GET_ITEMS, payload: res.data });
-        console.log("did");
       })
       .catch(err =>
         dispatch(returnErrors(err.response.data, err.response.status))
@@ -30,6 +28,35 @@ export const getItems = () => (dispatch, getState) => {
   }, 500);
 };
 
+export const getVideoFile = (id, filename) => (dispatch, getState) => {
+  console.log(filename);
+  axios.get("/api/items/download/" + id,tokenConfig2(getState),
+        {
+            responseType: 'blob', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/pdf'
+            }
+        })
+        .then((response) => {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', filename);
+          link.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch((error) => console.log(error));
+  // axios
+  //   .get("/api/items/download/" + id, tokenConfig2(getState))
+  //   .then(res => {
+  //     console.log("Got it from backend")
+  //     console.log(res);
+  //     fileDownload(res, filename);
+  //   }).catch(err =>
+  //     dispatch(returnErrors(err.response.data, err.response.status))
+  //   );
+};
 export const addItem = item => (dispatch, getState) => {
   console.log("addItem called");
   console.log("addItem item: ", item);

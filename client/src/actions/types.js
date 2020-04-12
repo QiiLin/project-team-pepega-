@@ -46,3 +46,5 @@ export const SET_FILENAME = "SET_FILENAME";
 export const SET_LOADING = "SET_LOADING";
 
 export const SAVE_RECORDING = "SAVE_RECORDING";
+
+export const DOWNLOAD_VIDEO = "DOWNLOAD_VIDEO";
