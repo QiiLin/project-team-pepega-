@@ -95,7 +95,7 @@ function generateThumbnail(id, filename) {
 // @desc   Create caption for the selected video
 // @access Private
 router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
-  res.set("Content-Type", "text/plain");
+  res.set("Content-Type", "application/json");
   // check if request has valid data
   if (!req.body.data) {
     return res.status(400).json({error: "Bad argument: Missing captions"});
@@ -204,7 +204,7 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
 // @desc   Append video from idMerge to video from id
 // @access Private
 router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
-  res.set("Content-Type", "text/plain");
+  res.set("Content-Type", "application/json");
   console.log(req.params.id)
   console.log(req.body.merge_vid_id)
   if (!req.params.id || !req.body.merge_vid_id){
@@ -350,7 +350,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
 router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
-  res.set("Content-Type", "text/plain");  
+  res.set("Content-Type", "application/json");
   if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
     return res.status(400).json({error: "timestamp required"});
   }
@@ -407,6 +407,7 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
 // @desc   Remove video section at timestampStart & timestampEnd from body
 // @access Private
 router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
+  res.set("Content-Type", "application/json");
   //can't have 0 as video duration so set to smallest possible
   let timestampStart = req.body.timestampStart == "0" ? "0.001" : req.body.timestampStart;
   let timestampEnd = req.body.timestampEnd;
@@ -570,15 +571,19 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
 router.post("/insertAudio/:id", sanitizeFilename, auth, (req, res) => {
-  res.set("Content-Type", "text/plain");  
-  if (isNaN(req.body.timestampStart)){
+  res.set("Content-Type", "application/json");
+  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
     return res.status(400).json({error: "timestamp required"});
+  }
+  if (!req.body.transitionType) {
+    return res.status(400).json({error: "transition type required"});
   }
   if (!req.body.uploader_id) {
     return res.status(400).json({error: "Bad argument: Missing user id"});
   }
-
-  gfs_prim.then(gfs => {
+  gfs_prim.then(function (gfs) {
+    let item = retrievePromise(req.params.id, gfs);
+    let itemCopy = retrievePromise(req.params.id, gfs);
     const fname = req.body.filename + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
@@ -589,36 +594,40 @@ router.post("/insertAudio/:id", sanitizeFilename, auth, (req, res) => {
         originalname: fname
       }
     });
-    let duration = req.body.timestampEnd - req.body.timestampStart;
-    let itemOne = retrievePromise(req.params.id, gfs);
-    itemOne.then(item => {
-      ffmpeg(item)
-        .format("webm")
-        .withVideoCodec("libvpx")
-        .withVideoBitrate(1024)
-        .withAudioCodec("libvorbis")
-        .outputOption([`-ss ${req.body.timestampStart}`, `-t ${duration}`]) //set starting seconds
-        .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
-        .outputOption(["-metadata", `duration=${duration}`])
-        .on("progress", progress => {
-          console.log(`[Cut]: ${JSON.stringify(progress)}`);
-        })
-        .on("stderr", function (stderrLine) {
-          console.log("Stderr output [Cut]: " + stderrLine);
-        })
-        .on("error", function (err) {
-          return res.status(500).json({error: "An error occurred [Cut]: " + err.message});
-        })
-        .on("end", function () {
-          generateThumbnail(result.id, fname)
-          .then(() => {
-            return res.status(200).json({response: "Cut is completed"});
+    
+    Promise.all([item, itemCopy]).then(function(itm) {
+      let currStream = itm[0];
+      let currStreamCopy = itm[1];
+      ffmpeg.ffprobe(currStream, function(err, metadata) {
+        let duration = metadata ? metadata.format.duration : 5;
+        ffmpeg(currStreamCopy)
+          .format("webm")
+          .withVideoCodec("libvpx")
+          .addOptions(["-b:v 0", "-crf 30"])
+          .outputOption(["-metadata", `duration=${duration}`])
+          .withVideoBitrate(1024)
+          .withAudioCodec("libvorbis")
+          .videoFilters(`${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`)
+          .on("progress", progress => {
+            console.log(`[Transition]: ${JSON.stringify(progress)}`);
           })
-          .catch((err) => {
-            return res.status(202).json({response: "Cut is completed: " + err});
-          });
-        })
-        .writeToStream(result);
+          .on("stderr", function (stderrLine) {
+            console.log("Stderr output [Transition]: " + stderrLine);
+          })
+          .on("error", function (err) {
+            return res.status(500).json({error: "An error occurred [Transition]: " + err.message});
+          })
+          .on("end", function () {
+            generateThumbnail(result.id, fname)
+            .then(() => {
+              return res.status(200).json({response: "Transition is completed"});
+            })
+            .catch((err) => {
+              return res.status(202).json({response: "Transition is completed: " + err})
+            });
+          })
+          .saveToFile(result);
+      });
     });
   });
 });
@@ -627,7 +636,7 @@ router.post("/insertAudio/:id", sanitizeFilename, auth, (req, res) => {
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
 router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
-  res.set("Content-Type", "text/plain");
+  res.set("Content-Type", "application/json");
   if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
     return res.status(400).json({error: "timestamp required"});
   }
@@ -691,6 +700,7 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
 // @route POST /api/edit/saveMP3
 // @desc  Save the user recording into the database once the Stop button is pressed
 router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async (req, res) => {
+  res.set("Content-Type", "application/json");
   if (!req.body.uploader_id) {
     return res.status(400).json({error: "Bad argument: Missing user id"});
   }
