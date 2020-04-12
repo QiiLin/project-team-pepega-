@@ -594,50 +594,52 @@ router.post("/transition/:id", upload.none(), auth, sanitizeFilename, (req, res)
 router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async (req, res) => {
   // console.log("edit.js saveMP3");
   // console.log("file in backend: ", req.file)
-  let gfs = await gfs_prim;
+  // let gfs = await gfs_prim;
 
-  gfs.files.findOne(
-    { _id: mongoose.Types.ObjectId(req.file.id) },
-    (err, file) => {
-      // Check if file
-      if (!file || file.length === 0) {
-        return res.status(404).json({
-          err: "No file exists"
-        });
+  gfs_prim.then(function (gfs) {
+    gfs.files.findOne(
+      { _id: mongoose.Types.ObjectId(req.file.id) },
+      (err, file) => {
+        // Check if file
+        if (!file || file.length === 0) {
+          return res.status(404).json({
+            err: "No file exists"
+          });
+        }
       }
-    }
-  );
+    );
 
-  const newItem = new Item({
-    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
-    gfs_id: mongoose.Types.ObjectId(req.file.id),
-    originalname: req.file.originalname,
-    file_path: req.file.path,
-    width: 0,
-    height: 0
-  });
+    const newItem = new Item({
+      uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
+      gfs_id: mongoose.Types.ObjectId(req.file.id),
+      originalname: req.file.originalname,
+      file_path: req.file.path,
+      width: 0,
+      height: 0
+    });
 
-  // Write it to a file in the recordings directory
-  const writeStream = gfs.createWriteStream({
-    filename: req.file.filename + ".mp3",
-    contentType: req.file.mimetype
-  });
-  fs.createReadStream(req.file.path).pipe(writeStream)
+    // Write it to a file in the recordings directory
+    const writeStream = gfs.createWriteStream({
+      filename: req.file.filename + ".mp3",
+      contentType: req.file.mimetype
+    });
+    fs.createReadStream(req.file.path).pipe(writeStream)
 
-  await newItem.save();
+    newItem.save();
 
-  const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
-  return res.json({
-    _id: id,
-    uploadDate: uploadDate,
-    filename: filename,
-    md5: md5,
-    contentType: contentType,
-    uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
-    originalname: originalname,
-    width: newItem.width,
-    height: newItem.height
-  });
+    const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
+    return res.json({
+      _id: id,
+      uploadDate: uploadDate,
+      filename: filename,
+      md5: md5,
+      contentType: contentType,
+      uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
+      originalname: originalname,
+      width: newItem.width,
+      height: newItem.height
+    });
+  })
 });
 
 module.exports = {
