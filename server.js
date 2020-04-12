@@ -45,26 +45,26 @@ const secret = config.get("sessionSecret");
 const session = require("express-session");
 app.use(cookieParser());
 app.use(session({
-    name : 'app.sid',
-    secret: secret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true, 
-      sameSite: true, 
-      secure: true,
-      maxAge: 60 * 60 * 1000, 
-    }
+  name: 'app.sid',
+  secret: secret,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: true,
+    secure: true,
+    maxAge: 60 * 60 * 1000,
+  }
 }));
 
-const csrfProtection = csurf({cookie:false});
-app.use(csrfProtection);
+// const csrfProtection = csurf({cookie:false});
+// app.use(csrfProtection);
 
-app.use(function (req, res, next) {
-  var csrfToken = req.csrfToken();
-  res.cookie('X-XSRF-TOKEN', csrfToken, {secure: false, sameSite:true});
-  next();
-});
+// app.use(function (req, res, next) {
+//   var csrfToken = req.csrfToken();
+//   res.cookie('X-XSRF-TOKEN', csrfToken, {secure: false, sameSite:true});
+//   next();
+// });
 
 // Connect to mongo
 mongoose
@@ -96,12 +96,12 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-  // Set static folder
-  app.use(express.static("client/build"));
-  app.get("*", (req, res) => {
-    // Current directory, go into client/build, and load the index.html file
-    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-  });
+// Set static folder
+app.use(express.static("client/build"));
+app.get("*", (req, res) => {
+  // Current directory, go into client/build, and load the index.html file
+  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+});
 
 const port = process.env.PORT || 5000;
 
@@ -119,4 +119,4 @@ const port = process.env.PORT || 5000;
 }).listen(3333);*/
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
-module.exports = {app};
+module.exports = { app };

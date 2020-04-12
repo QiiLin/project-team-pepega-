@@ -4,19 +4,19 @@ const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
 const check = require("../../middleware/check")
-const {auth} = require("../../middleware/auth")
+const { auth } = require("../../middleware/auth")
 const cookie = require('cookie');
 // User model
 const User = require("../../models/User");
-router.post("/logout", auth, (req,res) => {
+router.post("/logout", auth, (req, res) => {
   console.log("reached")
   // set the age to 30s
   res.setHeader('Set-Cookie', cookie.serialize('token', '', {
-    path : '/', 
-    maxAge: 30, 
+    path: '/',
+    maxAge: 30,
     // TODO use this when it is on server
-    httpOnly: true, 
-    sameSite: true, 
+    httpOnly: true,
+    sameSite: true,
     secure: true,
   }));
   res.redirect('/');
@@ -59,18 +59,18 @@ router.post("/", check.checkName, check.checkEmail, check.checkPassword, (req, r
         newUser.save().then(user => {
           // when we set a token from react or anywhere, the user id is in there
           jwt.sign({
-              id: user.id
-            },
+            id: user.id
+          },
             config.get("jwtSecret"), {
-              expiresIn: 3600
-            },
+            expiresIn: 3600
+          },
             (err, token) => {
               if (err) { return res.status(500).end(err); }
               res.setHeader('Set-Cookie', cookie.serialize('token', token, {
-                path : '/', 
+                path: '/',
                 maxAge: 3600, // 1 week in number of seconds
-                httpOnly: true, 
-                sameSite: true, 
+                httpOnly: true,
+                sameSite: true,
                 secure: true,
               }));
               res.json({
