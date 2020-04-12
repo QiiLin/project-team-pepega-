@@ -11,6 +11,10 @@ import {
   REGISTER_FAIL
 } from "./types";
 
+axios.defaults.xsrfHeaderName = "x-csrf-token";
+axios.defaults.xsrfCookieName = "X-XSRF-TOKEN"
+axios.defaults.withCredentials = true;
+
 // Check token and load user
 export const loadUser = () => (dispatch, getState) => {
   // User loading
@@ -80,7 +84,6 @@ export const login = ({ email, password }) => dispatch => {
       "Content-Type": "application/json"
     }
   };
-
   // Request body
   const body = JSON.stringify({ email, password });
 
