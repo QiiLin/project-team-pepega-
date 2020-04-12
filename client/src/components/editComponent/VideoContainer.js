@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Box } from "@material-ui/core/";
 import { setDurationOne, setDurationTwo } from "../../actions/editActions";
 import { Player } from "video-react";
 import { connect } from "react-redux";
@@ -42,10 +41,6 @@ class VideoContainer extends Component {
       : "https://www.w3schools.com/html/mov_bbb.mp4";    
     return (
       <div>
-        <Box
-          display={this.state.selectTab === "1" ? "block" : "none"}
-          value="1"
-        >
           <div>
             <div>
               <Player
@@ -59,7 +54,6 @@ class VideoContainer extends Component {
               </Player>
             </div>
           </div>
-        </Box>
       </div>
     );
   }

@@ -49,7 +49,7 @@ router.post("/", check.checkEmail, check.checkPassword, (req, res) => {
             maxAge: 3600, // 1 week in number of seconds
             httpOnly: true, 
             sameSite: true, 
-            secure: true,
+            secure: false,
           }));
           res.json({
             user: {
