@@ -10,7 +10,7 @@ const Item = require("../../models/Item");
 const mongoose = require("mongoose");
 // import stream from 'stream';
 //const { gfs_prim } = require("../../middleware/gridSet");
-const { gfs_prim, upload } = require("../../middleware/gridSet");
+const { gfs_prim, upload } = require("../gridSet");
 // const storage = multer.diskStorage({
 //   destination: path.join(__dirname, "../../video_input/"),
 //   filename: function (req, file, callback) {
