@@ -10,7 +10,6 @@ import {
 } from "../actions/types";
 
 const initialState = {
-  token: sessionStorage.getItem("token"),
   isAuthenticated: null,
   isLoading: false,
   user: null
@@ -32,7 +31,7 @@ export default function (state = initialState, action) {
       };
     case LOGIN_SUCCESS:
     case REGISTER_SUCCESS:
-      sessionStorage.setItem("token", action.payload.token);
+      // this just 
       return {
         ...state,
         // Get the token and the user
@@ -45,7 +44,6 @@ export default function (state = initialState, action) {
     case LOGIN_FAIL:
     case LOGOUT_SUCCESS:
     case REGISTER_FAIL:
-      sessionStorage.removeItem("token");
       return {
         ...state,
         token: null,
