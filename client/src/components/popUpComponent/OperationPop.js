@@ -53,9 +53,7 @@ class OperationPop extends React.Component {
           aria-labelledby="max-width-dialog-title">
           <DialogTitle id="max-width-dialog-title">Operation Dialog</DialogTitle>
           <DialogContent>
-            <DialogContentText>
               {this.renderProgressContent()}
-            </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose} color="primary">
