@@ -18,20 +18,18 @@ import { returnErrors } from "./errorActions";
  * the backend and display it
  */
 export const getItems = () => (dispatch, getState) => {
-  setTimeout(function() {
-    console.log("invoke");
-    dispatch(setItemsLoading());
-    axios
-      .get("/api/items", tokenConfig2(getState))
-      .then(res => {
-        console.log(res.data);
-        dispatch({ type: GET_ITEMS, payload: res.data });
-        console.log("did");
-      })
-      .catch(err =>
-        dispatch(returnErrors(err.response.data, err.response.status))
-      );
-  }, 500);
+  console.log("invoke");
+  dispatch(setItemsLoading());
+  axios
+    .get("/api/items", tokenConfig2(getState))
+    .then(res => {
+      console.log(res.data);
+      dispatch({ type: GET_ITEMS, payload: res.data });
+      console.log("did");
+    })
+    .catch(err =>
+      dispatch(returnErrors(err.response.data, err.response.status))
+    );
 };
 
 /**
@@ -47,10 +45,7 @@ export const addItem = item => (dispatch, getState) => {
     // Attach token to request in the header
     .post("/api/items/upload", item, tokenConfig2(getState))
     .then(res => {
-      dispatch({
-        type: ADD_ITEM,
-        payload: res.data
-      });
+      dispatch(getItems());
     })
     .catch(err =>
       dispatch(returnErrors(err.response.data, err.response.status))
