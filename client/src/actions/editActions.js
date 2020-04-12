@@ -21,21 +21,19 @@ import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
 import { getItems } from "./itemActions";
 
-export const mergeClip = (ids, filename) => (dispatch, getState) => {
-    // for (var pair of ids.entries()) {
-    //     console.log(pair[0] + ", " + pair[1]);
-    // }
+export const mergeClip = (id, uploader_id, merge_vid_id, filename) => (dispatch, getState) => {
+    let body = {
+        uploader_id: uploader_id,
+        merge_vid_id: merge_vid_id,
+        filename: filename
+    };
     dispatch(setProgress());
     dispatch(setLoading());
 
     axios
     // Attach token to request in the header
-        .post("/api/edit/merge", ids, tokenConfig2(getState), {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
-        .then(res => {
+        .post(`/api/edit/merge/${id}`, body, tokenConfig(getState))
+        .then(() => {
             dispatch(getItems());
             dispatch(setLoading());
         })
@@ -54,8 +52,8 @@ export const captionClip = (id, uploader_id, data, filename) => (dispatch, getSt
     dispatch(setLoading());
     axios
     // Attach token to request in the header
-        .post("/api/edit/caption/" + id, body, tokenConfig(getState))
-        .then(res => {
+        .post(`/api/edit/caption/${id}`, body, tokenConfig(getState))
+        .then(() => {
             // reset the caption list
             dispatch(resetCaptions());
             dispatch(setEnableCap());
@@ -67,36 +65,19 @@ export const captionClip = (id, uploader_id, data, filename) => (dispatch, getSt
         });
 };
 
-export const trimClip = (id, body) => (dispatch, getState) => {
+export const trimClip = (id, uploader_id, videoSelection, filename) => (dispatch, getState) => {
+    let body = {
+        uploader_id: uploader_id,
+        timestampStart: videoSelection[0],
+        timestampEnd: videoSelection[1],
+        filename: filename
+    };
     dispatch(setProgress());
     dispatch(setLoading());
     axios
     // Attach token to request in the header
-        .post(`/api/edit/trim/${id}`, body, tokenConfig2(getState), {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
-        .then(res => 
-            {
-                dispatch(getItems());
-                dispatch(setLoading());
-            })
-        .catch(err => {
-            dispatch(returnErrors(err.response.data, err.response.status));
-        });
-};
-
-export const transitionClip = (id, data) => (dispatch, getState) => {
-    dispatch(setProgress());
-    dispatch(setLoading());
-    axios
-        .post(`/api/edit/transition/${id}`, data, tokenConfig2(getState), {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        })
-        .then(res =>    {
+        .post(`/api/edit/trim/${id}`, body, tokenConfig(getState))
+        .then(() => {
             dispatch(getItems());
             dispatch(setLoading());
         })
@@ -105,13 +86,19 @@ export const transitionClip = (id, data) => (dispatch, getState) => {
         });
 };
 
-export const addChroma = (id, data) => (dispatch, getState) => {
+export const transitionClip = (id, uploader_id, videoSelection, transitionType, paddingColor, filename) => (dispatch, getState) => {
+    let body = {
+        uploader_id: uploader_id,
+        transitionType: transitionType,
+        transitionStartFrame: videoSelection[0],
+        transitionEndFrame: videoSelection[1],
+        transition_paddingColor: paddingColor,
+        filename: filename
+    };
     dispatch(setProgress());
     dispatch(setLoading());
-    console.log("addChroma editAction");
-    console.log(id, data);
     axios
-        .post(`/api/edit/chroma/${id}`, data, tokenConfig2(getState), {
+        .post(`/api/edit/transition/${id}`, body, tokenConfig2(getState), {
             headers: {
                 "Content-Type": "multipart/form-data"
             }

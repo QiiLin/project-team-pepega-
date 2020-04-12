@@ -211,27 +211,25 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
-router.post("/merge", upload.none(), auth, sanitizeFilename, (req, res) => {
+router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
-  console.log(req.body.curr_vid_id)
+  console.log(req.params.id)
   console.log(req.body.merge_vid_id)
-  if (!req.body.curr_vid_id || !req.body.merge_vid_id)
+  if (!req.params.id || !req.body.merge_vid_id)
     return res.status(400).end("video id for merging required");
 
   gfs_prim.then(function (gfs) {
-    const curr_vid_id = req.body.curr_vid_id;
-    const merge_vid_id = req.body.merge_vid_id;
-    let itemOne = retrievePromise(curr_vid_id, gfs);
-    let itemOneCopy = retrievePromise(curr_vid_id, gfs);
-    let itemTwo = retrievePromise(merge_vid_id, gfs);
-    let itemTwoCopy = retrievePromise(merge_vid_id, gfs);
+    let itemOne = retrievePromise(req.params.id, gfs);
+    let itemOneCopy = retrievePromise(req.params.id, gfs);
+    let itemTwo = retrievePromise(req.body.merge_vid_id, gfs);
+    let itemTwoCopy = retrievePromise(req.body.merge_vid_id, gfs);
     const fname = req.body.filename + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
       content_type: "video/webm",
       metadata: {
-        uploader_id: "test",
+        uploader_id: req.body.uploader_id,
         originalname: fname
       }
     });
@@ -405,7 +403,7 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
 // @route  POST /api/edit/trim/:id/
 // @desc   Remove video section at timestampStart & timestampEnd from body
 // @access Private
-router.post("/trim/:id/", upload.none(), auth, sanitizeFilename, (req, res) => {
+router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
   let timestampStart = req.body.timestampStart;
   let timestampEnd = req.body.timestampEnd;
   console.log("start: ", timestampStart);
@@ -425,7 +423,7 @@ router.post("/trim/:id/", upload.none(), auth, sanitizeFilename, (req, res) => {
       mode: "w",
       content_type: "video/webm",
       metadata: {
-        uploader_id: "test",
+        uploader_id: req.body.uploader_id,
         originalname: fname
       }
     });
@@ -565,12 +563,7 @@ router.post("/trim/:id/", upload.none(), auth, sanitizeFilename, (req, res) => {
 // @route  POST /api/edit/transition/:id/
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
-router.post("/transition/:id", upload.none(), auth, sanitizeFilename,  (req, res) => {
-  // console.log(req.body.transition_paddingVidWidth);
-  // console.log(req.body.transition_paddingVidHeight);
-  // console.log(req.body.transition_paddingColor);
-  // console.log(req.body.transition_paddingVidRow);
-  // console.log(req.body.transition_paddingVidCol);
+router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
   console.log(req.body.transitionType);
   console.log(req.body.transitionStartFrame, req.body.transitionEndFrame);
   let transitionType;  
@@ -586,13 +579,13 @@ router.post("/transition/:id", upload.none(), auth, sanitizeFilename,  (req, res
   gfs_prim.then(function (gfs) {
     let item = retrievePromise(req.params.id, gfs);
     let itemCopy = retrievePromise(req.params.id, gfs);
-    const fname = crypto.randomBytes(16).toString("hex") + ".webm";
+    const fname = req.body.filename + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
       content_type: "video/webm",
       metadata: {
-        uploader_id: "test",
+        uploader_id: req.body.uploader_id,
         originalname: fname
       }
     });
