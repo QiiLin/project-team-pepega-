@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../../middleware/auth");
+const { auth } = require("../../middleware/auth");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -9,14 +9,15 @@ const ffmpeg = require("../../controllers/ff_path");
 const Item = require("../../models/Item");
 const mongoose = require("mongoose");
 // import stream from 'stream';
-const { gfs_prim } = require("../../middleware/gridSet");
+//const { gfs_prim } = require("../../middleware/gridSet");
+const { gfs_prim, upload } = require("../../middleware/gridSet");
 // const storage = multer.diskStorage({
 //   destination: path.join(__dirname, "../../video_input/"),
 //   filename: function (req, file, callback) {
 //     callback(null, "recording.mp3")
 //   }
 // });
-const upload = multer({ dest: path.join(__dirname, "../../recordings/") });
+//const upload = multer({ dest: path.join(__dirname, "../../recordings/") });
 const crypto = require("crypto");
 const validator = require('validator');
 
@@ -48,7 +49,7 @@ function retrievePromise(id, gfs) {
       if (!file || file.length === 0) {
         return reject("fail fetch", id);
       }
-      const readstream = gfs.createReadStream(file.filename);
+      const readstream = gfs.createReadStream(file._id);
       return resolve(readstream);
     });
   });
@@ -59,41 +60,42 @@ function retrievePromise(id, gfs) {
  * @param {*} filename 
  */
 function generateThumbnail(id, filename) {
-  gfs_prim.then(function (gfs) {
-    let basename = path.basename(filename).replace(path.extname(filename), ""); //filename w/o extension
-    const fname = basename + ".png";
-    let result = gfs.createWriteStream({
-      filename: fname,
-      mode: "w",
-      content_type: "image/png",
-      metadata: { video_id: id }
-    });
-    //search for newly generated video every 0.5s until exists since this gridfs version has a small delay on write
-    let idInterval = setInterval(function () {
-      retrievePromise(id, gfs).then(function (item) {
-        clearInterval(idInterval);
-        ffmpeg(item)
-          .withVideoCodec("png")
-          .addOptions([
-            "-vframes 1", //output 1 frame
-            "-f image2pipe" //force image to writestream
-          ])
-          .on("progress", progress => {
-            console.log(`[Thumbnail]: ${JSON.stringify(progress)}`);
-          })
-          .on("stderr", function (stderrLine) {
-            console.log("Stderr output [Thumbnail]: " + stderrLine);
-          })
-          .on("error", function (err) {
-            return ("An error occurred [Thumbnail]: ", err.message);
-          })
-          .on("end", function () {
-            return ("Thumbnail is completed");
-          })
-          .saveToFile(result);
+  return new Promise(function (resolve, reject) {
+    gfs_prim.then(function (gfs) {
+      let basename = path.basename(filename).replace(path.extname(filename), ""); //filename w/o extension
+      const fname = basename + ".png";
+      let result = gfs.createWriteStream({
+        filename: fname,
+        mode: "w",
+        content_type: "image/png",
+        metadata: { video_id: id }
       });
-    }, 500);
-
+      //search for newly generated video every 0.5s until exists since this gridfs version has a small delay on write
+      let idInterval = setInterval(function () {
+        retrievePromise(id, gfs).then(function (item) {
+          clearInterval(idInterval);
+          ffmpeg(item)
+            .withVideoCodec("png")
+            .addOptions([
+              "-vframes 1", //output 1 frame
+              "-f image2pipe" //force image to writestream
+            ])
+            .on("progress", progress => {
+              console.log(`[Thumbnail]: ${JSON.stringify(progress)}`);
+            })
+            .on("stderr", function (stderrLine) {
+              console.log("Stderr output [Thumbnail]: " + stderrLine);
+            })
+            .on("error", function (err) {
+              return reject("An error occurred [Thumbnail]: ", err.message);
+            })
+            .on("end", function () {
+              return resolve("Thumbnail is completed");
+            })
+            .saveToFile(result);
+        });
+      }, 500);
+    });
   });
 }
 
@@ -104,6 +106,10 @@ router.post("/caption/:id", auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
   // check if request has valid data
   if (!req.body.data) {
+    return res.status(400).end("Bad argument: Missing data");
+  }
+  // check if request has valid uploader id
+  if (!req.body.uploader_id) {
     return res.status(400).end("Bad argument: Missing data");
   }
   // check if the filename already exist
@@ -119,7 +125,7 @@ router.post("/caption/:id", auth, sanitizeFilename, (req, res) => {
   const fname = req.body.filename + ".webm";
   // sub_path
   let sub_path = path
-    .join(__dirname, "/../../temp/subtitle/", "t_sub.srt")
+    .join(__dirname, "/../../temp/subtitle/", req.body.filename + "t_sub.srt")
     .replace(/\\/g, "\\\\\\\\")
     .replace(":", "\\\\:");
   // Note: we need to change this, it doesn't allow 
@@ -136,7 +142,7 @@ router.post("/caption/:id", auth, sanitizeFilename, (req, res) => {
         mode: "w",
         content_type: "video/webm",
         metadata: {
-          uploader_id: "test",
+          uploader_id: req.body.uploader_id,
           originalname: fname
         }
       });
@@ -149,9 +155,11 @@ router.post("/caption/:id", auth, sanitizeFilename, (req, res) => {
           let width = metadata ? metadata.streams[0].width : 640;
           let height = metadata ? metadata.streams[0].height : 360;
           let fps = metadata ? metadata.streams[0].r_frame_rate : 30;
+          let duration = metadata ? metadata.format.duration : 5;
           console.log(width);
           console.log(height);
           console.log(fps);
+          console.log(duration);
           // adding caption
           ffmpeg()
             .input(readItem)
@@ -165,6 +173,7 @@ router.post("/caption/:id", auth, sanitizeFilename, (req, res) => {
               `-vf scale=${width}:${height},setsar=1`,
               `-vf subtitles=${sub_path}`
             ])
+            .outputOption(["-metadata", `duration=${duration}`])
             .on("progress", progress => {
               console.log(`[Caption]: ${JSON.stringify(progress)}`);
             })
@@ -184,8 +193,13 @@ router.post("/caption/:id", auth, sanitizeFilename, (req, res) => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
               // TODO return data with path to access the file in the database
-              generateThumbnail(resultFile.id, fname);
-              return res.status(200).end("Caption is added");
+              generateThumbnail(resultFile.id, fname)
+                .then(() => {
+                  return res.status(200).json("Caption is added");
+                })
+                .catch((err) => {
+                  return res.status(202).json("Caption is added: ", err)
+                });
             })
             .writeToStream(resultFile);
         });
@@ -197,27 +211,25 @@ router.post("/caption/:id", auth, sanitizeFilename, (req, res) => {
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
-router.post("/merge", upload.none(), auth, sanitizeFilename, (req, res) => {
+router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
-  console.log(req.body.curr_vid_id)
+  console.log(req.params.id)
   console.log(req.body.merge_vid_id)
-  if (!req.body.curr_vid_id || !req.body.merge_vid_id)
+  if (!req.params.id || !req.body.merge_vid_id)
     return res.status(400).end("video id for merging required");
 
   gfs_prim.then(function (gfs) {
-    const curr_vid_id = req.body.curr_vid_id;
-    const merge_vid_id = req.body.merge_vid_id;
-    let itemOne = retrievePromise(curr_vid_id, gfs);
-    let itemOneCopy = retrievePromise(curr_vid_id, gfs);
-    let itemTwo = retrievePromise(merge_vid_id, gfs);
-    let itemTwoCopy = retrievePromise(merge_vid_id, gfs);
+    let itemOne = retrievePromise(req.params.id, gfs);
+    let itemOneCopy = retrievePromise(req.params.id, gfs);
+    let itemTwo = retrievePromise(req.body.merge_vid_id, gfs);
+    let itemTwoCopy = retrievePromise(req.body.merge_vid_id, gfs);
     const fname = req.body.filename + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
       content_type: "video/webm",
       metadata: {
-        uploader_id: "test",
+        uploader_id: req.body.uploader_id,
         originalname: fname
       }
     });
@@ -319,8 +331,13 @@ router.post("/merge", upload.none(), auth, sanitizeFilename, (req, res) => {
                         if (err)
                           console.log("Could not remove Merge2 tmp file:" + err);
                       });
-                      generateThumbnail(result.id, fname);
-                      return res.status(200).json("Merging is completed");
+                      generateThumbnail(result.id, fname)
+                        .then(() => {
+                          return res.status(200).json("Merging is completed");
+                        })
+                        .catch((err) => {
+                          return res.status(202).json("Merging is completed: ", err)
+                        });
                     })
                     .mergeToFile(result, pathOut_tmp);
                 })
@@ -338,7 +355,7 @@ router.post("/merge", upload.none(), auth, sanitizeFilename, (req, res) => {
 // @access Private
 router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
   res.set("Content-Type", "text/plain");
-  if (!req.body.timestampOldStart || !req.body.timestampDuration)
+  if (!req.body.timestampStart || !req.body.timestampEnd)
     return res.status(400).end("timestamp required");
   gfs_prim.then(gfs => {
     const fname = req.body.filename + ".webm";
@@ -347,16 +364,18 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
       mode: "w",
       content_type: "video/webm",
       metadata: {
-        uploader_id: "test",
+        uploader_id: req.body.uploader_id,
         originalname: fname
       }
     });
+    let duration = req.body.timestampEnd - req.body.timestampStart;
     let itemOne = retrievePromise(req.params.id, gfs);
     itemOne.then(item => {
       ffmpeg(item)
-        .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
-        .setDuration(req.body.timestampDuration)
+        .setStartTime(req.body.timestampStart) //Can be in "HH:MM:SS" format also
+        .setDuration(duration)
         .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
+        .outputOption(["-metadata", `duration=${duration}`])
         .on("progress", progress => {
           console.log(`[Cut1]: ${JSON.stringify(progress)}`);
         })
@@ -369,8 +388,13 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
             .json("An error occurred [Cut1]: " + err.message);
         })
         .on("end", function () {
-          generateThumbnail(result.id, fname);
-          return res.status(200).json("Operation Complete");
+          generateThumbnail(result.id, fname)
+            .then(() => {
+              return res.status(200).json("Cut is completed");
+            })
+            .catch((err) => {
+              return res.status(202).json("Cut is completed: ", err)
+            });
         })
         .writeToStream(result);
     });
@@ -380,7 +404,7 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
 // @route  POST /api/edit/trim/:id/
 // @desc   Remove video section at timestampStart & timestampEnd from body
 // @access Private
-router.post("/trim/:id/", upload.none(), auth, sanitizeFilename, (req, res) => {
+router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
   let timestampStart = req.body.timestampStart;
   let timestampEnd = req.body.timestampEnd;
   console.log("start: ", timestampStart);
@@ -400,7 +424,7 @@ router.post("/trim/:id/", upload.none(), auth, sanitizeFilename, (req, res) => {
       mode: "w",
       content_type: "video/webm",
       metadata: {
-        uploader_id: "test",
+        uploader_id: req.body.uploader_id,
         originalname: fname
       }
     });
@@ -499,8 +523,13 @@ router.post("/trim/:id/", upload.none(), auth, sanitizeFilename, (req, res) => {
                       if (err)
                         console.log("Could not remove Trim2 tmp file:" + err);
                     });
-                    generateThumbnail(result.id, fname);
-                    return res.status(200).end("Trimming is completed");
+                    generateThumbnail(result.id, fname)
+                      .then(() => {
+                        return res.status(200).json("Trimming is completed");
+                      })
+                      .catch((err) => {
+                        return res.status(202).json("Trimming is completed: ", err)
+                      });
                   })
                   .mergeToFile(result, pathOut_tmp);
               })
@@ -535,56 +564,58 @@ router.post("/trim/:id/", upload.none(), auth, sanitizeFilename, (req, res) => {
 // @route  POST /api/edit/transition/:id/
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
-router.post("/transition/:id", upload.none(), auth, sanitizeFilename, (req, res) => {
-  // console.log(req.body.transition_paddingVidWidth);
-  // console.log(req.body.transition_paddingVidHeight);
-  // console.log(req.body.transition_paddingColor);
-  // console.log(req.body.transition_paddingVidRow);
-  // console.log(req.body.transition_paddingVidCol);
-  console.log(req.body.transitionType);
-  console.log(req.body.transitionStartFrame, req.body.transitionEndFrame);
-  let transitionType;
+router.post("/transition/:id", auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
   if (!req.body.transitionType) {
     return res.status(400).end("transition type required");
-  } else if (req.body.transitionType === "pad") {
-    transitionType = `${req.body.transitionType}=width=${req.body.transition_paddingVidWidth}:height=${req.body.transition_paddingVidHeight}:x=${req.body.transition_paddingVidCol}:y=${req.body.transition_paddingVidRow}:color=${req.body.transition_paddingColor}`;
-  } else if (req.body.transitionType.includes("fade")) {
-    transitionType = `${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`;
   }
-  console.log(transitionType);
   gfs_prim.then(function (gfs) {
+    let item = retrievePromise(req.params.id, gfs);
+    let itemCopy = retrievePromise(req.params.id, gfs);
     const fname = req.body.filename + ".webm";
     let result = gfs.createWriteStream({
       filename: fname,
       mode: "w",
       content_type: "video/webm",
       metadata: {
-        uploader_id: "test",
+        uploader_id: req.body.uploader_id,
         originalname: fname
       }
     });
-    retrievePromise(req.params.id, gfs).then(function (itm) {
-      ffmpeg(itm)
-        .format("webm")
-        .withVideoCodec("libvpx")
-        .addOptions(["-b:v 0", "-crf 30"])
-        .withVideoBitrate(1024)
-        .withAudioCodec("libvorbis")
-        .videoFilters(transitionType)
-        .on("progress", progress => {
-          console.log(`[Transition1]: ${JSON.stringify(progress)}`);
-        })
-        .on("stderr", function (stderrLine) {
-          console.log("Stderr output [Transition1]: " + stderrLine);
-        })
-        .on("error", function (err) {
-          return res.json("An error occurred [Transition1]: ", err.message);
-        })
-        .on("end", function () {
-          generateThumbnail(result.id, fname);
-        })
-        .saveToFile(result);
+
+    Promise.all([item, itemCopy]).then(function (itm) {
+      let currStream = itm[0];
+      let currStreamCopy = itm[1];
+      ffmpeg.ffprobe(currStream, function (err, metadata) {
+        let duration = metadata ? metadata.format.duration : 5;
+        ffmpeg(currStreamCopy)
+          .format("webm")
+          .withVideoCodec("libvpx")
+          .addOptions(["-b:v 0", "-crf 30"])
+          .outputOption(["-metadata", `duration=${duration}`])
+          .withVideoBitrate(1024)
+          .withAudioCodec("libvorbis")
+          .videoFilters(`${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`)
+          .on("progress", progress => {
+            console.log(`[Transition1]: ${JSON.stringify(progress)}`);
+          })
+          .on("stderr", function (stderrLine) {
+            console.log("Stderr output [Transition1]: " + stderrLine);
+          })
+          .on("error", function (err) {
+            return res.json("An error occurred [Transition1]: ", err.message);
+          })
+          .on("end", function () {
+            generateThumbnail(result.id, fname)
+              .then(() => {
+                return res.status(200).json("Trimming is completed");
+              })
+              .catch((err) => {
+                return res.status(202).json("Trimming is completed: ", err)
+              });
+          })
+          .saveToFile(result);
+      });
     });
   });
 });
@@ -592,54 +623,15 @@ router.post("/transition/:id", upload.none(), auth, sanitizeFilename, (req, res)
 // @route POST /api/edit/saveMP3
 // @desc  Save the user recording into the database once the Stop button is pressed
 router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async (req, res) => {
-  // console.log("edit.js saveMP3");
-  // console.log("file in backend: ", req.file)
-  // let gfs = await gfs_prim;
-
+  const fname = req.body.filename + ".mp3";
+  let metadata = {
+    uploader_id: req.body.uploader_id,
+    originalname: fname
+  };
   gfs_prim.then(function (gfs) {
-    gfs.files.findOne(
-      { _id: mongoose.Types.ObjectId(req.file.id) },
-      (err, file) => {
-        // Check if file
-        if (!file || file.length === 0) {
-          return res.status(404).json({
-            err: "No file exists"
-          });
-        }
-      }
-    );
-
-    const newItem = new Item({
-      uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
-      gfs_id: mongoose.Types.ObjectId(req.file.id),
-      originalname: req.file.originalname,
-      file_path: req.file.path,
-      width: 0,
-      height: 0
-    });
-
-    // Write it to a file in the recordings directory
-    const writeStream = gfs.createWriteStream({
-      filename: req.file.filename + ".mp3",
-      contentType: req.file.mimetype
-    });
-    fs.createReadStream(req.file.path).pipe(writeStream)
-
-    newItem.save();
-
-    const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
-    return res.json({
-      _id: id,
-      uploadDate: uploadDate,
-      filename: filename,
-      md5: md5,
-      contentType: contentType,
-      uploader_id: mongoose.Types.ObjectId(req.body.uploader_id),
-      originalname: originalname,
-      width: newItem.width,
-      height: newItem.height
-    });
-  })
+    gfs.files.update({ _id: mongoose.Types.ObjectId(req.file.id) }, { '$set': { 'metadata': metadata } })
+  });
+  return res.json("mp3 file saved")
 });
 
 module.exports = {

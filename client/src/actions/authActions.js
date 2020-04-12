@@ -11,19 +11,31 @@ import {
   REGISTER_FAIL
 } from "./types";
 
+axios.defaults.xsrfHeaderName = "x-csrf-token";
+axios.defaults.xsrfCookieName = "X-XSRF-TOKEN"
+axios.defaults.withCredentials = true;
+
 // Check token and load user
 export const loadUser = () => (dispatch, getState) => {
   // User loading
   dispatch({ type: USER_LOADING });
-  const token = getState().auth.token;
-  if (token) {
+  // const isAuth = getState().auth.isAuth;
     axios
     .get("/api/auth/user", tokenConfig(getState))
-    .then(res =>
-      dispatch({
-        type: USER_LOADED,
-        payload: res.data
-      })
+    .then(res =>{
+      console.log(res.data)
+      if (res.data.isNotAuth) {
+        dispatch({
+          type: AUTH_ERROR
+        });
+      } else {
+        dispatch({
+          type: USER_LOADED,
+          payload: res.data
+        })
+      }
+    }
+
     )
     .catch(err => {
       dispatch(returnErrors(err.response.data, err.response.status));
@@ -31,7 +43,7 @@ export const loadUser = () => (dispatch, getState) => {
         type: AUTH_ERROR
       });
     });
-  }
+
 };
 
 // Register user
@@ -72,7 +84,6 @@ export const login = ({ email, password }) => dispatch => {
       "Content-Type": "application/json"
     }
   };
-
   // Request body
   const body = JSON.stringify({ email, password });
 
@@ -95,16 +106,27 @@ export const login = ({ email, password }) => dispatch => {
 };
 
 // Logout user
-export const logout = () => {
-  return {
-    type: LOGOUT_SUCCESS
-  };
+export const logout = () => dispatch => {
+    // Headers
+    axios
+      .post("/api/users/logout",{}, tokenConfig())
+      .then(res =>
+        dispatch({
+          type: LOGOUT_SUCCESS
+        })
+      )
+      .catch(err => {
+        dispatch(
+          returnErrors(err.response.data, err.response.status, "LOGIN_FAIL")
+        );
+        dispatch({
+          type: LOGIN_FAIL
+        });
+      });
 };
 
 // Setup config/headers and token
 export const tokenConfig = getState => {
-  // Get token from localStorage
-  const token = getState().auth.token;
 
   // Headers
   const config = {
@@ -115,28 +137,18 @@ export const tokenConfig = getState => {
   };
 
   // If token, add to headers
-  if (token) {
-    config.headers["x-auth-token"] = token;
-  }
   config.withCredentials = true;
-
   return config;
 };
 
 // Setup config/headers and token
 export const tokenConfig2 = getState => {
-  // Get token from localStorage
-  const token = getState().auth.token;
-
   // Headers
   const config = {
     headers: { "Content-Type": "application/x-www-form-urlencoded" }
   };
 
   // If token, add to headers
-  if (token) {
-    config.headers["x-auth-token"] = token;
-  }
   config.withCredentials = true;
   return config;
 };

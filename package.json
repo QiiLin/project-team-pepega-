@@ -11,7 +11,9 @@
     "client": "npm start --prefix client",
     "dev": "npm run nodemon-debug && concurrently \"npm run server\" \"npm run client\"",
     "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false && npm install --prefix client && npm run build --prefix client",
-    "install-all": "npm install && cd client && npm install && cd .."
+    "postbuild": "npm run build --prefix client",
+    "install-all": "npm install && cd client && npm install && cd ..",
+    "product_run": "node server.js"
   },
   "repository": {
     "type": "git",

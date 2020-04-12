@@ -4,7 +4,7 @@ const app = require('../../server');
 const longpoll = require("express-longpoll")(app);
 const { gfs_prim, upload } = require("../../middleware/gridSet");
 const mongoose = require("mongoose");
-const auth = require("../../middleware/auth");
+const {auth} = require("../../middleware/auth");
 const Item = require("../../models/Item");
 const edit = require("../api/edit");
 //const _ = require("underscore");
@@ -15,9 +15,7 @@ const edit = require("../api/edit");
 // @route POST /upload
 // @desc  Uploads file to DB
 router.post("/upload", upload.single("video"), auth, async (req, res) => {
-  console.log("Uploaded file: ", req.file);
-
-  edit.generateThumbnail(req.file.id, req.file.filename);
+  console.log("Uploaded file: ", req.file);  
 
   let metadata = {
     uploader_id: req.body.uploader_id,
@@ -45,21 +43,22 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
   const { id, uploadDate, filename, md5, contentType, originalname } = req.file;
   // longpoll.publish("/api/items", items);
   newItem.save();*/
-  const {
-    id,
-    uploadDate,
-    filename,
-    md5,
-    contentType
-  } = req.file;
-  return res.json({
+  edit.generateThumbnail(req.file.id, req.file.filename)
+  .then(() => {
+    return res.status(200).json("Upload is completed");
+  })
+  .catch((err) => {
+    return res.status(202).json("Upload is completed: ", err)
+  });
+  /*const { id, uploadDate, filename, md5, contentType } = req.file;  
+  res.json({
     "_id": id,
     "uploadDate": uploadDate,
     "filename": filename,
     "md5": md5,
     "contentType": contentType,
     "metadata": metadata
-  });
+  });*/
 });
 
 // @route GET /api/items
@@ -108,8 +107,8 @@ router.get('/:id', (req, res) => {
       }
 
       console.log("mid getting");
-
-      const readstream = gfs.createReadStream(file.filename);
+      res.set("Content-Type", file.contentType);
+      const readstream = gfs.createReadStream(file._id);      
       readstream.pipe(res);
       /*readstream.on('end', function() {
         const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
@@ -139,7 +138,7 @@ router.get('/thumbnail/:id', (req, res) => {
 
       console.log("mid getting thumbnail", file.filename);
 
-      const readstream = gfs.createReadStream(file.filename);
+      const readstream = gfs.createReadStream(file._id);
       readstream.pipe(res);
       readstream.on('error', function (err) {
         console.log('An error occurred!', err);

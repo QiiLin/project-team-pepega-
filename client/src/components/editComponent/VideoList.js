@@ -124,7 +124,7 @@ class VideoList extends Component {
                           this.props.setSelectItemOne(_id);
                         }}
                       >
-                        Load to player one
+                        Load to player
                       </Button>
                     </ButtonGroup>
                   </Card>
@@ -162,7 +162,7 @@ class VideoList extends Component {
                           this.props.setSelectItemOne(_id);
                         }}
                       >
-                        Load to player one
+                        Load to player
                       </Button>
                     </ButtonGroup>
                   </Card>

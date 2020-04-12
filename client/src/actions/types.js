@@ -17,8 +17,6 @@ export const SET_SELECTED_ITEM_ONE = "SET_SELECTED_ITEM_ONE";
 export const SET_SELECTED_ITEM_TWO = "SET_SELECTED_ITEM_TWO";
 export const SET_ITEM_ONE_RANGE = "SET_ITEM_ONE_RANGE";
 export const SET_ITEM_TWO_RANGE = "SET_ITEM_TWO_RANGE";
-export const MERGE_CLIP = "MERGE_CLIP";
-export const TRIM_CLIP = "TRIM_CLIP";
 export const TRANSITION_CLIP = "TRANSITION_CLIP";
 
 export const SET_SYNC = "SET_SYNC";
@@ -33,8 +31,6 @@ export const DELETE_CAPTION = "DELETE_CAPTION";
 
 export const SET_PROGRESS_BAR = "SET_PROGRESS_BAR";
 
-export const ADD_CHROMA = "ADD_CHROMA";
-
 export const ENABLE_CAPTION = "ENABLE_CAPTION";
 
 export const ENABLE_USERGUIDE = "ENABLE_USERGUIDE";
@@ -44,5 +40,3 @@ export const SET_PROGRESS = "SET_PROGRESS";
 export const SET_FILENAME = "SET_FILENAME";
 
 export const SET_LOADING = "SET_LOADING";
-
-export const SAVE_RECORDING = "SAVE_RECORDING";

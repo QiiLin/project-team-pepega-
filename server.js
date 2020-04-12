@@ -32,6 +32,7 @@ app.use(
   })
 );
 app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
   bodyParser.urlencoded({
     extended: true,
@@ -47,9 +48,24 @@ app.use(session({
     name : 'app.sid',
     secret: secret,
     resave: false,
-    saveUninitialized: true,
-    cookie: {httpOnly: true, sameSite: true, secure: false}
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true, 
+      sameSite: true, 
+      secure: false,
+      maxAge: 60 * 60 * 1000, 
+    }
 }));
+
+
+const csrfProtection = csurf({cookie:false});
+app.use(csrfProtection);
+
+app.use(function (req, res, next) {
+  var csrfToken = req.csrfToken();
+  res.cookie('X-XSRF-TOKEN', csrfToken, {secure: false, sameSite:true});
+  next();
+});
 
 // Connect to mongo
 mongoose
@@ -81,12 +97,12 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-  // // Set static folder
-  // app.use(express.static("client/build"));
-  // app.get("*", (req, res) => {
-  //   // Current directory, go into client/build, and load the index.html file
-  //   res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-  // });
+  // Set static folder
+  app.use(express.static("client/build"));
+  app.get("*", (req, res) => {
+    // Current directory, go into client/build, and load the index.html file
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
 
 const port = process.env.PORT || 5000;
 
