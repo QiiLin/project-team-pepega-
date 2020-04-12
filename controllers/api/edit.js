@@ -8,16 +8,7 @@ const ffmpeg = require("../../controllers/ff_path");
 // Item model
 const Item = require("../../models/Item");
 const mongoose = require("mongoose");
-// import stream from 'stream';
-//const { gfs_prim } = require("../../middleware/gridSet");
 const { gfs_prim, upload } = require("../../middleware/gridSet");
-// const storage = multer.diskStorage({
-//   destination: path.join(__dirname, "../../video_input/"),
-//   filename: function (req, file, callback) {
-//     callback(null, "recording.mp3")
-//   }
-// });
-//const upload = multer({ dest: path.join(__dirname, "../../recordings/") });
 const crypto = require("crypto");
 const validator = require('validator');
 
