@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
 const check = require("../../middleware/check");
-const {auth, isAuth} = require("../../middleware/auth");
+const { auth, isAuth } = require("../../middleware/auth");
 // User model
 const User = require("../../models/User");
 const cookie = require('cookie');
@@ -14,6 +14,7 @@ const cookie = require('cookie');
 // @desc   Authenticate the user
 // @access public
 router.post("/", check.checkEmail, check.checkPassword, (req, res) => {
+  console.log("req.body authenticate: ", req.body)
   const {
     email,
     password
@@ -37,28 +38,28 @@ router.post("/", check.checkEmail, check.checkPassword, (req, res) => {
         msg: "Invalid credentials"
       });
       req.session.email = user.email;
-      jwt.sign({ id: user.id},
+      jwt.sign({ id: user.id },
         config.get("jwtSecret"), {
-          expiresIn: 3600
-        }, (err, token) => {
-          if (err) { return res.status(500).end(err); }
-          console.log("test");
-          // todo change secure to true
-          res.setHeader('Set-Cookie', cookie.serialize('token', token, {
-            path : '/', 
-            maxAge: 3600, // 1 week in number of seconds
-            httpOnly: true, 
-            sameSite: true, 
-            secure: false,
-          }));
-          res.json({
-            user: {
-              id: user.id,
-              name: user.name,
-              email: user.email
-            }
-          });
-        }
+        expiresIn: 3600
+      }, (err, token) => {
+        if (err) { return res.status(500).end(err); }
+        console.log("test");
+        // todo change secure to true
+        res.setHeader('Set-Cookie', cookie.serialize('token', token, {
+          path: '/',
+          maxAge: 3600, // 1 week in number of seconds
+          httpOnly: true,
+          sameSite: true,
+          secure: false,
+        }));
+        res.json({
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email
+          }
+        });
+      }
       );
     });
   });

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {auth} = require("../../middleware/auth");
+const { auth } = require("../../middleware/auth");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -100,10 +100,11 @@ function generateThumbnail(id, filename) {
   });
 }
 
-// @route  POST /api/caption
+// @route  POST /api/edit/caption
 // @desc   Create caption for the selected video
 // @access Private
-router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
+router.post("/caption/:id", auth, sanitizeFilename, (req, res) => {
+  console.log("req.body caption: ", req.body);
   res.set("Content-Type", "text/plain");
   // check if request has valid data
   if (!req.body.data) {
@@ -118,7 +119,7 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
   // start write the content of subtitle caption 
   let result = "";
   req.body.data.forEach(function (curr, index) {
-    if(isNaN(curr.start_time) || isNaN(curr.end_time)){
+    if (isNaN(curr.start_time) || isNaN(curr.end_time)) {
       return res.status(400).end("Bad argument: Missing timestamps");
     }
     let temp = "" + (index + 1) + "\n";
@@ -195,12 +196,12 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
               generateThumbnail(resultFile.id, fname)
-              .then(() => {
-                return res.status(200).json("Caption is added");
-              })
-              .catch((err) => {
-                return res.status(202).json("Caption is added: ", err)
-              });
+                .then(() => {
+                  return res.status(200).json("Caption is added");
+                })
+                .catch((err) => {
+                  return res.status(202).json("Caption is added: ", err)
+                });
             })
             .writeToStream(resultFile);
         });
@@ -216,7 +217,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
   console.log(req.params.id)
   console.log(req.body.merge_vid_id)
-  if (!req.params.id || !req.body.merge_vid_id){
+  if (!req.params.id || !req.body.merge_vid_id) {
     return res.status(400).end("Bad argument: Missing video id");
   }
   if (!req.body.uploader_id) {
@@ -337,12 +338,12 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                           console.log("Could not remove Merge2 tmp file:" + err);
                       });
                       generateThumbnail(result.id, fname)
-                      .then(() => {
-                        return res.status(200).json("Merging is completed");
-                      })
-                      .catch((err) => {
-                        return res.status(202).json("Merging is completed: ", err)
-                      });
+                        .then(() => {
+                          return res.status(200).json("Merging is completed");
+                        })
+                        .catch((err) => {
+                          return res.status(202).json("Merging is completed: ", err)
+                        });
                     })
                     .mergeToFile(result, pathOut_tmp);
                 })
@@ -359,8 +360,8 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
 router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
-  res.set("Content-Type", "text/plain");  
-  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
+  res.set("Content-Type", "text/plain");
+  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)) {
     return res.status(400).end("timestamp required");
   }
   if (!req.body.uploader_id) {
@@ -400,12 +401,12 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
         })
         .on("end", function () {
           generateThumbnail(result.id, fname)
-          .then(() => {
-            return res.status(200).json("Cut is completed");
-          })
-          .catch((err) => {
-            return res.status(202).json("Cut is completed: ", err)
-          });
+            .then(() => {
+              return res.status(200).json("Cut is completed");
+            })
+            .catch((err) => {
+              return res.status(202).json("Cut is completed: ", err)
+            });
         })
         .writeToStream(result);
     });
@@ -422,7 +423,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
 
   console.log("start: ", timestampStart);
   console.log("end: ", timestampEnd);
-  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
+  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)) {
     return res.status(400).end("timestamp required");
   }
   if (!req.body.uploader_id) {
@@ -538,12 +539,12 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
                         console.log("Could not remove Trim2 tmp file:" + err);
                     });
                     generateThumbnail(result.id, fname)
-                    .then(() => {
-                      return res.status(200).json("Trimming is completed");
-                    })
-                    .catch((err) => {
-                      return res.status(202).json("Trimming is completed: ", err)
-                    });
+                      .then(() => {
+                        return res.status(200).json("Trimming is completed");
+                      })
+                      .catch((err) => {
+                        return res.status(202).json("Trimming is completed: ", err)
+                      });
                   })
                   .mergeToFile(result, pathOut_tmp);
               })
@@ -578,9 +579,9 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
 // @route  POST /api/edit/transition/:id/
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
-router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
+router.post("/transition/:id", auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
-  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
+  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)) {
     return res.status(400).end("timestamp required");
   }
   if (!req.body.transitionType) {
@@ -602,11 +603,11 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
         originalname: fname
       }
     });
-    
-    Promise.all([item, itemCopy]).then(function(itm) {
+
+    Promise.all([item, itemCopy]).then(function (itm) {
       let currStream = itm[0];
       let currStreamCopy = itm[1];
-      ffmpeg.ffprobe(currStream, function(err, metadata) {
+      ffmpeg.ffprobe(currStream, function (err, metadata) {
         let duration = metadata ? metadata.format.duration : 5;
         ffmpeg(currStreamCopy)
           .format("webm")
@@ -627,12 +628,12 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
           })
           .on("end", function () {
             generateThumbnail(result.id, fname)
-            .then(() => {
-              return res.status(200).json("Transition is completed");
-            })
-            .catch((err) => {
-              return res.status(202).json("Transition is completed: ", err)
-            });
+              .then(() => {
+                return res.status(200).json("Transition is completed");
+              })
+              .catch((err) => {
+                return res.status(202).json("Transition is completed: ", err)
+              });
           })
           .saveToFile(result);
       });
