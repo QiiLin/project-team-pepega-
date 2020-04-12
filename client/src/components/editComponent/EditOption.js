@@ -337,6 +337,25 @@ class EditOption extends React.Component {
                 Cut
               </Button>
           </Grid>
+          {/*<Grid>
+            <InputLabel>Select a video to insert audio</InputLabel>
+            <Select
+              className="edit-dropdown"
+              style={{
+              minWidth: 180
+            }}
+              value={this.state.merge_dropdownValue}
+              onChange={this.merge_dropdownChanged}>
+              {items
+                .filter(({contentType}) => (contentType.includes("video") ? true : false))
+                .filter(({metadata}) => (metadata == null ? false : !(metadata.originalname === undefined)))
+                .map(({_id, metadata}) => (
+                <MenuItem className="edit-dropdown-item" key={_id} value={_id}>
+                  {metadata.originalname}
+                </MenuItem>
+              ))}
+            </Select>
+          </Grid>*/}
         </Grid>
         <br/>
         <Grid container direction="row" justify="space-around" alignItems="flex-start">

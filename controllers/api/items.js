@@ -45,10 +45,10 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
   newItem.save();*/
   edit.generateThumbnail(req.file.id, req.file.filename)
   .then(() => {
-    return res.status(200).json("Upload is completed");
+    return res.status(200).json({response: "Upload is completed"});
   })
   .catch((err) => {
-    return res.status(202).json("Upload is completed: ", err)
+    return res.status(202).json({response: "Upload is completed: " + err})
   });
   /*const { id, uploadDate, filename, md5, contentType } = req.file;  
   res.json({
@@ -68,9 +68,7 @@ router.get("/", auth, (req, res) => {
     gfs.files.find().toArray((err, files) => {
       // Check if files
       if (!files || files.length === 0) {
-        return res.status(404).json({
-          err: "No files exist"
-        });
+        return res.status(404).json({err: "No files exist"});
       }
       console.log("get item is called");
       // Files 
@@ -87,7 +85,7 @@ router.get("/", auth, (req, res) => {
         });
         return res.json(itm);
       });*/
-      return res.json(files);
+      return res.status(200).json(files);
     });
   });
 });
@@ -101,9 +99,7 @@ router.get('/:id', auth, (req, res) => {
     }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
-        return res.status(404).json({
-          err: 'No file exists'
-        });
+        return res.status(404).json({err: 'No file exists'});
       }
 
       console.log("mid getting");
@@ -131,9 +127,7 @@ router.get('/thumbnail/:id', auth, (req, res) => {
     }, (err, file) => {
       // Check if file
       if (!file || file.length === 0) {
-        return res.status(404).json({
-          err: 'No file exists'
-        });
+        return;
       }
 
       console.log("mid getting thumbnail", file.filename);
@@ -149,7 +143,7 @@ router.get('/thumbnail/:id', auth, (req, res) => {
         readstreamMetadata.pipe(res);
       });*/
       console.log("done getting thumbnail");
-      return res.status(200);
+      return;
     });
   });
 });
@@ -184,14 +178,12 @@ router.delete('/:id', auth, (req, res) => {
             root: 'fs'
           }, (err) => {
             if (err) {
-              return res.status(404).json({
-                err: err
-              });
+              return res.status(404).json({err: err});
             }
-            return res.status(200).json("delete done");
+            return res.status(200).json({response: "delete done"});
           });
         } else {
-          return res.status(200).json("delete done without thumbnail");
+          return res.status(200).json({response: "delete done without thumbnail"});
         }
       });
     });

@@ -8,16 +8,7 @@ const ffmpeg = require("../../controllers/ff_path");
 // Item model
 const Item = require("../../models/Item");
 const mongoose = require("mongoose");
-// import stream from 'stream';
-//const { gfs_prim } = require("../../middleware/gridSet");
 const { gfs_prim, upload } = require("../../middleware/gridSet");
-// const storage = multer.diskStorage({
-//   destination: path.join(__dirname, "../../video_input/"),
-//   filename: function (req, file, callback) {
-//     callback(null, "recording.mp3")
-//   }
-// });
-//const upload = multer({ dest: path.join(__dirname, "../../recordings/") });
 const crypto = require("crypto");
 const validator = require('validator');
 
@@ -107,11 +98,11 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
   res.set("Content-Type", "text/plain");
   // check if request has valid data
   if (!req.body.data) {
-    return res.status(400).end("Bad argument: Missing captions");
+    return res.status(400).json({error: "Bad argument: Missing captions"});
   }
   // check if request has valid uploader id
   if (!req.body.uploader_id) {
-    return res.status(400).end("Bad argument: Missing user id");
+    return res.status(400).json({error: "Bad argument: Missing user id"});
   }
   // check if the filename already exist
 
@@ -119,7 +110,7 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
   let result = "";
   req.body.data.forEach(function (curr, index) {
     if(isNaN(curr.start_time) || isNaN(curr.end_time)){
-      return res.status(400).end("Bad argument: Missing timestamps");
+      return res.status(400).json({error: "Bad argument: Missing timestamps"});
     }
     let temp = "" + (index + 1) + "\n";
     temp += curr.start_time + " --> " + curr.end_time + "\n";
@@ -185,7 +176,7 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
               fs.unlink(srt_path, err => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
-              return res.status(500).json("An error occurred [Caption]: " + err.message);
+              return res.status(500).json({error: "An error occurred [Caption]: " + err.message});
             })
             .on("stderr", function (stderrLine) {
               console.log("Stderr output [Subtitle]:: " + stderrLine);
@@ -196,10 +187,10 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
               });
               generateThumbnail(resultFile.id, fname)
               .then(() => {
-                return res.status(200).json("Caption is added");
+                return res.status(200).json({response: "Caption is added"});
               })
               .catch((err) => {
-                return res.status(202).json("Caption is added: ", err)
+                return res.status(202).json({response: "Caption is added: " + err});
               });
             })
             .writeToStream(resultFile);
@@ -217,10 +208,10 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
   console.log(req.params.id)
   console.log(req.body.merge_vid_id)
   if (!req.params.id || !req.body.merge_vid_id){
-    return res.status(400).end("Bad argument: Missing video id");
+    return res.status(400).json({error: "Bad argument: Missing video id"});
   }
   if (!req.body.uploader_id) {
-    return res.status(400).end("Bad argument: Missing user id");
+    return res.status(400).json({error: "Bad argument: Missing user id"});
   }
 
   gfs_prim.then(function (gfs) {
@@ -278,7 +269,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
               console.log(`[Merge1]: ${JSON.stringify(progress)}`);
             })
             .on("error", function (err) {
-              return res.status(500).json("An error occurred [Merge1]:", err.message);
+              return res.status(500).json({error: "An error occurred [Merge1]: " + err.message});
             })
             .on('stderr', function (stderrLine) {
               console.log('Stderr output [Merge1]: ' + stderrLine);
@@ -300,7 +291,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                     if (err)
                       console.log("Could not remove Merge1 tmp file:" + err);
                   });
-                  return res.status(500).json("An error occurred [Merge2]:", err.message);
+                  return res.status(500).json({error: "An error occurred [Merge2]: " + err.message});
                 })
                 .on('stderr', function (stderrLine) {
                   console.log('Stderr output [Merge2]:: ' + stderrLine);
@@ -322,7 +313,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                         if (err)
                           console.log("Could not remove Merge2 tmp file:" + err);
                       });
-                      return res.status(500).json("An error occurred [MergeCombine]:", err.message);
+                      return res.status(500).json({error: "An error occurred [MergeCombine]: " + err.message});
                     })
                     .on('stderr', function (stderrLine) {
                       console.log('Stderr output [MergeCombine]:: ' + stderrLine);
@@ -338,10 +329,10 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                       });
                       generateThumbnail(result.id, fname)
                       .then(() => {
-                        return res.status(200).json("Merging is completed");
+                        return res.status(200).json({response: "Merging is completed"});
                       })
                       .catch((err) => {
-                        return res.status(202).json("Merging is completed: ", err)
+                        return res.status(202).json({response: "Merging is completed: " + err});
                       });
                     })
                     .mergeToFile(result, pathOut_tmp);
@@ -361,10 +352,10 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
 router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
   res.set("Content-Type", "text/plain");  
   if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
-    return res.status(400).end("timestamp required");
+    return res.status(400).json({error: "timestamp required"});
   }
   if (!req.body.uploader_id) {
-    return res.status(400).end("Bad argument: Missing user id");
+    return res.status(400).json({error: "Bad argument: Missing user id"});
   }
 
   gfs_prim.then(gfs => {
@@ -396,15 +387,15 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
           console.log("Stderr output [Cut]: " + stderrLine);
         })
         .on("error", function (err) {
-          return res.status(500).json("An error occurred [Cut]: " + err.message);
+          return res.status(500).json({error: "An error occurred [Cut]: " + err.message});
         })
         .on("end", function () {
           generateThumbnail(result.id, fname)
           .then(() => {
-            return res.status(200).json("Cut is completed");
+            return res.status(200).json({response: "Cut is completed"});
           })
           .catch((err) => {
-            return res.status(202).json("Cut is completed: ", err)
+            return res.status(202).json({response: "Cut is completed: " + err});
           });
         })
         .writeToStream(result);
@@ -423,10 +414,10 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
   console.log("start: ", timestampStart);
   console.log("end: ", timestampEnd);
   if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
-    return res.status(400).end("timestamp required");
+    return res.status(400).json({error: "timestamp required"});
   }
   if (!req.body.uploader_id) {
-    return res.status(400).end("Bad argument: Missing user id");
+    return res.status(400).json({error: "Bad argument: Missing user id"});
   }
 
   gfs_prim.then(function (gfs) {
@@ -483,7 +474,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
             console.log("Stderr output [Trim1]: " + stderrLine);
           })
           .on("error", function (err) {
-            return res.status(500).json("An error occurred [Trim1]:", err.message);
+            return res.status(500).json({error: "An error occurred [Trim1]:" + err.message});
           })
           .on("end", function () {
             ffmpeg(itemCopyOneStream)
@@ -504,7 +495,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
                   if (err)
                     console.log("Could not remove Trim2 tmp file:" + err);
                 });
-                return res.status(500).json("An error occurred [Trim2]:", err.message);
+                return res.status(500).json({error: "An error occurred [Trim2]:" + err.message});
               })
               .on("end", function () {
                 ffmpeg({ source: path1_tmp })
@@ -523,7 +514,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
                       if (err)
                         console.log("Could not remove Trim2 tmp file:" + err);
                     });
-                    return res.status(500).json("An error occurred [TrimCombine]:", err.message);
+                    return res.status(500).json({error: "An error occurred [TrimCombine]:" + err.message});
                   })
                   .on("stderr", function (stderrLine) {
                     console.log("Stderr output [TrimCombine]:: " + stderrLine);
@@ -539,10 +530,10 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
                     });
                     generateThumbnail(result.id, fname)
                     .then(() => {
-                      return res.status(200).json("Trimming is completed");
+                      return res.status(200).json({response: "Trimming is completed"});
                     })
                     .catch((err) => {
-                      return res.status(202).json("Trimming is completed: ", err)
+                      return res.status(202).json({response: "Trimming is completed: " + err});
                     });
                   })
                   .mergeToFile(result, pathOut_tmp);
@@ -575,19 +566,76 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
       .save(pathOut_path);*/
 });
 
+// @route  POST /api/edit/cut/:id/
+// @desc   Cut video section at timestampOld of video from id and move to timestampNew
+// @access Private
+router.post("/insertAudio/:id", sanitizeFilename, auth, (req, res) => {
+  res.set("Content-Type", "text/plain");  
+  if (isNaN(req.body.timestampStart)){
+    return res.status(400).json({error: "timestamp required"});
+  }
+  if (!req.body.uploader_id) {
+    return res.status(400).json({error: "Bad argument: Missing user id"});
+  }
+
+  gfs_prim.then(gfs => {
+    const fname = req.body.filename + ".webm";
+    let result = gfs.createWriteStream({
+      filename: fname,
+      mode: "w",
+      content_type: "video/webm",
+      metadata: {
+        uploader_id: req.body.uploader_id,
+        originalname: fname
+      }
+    });
+    let duration = req.body.timestampEnd - req.body.timestampStart;
+    let itemOne = retrievePromise(req.params.id, gfs);
+    itemOne.then(item => {
+      ffmpeg(item)
+        .format("webm")
+        .withVideoCodec("libvpx")
+        .withVideoBitrate(1024)
+        .withAudioCodec("libvorbis")
+        .outputOption([`-ss ${req.body.timestampStart}`, `-t ${duration}`]) //set starting seconds
+        .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
+        .outputOption(["-metadata", `duration=${duration}`])
+        .on("progress", progress => {
+          console.log(`[Cut]: ${JSON.stringify(progress)}`);
+        })
+        .on("stderr", function (stderrLine) {
+          console.log("Stderr output [Cut]: " + stderrLine);
+        })
+        .on("error", function (err) {
+          return res.status(500).json({error: "An error occurred [Cut]: " + err.message});
+        })
+        .on("end", function () {
+          generateThumbnail(result.id, fname)
+          .then(() => {
+            return res.status(200).json({response: "Cut is completed"});
+          })
+          .catch((err) => {
+            return res.status(202).json({response: "Cut is completed: " + err});
+          });
+        })
+        .writeToStream(result);
+    });
+  });
+});
+
 // @route  POST /api/edit/transition/:id/
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
 router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
   res.set("Content-Type", "text/plain");
   if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
-    return res.status(400).end("timestamp required");
+    return res.status(400).json({error: "timestamp required"});
   }
   if (!req.body.transitionType) {
-    return res.status(400).end("transition type required");
+    return res.status(400).json({error: "transition type required"});
   }
   if (!req.body.uploader_id) {
-    return res.status(400).end("Bad argument: Missing user id");
+    return res.status(400).json({error: "Bad argument: Missing user id"});
   }
   gfs_prim.then(function (gfs) {
     let item = retrievePromise(req.params.id, gfs);
@@ -623,15 +671,15 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
             console.log("Stderr output [Transition]: " + stderrLine);
           })
           .on("error", function (err) {
-            return res.status(500).json("An error occurred [Transition]:", err.message);
+            return res.status(500).json({error: "An error occurred [Transition]: " + err.message});
           })
           .on("end", function () {
             generateThumbnail(result.id, fname)
             .then(() => {
-              return res.status(200).json("Transition is completed");
+              return res.status(200).json({response: "Transition is completed"});
             })
             .catch((err) => {
-              return res.status(202).json("Transition is completed: ", err)
+              return res.status(202).json({response: "Transition is completed: " + err})
             });
           })
           .saveToFile(result);
@@ -644,7 +692,7 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
 // @desc  Save the user recording into the database once the Stop button is pressed
 router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async (req, res) => {
   if (!req.body.uploader_id) {
-    return res.status(400).end("Bad argument: Missing user id");
+    return res.status(400).json({error: "Bad argument: Missing user id"});
   }
   const fname = req.body.filename + ".mp3";
   let metadata = {
@@ -654,10 +702,10 @@ router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async 
   gfs_prim.then(function (gfs) {
     gfs.files.update({ _id: mongoose.Types.ObjectId(req.file.id) }, { '$set': { 'metadata': metadata } })
       .then(() => {
-        return res.status(200).json("Mp3 file saved");
+        return res.status(200).json({response: "Mp3 file saved"});
       })
       .catch((err) => {
-        return res.status(202).json("Mp3 file saved: ", err);
+        return res.status(202).json({response: "Mp3 file saved: " + err});
       })
   });
 });
