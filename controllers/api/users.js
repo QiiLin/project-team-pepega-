@@ -4,9 +4,23 @@ const bcrypt = require("bcryptjs");
 const config = require("config");
 const jwt = require("jsonwebtoken");
 const check = require("../../middleware/check")
-
+const {auth} = require("../../middleware/auth")
+const cookie = require('cookie');
 // User model
 const User = require("../../models/User");
+router.post("/logout", auth, (req,res) => {
+  console.log("reached")
+  // set the age to 30s
+  res.setHeader('Set-Cookie', cookie.serialize('token', '', {
+    path : '/', 
+    maxAge: 30, 
+    // TODO use this when it is on server
+    // httpOnly: true, 
+    // sameSite: true, 
+    // secure: false,
+  }));
+  res.redirect('/');
+});
 
 // @route  POST /api/users
 // @desc   Register a new user
@@ -51,7 +65,14 @@ router.post("/", check.checkName, check.checkEmail, check.checkPassword, (req, r
               expiresIn: 3600
             },
             (err, token) => {
-              if (err) throw err;
+              if (err) { return res.status(500).end(err); }
+              res.setHeader('Set-Cookie', cookie.serialize('token', token, {
+                path : '/', 
+                maxAge: 3600, // 1 week in number of seconds
+                httpOnly: true, 
+                sameSite: true, 
+                secure: false,
+              }));
               res.json({
                 token: token,
                 user: {
@@ -67,5 +88,7 @@ router.post("/", check.checkName, check.checkEmail, check.checkPassword, (req, r
     });
   });
 });
+
+
 
 module.exports = router;

@@ -8,8 +8,8 @@ const csurf = require('csurf')
 const app = express();
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const cookie = require('cookie');
 
+const csrfProtection = csurf();
 // enable helmet
 // app.use(helmet());
 // // enable helmet Content Security Policy
@@ -32,6 +32,7 @@ app.use(
   })
 );
 app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
   bodyParser.urlencoded({
     extended: true,
@@ -45,11 +46,39 @@ const session = require("express-session");
 app.use(cookieParser());
 app.use(session({
     name : 'app.sid',
-    secret: "1234567890QWERTY",
+    secret: secret,
     resave: false,
-    saveUninitialized: true,
-    cookie: {httpOnly: true, sameSite: true, secure: false}
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true, 
+      sameSite: true, 
+      secure: false,
+      maxAge: 60 * 60 * 1000, 
+    }
 }));
+
+// app.use(function (req, res, next) {	
+//   console.log("before")
+//   console.log(req.cookies);	
+//   next();	
+// });
+
+
+// // app.use(csrfProtection);
+
+// // app.use(function (req, res, next) {
+// //   var csrfToken = req.csrfToken();
+// //   res.cookie('X-XSRF-TOKEN', csrfToken);
+// //   res.locals.csrfToken = csrfToken;
+// //   next();
+// // });
+
+// app.use(function (req, res, next) {	
+//   console.log(req.cookies);	
+//   console.log("after")
+//   next();	
+// });
+
 
 // Connect to mongo
 mongoose
@@ -83,8 +112,11 @@ if (process.env.NODE_ENV === "production") {
 
   // Set static folder
   app.use(express.static("client/build"));
+	app.use((req, res, next) => {
+		// res.cookie("XSRF-TOKEN", req.csrfToken())
+		next()
+	})
   app.get("*", (req, res) => {
-    res.cookie('XSRF-TOKEN', req.csrfToken())
     // Current directory, go into client/build, and load the index.html file
     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
   });
