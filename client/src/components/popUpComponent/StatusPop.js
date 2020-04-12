@@ -34,23 +34,17 @@ class StatusPop extends React.Component {
           >
             <DialogTitle id="max-width-dialog-title">User Guide</DialogTitle>
             <DialogContent>
-              <DialogContentText>
+              
                 {/* {this.props.inputText} */}
-                Merge:
-
+                <DialogContentText>Merge:</DialogContentText>
                 <hr/>
-
-                Tirm:
-
+                <DialogContentText>Trim:</DialogContentText>
                 <hr/>
-
-                Transition:
+                <DialogContentText>Transition:</DialogContentText>
                 <hr/>
-
-                Caption: 
+                <DialogContentText>Caption:</DialogContentText> 
                 <hr/>
                 
-              </DialogContentText>
             </DialogContent>
             <DialogActions>
               <Button onClick={this.props.setEnableGuide} color="primary">

@@ -39,6 +39,7 @@ import Paper from '@material-ui/core/Paper';
 import {setLoading, setProgress} from "../../actions/editActions";
 import TextField from '@material-ui/core/TextField';
 import SingleRecorder from "./Recorder";
+import { returnErrors } from "../../actions/errorActions";
 
 String.prototype.toHHMMSS = function () {
   var sec_num = parseInt(this, 10); // don't forget the second param
@@ -163,15 +164,19 @@ class EditOption extends React.Component {
   addCaption = () => {
     const {videoOneSelection} = this.props.item;
     const {captionValue, captions} = this.props.edit;
-    let startTime = parseInt(videoOneSelection[0], 10) + "";
-    let endTime = parseInt(videoOneSelection[1], 10) + "";
-    let curr = {
-      start_time: startTime.toHHMMSS() + ",000",
-      end_time: endTime.toHHMMSS() + ",000",
-      text: captionValue,
-      index: captions.length + 1
-    };
-    this.props.addCaption(curr);
+    if(isNaN(videoOneSelection[0]) || isNaN(videoOneSelection[1])){
+      returnErrors("Range selector must be set", 400);
+    }else{
+      let startTime = parseInt(videoOneSelection[0], 10) + "";
+      let endTime = parseInt(videoOneSelection[1], 10) + "";
+      let curr = {
+        start_time: startTime.toHHMMSS() + ",000",
+        end_time: endTime.toHHMMSS() + ",000",
+        text: captionValue,
+        index: captions.length + 1
+      };
+      this.props.addCaption(curr);
+    }
   };
 
   burnVideo = () => {
@@ -250,6 +255,7 @@ class EditOption extends React.Component {
               onChange={this.merge_dropdownChanged}>
               {items
                 .filter(({contentType}) => (contentType.includes("video") ? true : false))
+                .filter(({metadata}) => (metadata == null ? false : !(metadata.originalname === undefined)))
                 .map(({_id, metadata}) => (
                 <MenuItem className="edit-dropdown-item" key={_id} value={_id}>
                   {metadata.originalname}

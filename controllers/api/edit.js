@@ -23,7 +23,8 @@ function sanitizeFilename(req, res, next) {
   if (req.body.filename) {
     req.body.filename = validator.escape(req.body.filename);
   } else {
-    req.body.filename = crypto.randomBytes(16).toString("hex");
+    let timeInMilliseconds = new Date().getTime();
+    req.body.filename = crypto.randomBytes(14).toString("hex") + timeInMilliseconds;
   }
   next();
 }
@@ -97,17 +98,20 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
   res.set("Content-Type", "text/plain");
   // check if request has valid data
   if (!req.body.data) {
-    return res.status(400).end("Bad argument: Missing data");
+    return res.status(400).end("Bad argument: Missing captions");
   }
   // check if request has valid uploader id
   if (!req.body.uploader_id) {
-    return res.status(400).end("Bad argument: Missing data");
+    return res.status(400).end("Bad argument: Missing user id");
   }
   // check if the filename already exist
 
   // start write the content of subtitle caption 
   let result = "";
   req.body.data.forEach(function (curr, index) {
+    if(isNaN(curr.start_time) || isNaN(curr.end_time)){
+      return res.status(400).end("Bad argument: Missing timestamps");
+    }
     let temp = "" + (index + 1) + "\n";
     temp += curr.start_time + " --> " + curr.end_time + "\n";
     temp += curr.text + "\n";
@@ -172,9 +176,7 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
               fs.unlink(srt_path, err => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
-              return res
-                .status(500)
-                .json("An error occurred [Caption]: " + err.message);
+              return res.status(500).json("An error occurred [Caption]: " + err.message);
             })
             .on("stderr", function (stderrLine) {
               console.log("Stderr output [Subtitle]:: " + stderrLine);
@@ -183,7 +185,6 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
               fs.unlink(srt_path, err => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
-              // TODO return data with path to access the file in the database
               generateThumbnail(resultFile.id, fname)
               .then(() => {
                 return res.status(200).json("Caption is added");
@@ -206,8 +207,12 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
   console.log(req.params.id)
   console.log(req.body.merge_vid_id)
-  if (!req.params.id || !req.body.merge_vid_id)
-    return res.status(400).end("video id for merging required");
+  if (!req.params.id || !req.body.merge_vid_id){
+    return res.status(400).end("Bad argument: Missing video id");
+  }
+  if (!req.body.uploader_id) {
+    return res.status(400).end("Bad argument: Missing user id");
+  }
 
   gfs_prim.then(function (gfs) {
     let itemOne = retrievePromise(req.params.id, gfs);
@@ -264,7 +269,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
               console.log(`[Merge1]: ${JSON.stringify(progress)}`);
             })
             .on("error", function (err) {
-              res.json("An error occurred [Merge1]: " + err.message);
+              return res.status(500).json("An error occurred [Merge1]:", err.message);
             })
             .on('stderr', function (stderrLine) {
               console.log('Stderr output [Merge1]: ' + stderrLine);
@@ -286,7 +291,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                     if (err)
                       console.log("Could not remove Merge1 tmp file:" + err);
                   });
-                  return res.json("An error occurred [Merge2]: " + err.message);
+                  return res.status(500).json("An error occurred [Merge2]:", err.message);
                 })
                 .on('stderr', function (stderrLine) {
                   console.log('Stderr output [Merge2]:: ' + stderrLine);
@@ -308,7 +313,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                         if (err)
                           console.log("Could not remove Merge2 tmp file:" + err);
                       });
-                      return res.json("An error occurred [MergeCombine]: " + err.message);
+                      return res.status(500).json("An error occurred [MergeCombine]:", err.message);
                     })
                     .on('stderr', function (stderrLine) {
                       console.log('Stderr output [MergeCombine]:: ' + stderrLine);
@@ -345,9 +350,14 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
 router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
-  res.set("Content-Type", "text/plain");
-  if (!req.body.timestampStart || !req.body.timestampEnd)
+  res.set("Content-Type", "text/plain");  
+  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
     return res.status(400).end("timestamp required");
+  }
+  if (!req.body.uploader_id) {
+    return res.status(400).end("Bad argument: Missing user id");
+  }
+
   gfs_prim.then(gfs => {
     const fname = req.body.filename + ".webm";
     let result = gfs.createWriteStream({
@@ -363,20 +373,21 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
     let itemOne = retrievePromise(req.params.id, gfs);
     itemOne.then(item => {
       ffmpeg(item)
-        .setStartTime(req.body.timestampStart) //Can be in "HH:MM:SS" format also
-        .setDuration(duration)
+        .format("webm")
+        .withVideoCodec("libvpx")
+        .withVideoBitrate(1024)
+        .withAudioCodec("libvorbis")
+        .outputOption([`-ss ${req.body.timestampStart}`, `-t ${duration}`]) //set starting seconds
         .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
         .outputOption(["-metadata", `duration=${duration}`])
         .on("progress", progress => {
-          console.log(`[Cut1]: ${JSON.stringify(progress)}`);
+          console.log(`[Cut]: ${JSON.stringify(progress)}`);
         })
         .on("stderr", function (stderrLine) {
-          console.log("Stderr output [Cut1]: " + stderrLine);
+          console.log("Stderr output [Cut]: " + stderrLine);
         })
         .on("error", function (err) {
-          return res
-            .status(500)
-            .json("An error occurred [Cut1]: " + err.message);
+          return res.status(500).json("An error occurred [Cut]: " + err.message);
         })
         .on("end", function () {
           generateThumbnail(result.id, fname)
@@ -396,15 +407,19 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
 // @desc   Remove video section at timestampStart & timestampEnd from body
 // @access Private
 router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
-  let timestampStart = req.body.timestampStart;
+  //can't have 0 as video duration so set to smallest possible
+  let timestampStart = req.body.timestampStart == "0" ? "0.001" : req.body.timestampStart;
   let timestampEnd = req.body.timestampEnd;
+
   console.log("start: ", timestampStart);
   console.log("end: ", timestampEnd);
-  if (!timestampStart || !timestampEnd)
+  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
     return res.status(400).end("timestamp required");
-  if (timestampStart === "0" || timestampStart === "00:00:00.000")
-    //starting at 0 not allowed by library
-    timestampStart = "00:00:00.001";
+  }
+  if (!req.body.uploader_id) {
+    return res.status(400).end("Bad argument: Missing user id");
+  }
+
   gfs_prim.then(function (gfs) {
     let itemOne = retrievePromise(req.params.id, gfs);
     let itemOneCopy = retrievePromise(req.params.id, gfs);
@@ -451,7 +466,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
           .addOptions(["-b:v 0", "-crf 30"])
           .withVideoBitrate(1024)
           .withAudioCodec("libvorbis")
-          .setDuration(timestampStart)
+          .outputOption([`-t ${timestampStart}`]) //set starting seconds
           .on("progress", progress => {
             console.log(`[Trim1]: ${JSON.stringify(progress)}`);
           })
@@ -459,7 +474,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
             console.log("Stderr output [Trim1]: " + stderrLine);
           })
           .on("error", function (err) {
-            res.json("An error occurred [Trim1]: " + err.message);
+            return res.status(500).json("An error occurred [Trim1]:", err.message);
           })
           .on("end", function () {
             ffmpeg(itemCopyOneStream)
@@ -468,8 +483,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
               .addOptions(["-b:v 0", "-crf 30"])
               .withVideoBitrate(1024)
               .withAudioCodec("libvorbis")
-              .setStartTime(timestampEnd)
-              .setDuration(duration)
+              .outputOption([`-ss ${timestampEnd}`, `-t ${duration}`]) //set starting seconds
               .on("progress", progress => {
                 console.log(`[Trim2]: ${JSON.stringify(progress)}`);
               })
@@ -481,7 +495,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
                   if (err)
                     console.log("Could not remove Trim2 tmp file:" + err);
                 });
-                res.json("An error occurred [Trim2]: " + err.message);
+                return res.status(500).json("An error occurred [Trim2]:", err.message);
               })
               .on("end", function () {
                 ffmpeg({ source: path1_tmp })
@@ -489,7 +503,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
                   .outputOption(["-metadata", `duration=${duration - (timestampEnd - timestampStart)}`])
                   .mergeAdd(path2_tmp)
                   .on("progress", progress => {
-                    console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
+                    console.log(`[TrimCombine]: ${JSON.stringify(progress)}`);
                   })
                   .on("error", function (err) {
                     fs.unlink(path1_tmp, err => {
@@ -500,10 +514,10 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
                       if (err)
                         console.log("Could not remove Trim2 tmp file:" + err);
                     });
-                    res.json("An error occurred [TrimCombine]: " + err.message);
+                    return res.status(500).json("An error occurred [TrimCombine]:", err.message);
                   })
                   .on("stderr", function (stderrLine) {
-                    console.log("Stderr output [MergeCombine]:: " + stderrLine);
+                    console.log("Stderr output [TrimCombine]:: " + stderrLine);
                   })
                   .on("end", function () {
                     fs.unlink(path1_tmp, err => {
@@ -557,8 +571,14 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
 // @access Private
 router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
   res.set("Content-Type", "text/plain");
+  if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
+    return res.status(400).end("timestamp required");
+  }
   if (!req.body.transitionType) {
     return res.status(400).end("transition type required");
+  }
+  if (!req.body.uploader_id) {
+    return res.status(400).end("Bad argument: Missing user id");
   }
   gfs_prim.then(function (gfs) {
     let item = retrievePromise(req.params.id, gfs);
@@ -588,21 +608,21 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
           .withAudioCodec("libvorbis")
           .videoFilters(`${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`)
           .on("progress", progress => {
-            console.log(`[Transition1]: ${JSON.stringify(progress)}`);
+            console.log(`[Transition]: ${JSON.stringify(progress)}`);
           })
           .on("stderr", function (stderrLine) {
-            console.log("Stderr output [Transition1]: " + stderrLine);
+            console.log("Stderr output [Transition]: " + stderrLine);
           })
           .on("error", function (err) {
-            return res.json("An error occurred [Transition1]: ", err.message);
+            return res.status(500).json("An error occurred [Transition]:", err.message);
           })
           .on("end", function () {
             generateThumbnail(result.id, fname)
             .then(() => {
-              return res.status(200).json("Trimming is completed");
+              return res.status(200).json("Transition is completed");
             })
             .catch((err) => {
-              return res.status(202).json("Trimming is completed: ", err)
+              return res.status(202).json("Transition is completed: ", err)
             });
           })
           .saveToFile(result);
@@ -614,6 +634,9 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
 // @route POST /api/edit/saveMP3
 // @desc  Save the user recording into the database once the Stop button is pressed
 router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async (req, res) => {
+  if (!req.body.uploader_id) {
+    return res.status(400).end("Bad argument: Missing user id");
+  }
   const fname = req.body.filename + ".mp3";
   let metadata = {
     uploader_id: req.body.uploader_id,
@@ -621,8 +644,13 @@ router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async 
   };
   gfs_prim.then(function (gfs) {
     gfs.files.update({ _id: mongoose.Types.ObjectId(req.file.id) }, { '$set': { 'metadata': metadata } })
+      .then(() => {
+        return res.status(200).json("Mp3 file saved");
+      })
+      .catch((err) => {
+        return res.status(202).json("Mp3 file saved: ", err);
+      })
   });
-  return res.json("mp3 file saved")
 });
 
 module.exports = {
