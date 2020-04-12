@@ -1,15 +1,11 @@
 import {
   ADD_CAPTION,
   DELETE_CAPTION,
-  MERGE_CLIP,
   RESET_CAPTION,
   SET_CAPTION,
   SET_DURATION_ONE,
   SET_DURATION_TWO,
   SET_SYNC,
-  TRIM_CLIP,
-  TRANSITION_CLIP,
-  ADD_CHROMA,
   ENABLE_CAPTION,
   ENABLE_USERGUIDE,
   SET_PROGRESS,
@@ -54,23 +50,6 @@ const initialState = {
 export default function (state = initialState, action) {
   // console.log(action);
   switch (action.type) {
-    case MERGE_CLIP:
-      return {
-        ...state,
-        items: action.payload
-      };
-    case TRIM_CLIP:
-      console.log("editReducer trimclip: ", action.payload);
-      return {
-        ...state,
-        items: action.payload
-      };
-    case TRANSITION_CLIP:
-      console.log("editReducer transition: ", action.payload);
-      return {
-        ...state,
-        items: action.payload
-      };
     case SET_SYNC:
       return {
         ...state,
@@ -85,11 +64,6 @@ export default function (state = initialState, action) {
       return {
         ...state,
         durationVideoTwo: action.payload
-      };
-    case ADD_CHROMA:
-      return {
-        ...state,
-        items: action.payload
       };
     case ADD_CAPTION:
       return {

@@ -11,13 +11,13 @@ import {
 import MergeTypeIcon from "@material-ui/icons/MergeType";
 import HelpIcon from "@material-ui/icons/Help";
 import {
-  addCapation,
+  addCaption,
   captionClip,
   mergeClip,
   set_sync,
   trimClip,
+  cutClip,
   transitionClip,
-  addChroma,
   setEnableCap,
   saveMP3,
   addAudToVid,
@@ -25,22 +25,19 @@ import {
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
+import LocalDiningIcon from '@material-ui/icons/LocalDining';
 import AcUnitIcon from '@material-ui/icons/AcUnit';
 import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
 import AddIcon from '@material-ui/icons/Add';
 import {connect} from "react-redux";
 import {PropTypes} from "prop-types";
 import CaptionListView from "../CaptionListView";
-import PadTransitionComp from "./PadTransitionComp";
-import FadeTransitionComp from "./FadeTransitionComp";
 import {setVideoOneRange, setVideoTwoRange} from "../../actions/itemActions";
 import TimeLineSector from "./TimeLineSector";
 import {makeStyles} from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import {setLoading, setProgress} from "../../actions/editActions";
-import {InputGroup, Input} from 'reactstrap';
 import TextField from '@material-ui/core/TextField';
-
 import SingleRecorder from "./Recorder";
 
 String.prototype.toHHMMSS = function () {
@@ -61,29 +58,12 @@ String.prototype.toHHMMSS = function () {
   return hours + ":" + minutes + ":" + seconds;
 };
 
-let createStringOptions = options => {
-  let optionsList = [];
-  for (let i = 0; i < options; i++) {
-    optionsList.push(i.toString());
-  }
-  return optionsList;
-};
-
 class EditOption extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       merge_dropdownValue: "",
       transition_dropdownValue: "",
-      transition_startFrame: "",
-      transition_endFrame: "",
-      transition_paddingVidWidth: "",
-      transition_paddingVidHeight: "",
-      transition_paddingVidRow: "",
-      transition_paddingVidCol: "",
-      transition_paddingColor: "",
-      chroma_dropdownValue: "",
-      record: false,
       audio_dropdownValue: "",
       video_dropdownValue: ""
     };
@@ -106,21 +86,22 @@ class EditOption extends React.Component {
 
   trim_Submit = selectItemOne => {
     const {videoOneSelection} = this.props.item;
-    let bodyFormData = new FormData();
-    bodyFormData.append("timestampStart", videoOneSelection[0]);
-    bodyFormData.append("timestampEnd", videoOneSelection[1]);
+    const {_id} = this.props.user;
 
-    this.props.trimClip(selectItemOne, bodyFormData);
+    this.props.trimClip(selectItemOne, _id, videoOneSelection, this.props.newFileName);
+  };
+
+  cut_Submit = selectItemOne => {
+    const {videoOneSelection} = this.props.item;
+    const {_id} = this.props.user;
+
+    this.props.cutClip(selectItemOne, _id, videoOneSelection, this.props.newFileName);
   };
 
   merge_dropdownSubmit = selectItemOne => {
-    let bodyFormData = new FormData();
-    bodyFormData.append("curr_vid_id", selectItemOne);
-    bodyFormData.append("merge_vid_id", this.state.merge_dropdownValue);
-    bodyFormData.append("uploader_id", this.props.user._id);
-
+    const {_id} = this.props.user;
     // Add video through add item action
-    this.props.mergeClip(bodyFormData);
+    this.props.mergeClip(selectItemOne, _id, this.state.merge_dropdownValue, this.props.newFileName);
   };
 
   merge_dropdownChanged = event => {
@@ -129,84 +110,20 @@ class EditOption extends React.Component {
     });
   };
 
-  transition_dropdownSubmit = selectItemOne => {
-    let bodyFormData = new FormData();
-    bodyFormData.append("vid_id", selectItemOne);
-    // console.log(this.state.transition_dropdownValue);
-    bodyFormData.append("transitionType", this.state.transition_dropdownValue);
-    bodyFormData.append("transitionStartFrame", this.state.transition_startFrame);
-    bodyFormData.append("transitionEndFrame", this.state.transition_endFrame);
-    bodyFormData.append("transition_paddingVidWidth", this.state.transition_paddingVidWidth);
-    bodyFormData.append("transition_paddingVidHeight", this.state.transition_paddingVidHeight);
-    bodyFormData.append("transition_paddingColor", this.state.transition_paddingColor);
-    bodyFormData.append("transition_paddingVidRow", this.state.transition_paddingVidRow);
-    bodyFormData.append("transition_paddingVidCol", this.state.transition_paddingVidCol);
+  transition_dropdownSubmit = selectItemOne => {    
+    const {videoOneSelection} = this.props.item;
+    const {_id} = this.props.user;
 
     // Add transition effects through an item action
     this
       .props
-      .transitionClip(selectItemOne, bodyFormData);
+      .transitionClip(selectItemOne, _id, videoOneSelection, this.state.transition_dropdownValue, this.props.newFileName);
   };
 
   transition_dropdownChanged = event => {
     this.setState(() => {
       return {transition_dropdownValue: event.target.value};
     });
-  };
-
-  transition_startFrameChanged = event => {
-    this.setState(() => {
-      return {transition_startFrame: event.target.value};
-    });
-  };
-
-  transition_endFrameChanged = event => {
-    this.setState(() => {
-      return {transition_endFrame: event.target.value};
-    });
-  };
-
-  transition_paddingVidWidthChanged = event => {
-    event.persist();
-    this.setState(() => {
-      return {transition_paddingVidWidth: event.target.value};
-    });
-  };
-
-  transition_paddingVidHeightChanged = event => {
-    event.persist();
-    this.setState(() => {
-      return {transition_paddingVidHeight: event.target.value};
-    });
-  };
-
-  transition_paddingColorChanged = event => {
-    this.setState(() => {
-      return {transition_paddingColor: event.target.value};
-    });
-  };
-
-  transition_paddingVidColChanged = event => {
-    console.log(event);
-    this.setState(() => {
-      return {transition_paddingVidCol: event.target.value};
-    });
-  };
-
-  transition_paddingVidRowChanged = event => {
-    console.log(event);
-    this.setState(() => {
-      return {transition_paddingVidRow: event.target.value};
-    });
-  };
-
-  chroma_dropdownSubmit = selectItemOne => {
-    let bodyFormData = new FormData();
-    bodyFormData.append("vid_id", selectItemOne);
-    bodyFormData.append("command", this.state.chroma_dropdownValue);
-    this
-      .props
-      .addChroma(selectItemOne, bodyFormData);
   };
 
   chroma_dropdownChanged = event => {
@@ -223,9 +140,7 @@ class EditOption extends React.Component {
     bodyFormData.append("vid_id", selectItemOne);
     bodyFormData.append("audio_id", this.state.audio_dropdownValue);
     // bodyFormData.append("video", this.state.video_dropdownValue);
-    this
-      .props
-      .addAudToVid(selectItemOne, bodyFormData)
+    this.props.addAudToVid(selectItemOne, bodyFormData)
   }
 
   audio_dropdownChanged = event => {
@@ -256,22 +171,23 @@ class EditOption extends React.Component {
       text: captionValue,
       index: captions.length + 1
     };
-    this.props.addCapation(curr);
+    this.props.addCaption(curr);
   };
 
   burnVideo = () => {
     // getting stuff for
     const {selectItemOne} = this.props.item;
     const {captions} = this.props.edit;
-    this.props.captionClip(selectItemOne, captions, this.props.newFileName);
+    const {_id} = this.props.user;
+    this.props.captionClip(selectItemOne, _id, captions, this.props.newFileName);
   };
 
   saveMP3 = (file) => {
-    console.log("saveMP3 called")
-    console.log("file: ", file)
-    // const { selectItemOne } = this.props.item;
+    const {_id} = this.props.user;
     let bodyFormData = new FormData();
     bodyFormData.append("mp3file", file);
+    bodyFormData.append("uploader_id", _id);
+    bodyFormData.append("filename", this.props.newFileName);
     this.props.saveMP3(bodyFormData);
   }
 
@@ -282,18 +198,9 @@ class EditOption extends React.Component {
   render() {
     // console.log(this.props.item); console.log(this.props.item.videoOneSelection);
     const {items, selectItemOne} = this.props.item;
-    const transitionTypes = ["fade=in", "fade=out", "pad"];
-    const colors = [
-      "red",
-      "green",
-      "blue",
-      "yellow",
-      "violet",
-      "black",
-      "white",
-      "cyans"
-    ];
-    const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
+    const transitionTypes = [
+      {"description": "Fade In", "command": "fade=in"},
+      {"description": "Fade Out", "command": "fade=out"}];
 
     const classes = makeStyles((theme) => ({
       root: {
@@ -317,18 +224,18 @@ class EditOption extends React.Component {
           callback={this.setOneRange}
           videoReference="1"/>
         <div>
-          <Button
+          {/*<Button
             variant="contained"
             color="primary"
             onClick={() => this.props.set_sync()}>
             Sync range selector
-          </Button>
+          </Button>*/}
+          <TextField label="New File Name" onChange={this.handleChange}/>
           <Tooltip
             title="This file name is for the following operation, if it is not specificed, the
           generated random id will be used as the new filename">
             <HelpIcon/>
-          </Tooltip>
-          <TextField label="New File Name" onChange={this.handleChange}/>
+          </Tooltip>          
         </div>
         <br/>
         <Grid container direction="row" justify="space-around" alignItems="flex-start">
@@ -341,7 +248,9 @@ class EditOption extends React.Component {
             }}
               value={this.state.merge_dropdownValue}
               onChange={this.merge_dropdownChanged}>
-              {items.map(({_id, filename}) => (
+              {items
+                .filter(({contentType}) => (contentType.includes("video") ? true : false))
+                .map(({_id, filename}) => (
                 <MenuItem className="edit-dropdown-item" key={_id} value={_id}>
                   {filename}
                 </MenuItem>
@@ -370,46 +279,13 @@ class EditOption extends React.Component {
             }}
               value={this.state.transition_dropdownValue}
               onChange={this.transition_dropdownChanged}>
-              {transitionTypes.map(type => (
-                <MenuItem className="transition-dropdown-item" key={type} value={type}>
-                  {type}
+              {transitionTypes.map(({description, command}) => (
+                <MenuItem className="transition-dropdown-item" key={command} value={command}>
+                  {description}
                 </MenuItem>
               ))}
             </Select>
-
-            {/* If the user chose fade=in or fade=out */}
-            {this
-              .state
-              .transition_dropdownValue
-              .includes("fade")
-              ? (<FadeTransitionComp
-                transStart={this.state.transition_startFrame}
-                transStartChanged={this.transition_startFrameChanged}
-                transEnd={this.state.transition_endFrame}
-                transEndChanged={this.transition_endFrameChanged}
-                createStringOptions={createStringOptions}
-                duration={durationVideoOne}/>)
-              : null}
-
-            {/* If the user chooses pad */}
-            {this
-              .state
-              .transition_dropdownValue
-              .includes("pad")
-              ? (<PadTransitionComp
-                padVidWidth={this.state.transition_paddingVidWidth}
-                padVidWidthChanged={this.transition_paddingVidWidthChanged}
-                padVidHeight={this.state.transition_paddingVidHeight}
-                padVidHeightChanged={this.transition_paddingVidHeightChanged}
-                padVidRow={this.state.transition_paddingVidRow}
-                padVidRowChanged={this.transition_paddingVidRowChanged}
-                padVidCol={this.state.transition_paddingVidCol}
-                padVidColChanged={this.transition_paddingVidColChanged}
-                padVidColor={this.state.transition_paddingColor}
-                padVidColorChanged={this.transition_paddingColorChanged}
-                createStringOptions={createStringOptions}
-                colors={colors}/>)
-              : null}
+            <br/>
             <Button
               variant="contained"
               color="primary"
@@ -427,7 +303,7 @@ class EditOption extends React.Component {
               </Tooltip>
 
             </InputLabel>
-
+            <br/>
             <Button
               variant="contained"
               color="primary"
@@ -439,41 +315,22 @@ class EditOption extends React.Component {
             </Button>
           </Grid>
           <Grid>
-            {/*<InputLabel>Add special effects</InputLabel>
-              <Select
-                className="chroma-dropdown"
-                style={{ minWidth: 180, marginBottom: 10 }}
-                value={this.state.chroma_dropdownValue}
-                onChange={this.chroma_dropdownChanged}
-              >
-                {chromaChoices.map(type => (
-                  <MenuItem
-                    className="chroma-dropdown-item"
-                    key={type}
-                    value={type}
-                  >
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-
+            <InputLabel>Cut
+              <Tooltip title="The Cut range is selected by the range selector ">
+                <HelpIcon/>
+              </Tooltip>
+            </InputLabel>        
+            <br/>
               <Button
                 variant="contained"
                 color="primary"
-                endIcon={<AcUnitIcon />}
-                onClick={this.chroma_dropdownSubmit.bind(this, selectItemOne)}
-              >
-                Add Special Effect
-                </Button>
-              <Button
-                variant="contained"
-                color="primary"
-                endIcon={<SystemUpdateAltIcon />}
-                href="http://localhost:3333">
-                Download
-              </Button>*/}
+                endIcon={< LocalDiningIcon />}
+                onClick={this
+                .cut_Submit
+                .bind(this, selectItemOne)}>
+                Cut
+              </Button>
           </Grid>
-
         </Grid>
         <br/>
         <Grid container direction="row" justify="space-around" alignItems="flex-start">
@@ -509,7 +366,7 @@ class EditOption extends React.Component {
           <Grid>
             <InputLabel>Record</InputLabel>
             <SingleRecorder saveMP3={this.saveMP3}/>
-          </Grid>
+            </Grid>
         </Grid>
         <br/>
 
@@ -531,11 +388,11 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, {
   mergeClip,
   trimClip,
+  cutClip,
   transitionClip,
   set_sync,
-  addCapation,
+  addCaption,
   captionClip,
-  addChroma,
   setVideoOneRange,
   setEnableCap,
   setLoading,
