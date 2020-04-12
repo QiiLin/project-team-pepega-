@@ -16,6 +16,7 @@ import {
   mergeClip,
   set_sync,
   trimClip,
+  cutClip,
   transitionClip,
   setEnableCap,
   saveMP3,
@@ -24,6 +25,7 @@ import {
 } from "../../actions/editActions";
 import EjectIcon from "@material-ui/icons/Eject";
 import FiberSmartRecordIcon from "@material-ui/icons/FiberSmartRecord";
+import LocalDiningIcon from '@material-ui/icons/LocalDining';
 import AcUnitIcon from '@material-ui/icons/AcUnit';
 import SystemUpdateAltIcon from '@material-ui/icons/SystemUpdateAlt';
 import AddIcon from '@material-ui/icons/Add';
@@ -56,21 +58,12 @@ String.prototype.toHHMMSS = function () {
   return hours + ":" + minutes + ":" + seconds;
 };
 
-let createStringOptions = options => {
-  let optionsList = [];
-  for (let i = 0; i < options; i++) {
-    optionsList.push(i.toString());
-  }
-  return optionsList;
-};
-
 class EditOption extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       merge_dropdownValue: "",
       transition_dropdownValue: "",
-      record: false,
       audio_dropdownValue: "",
       video_dropdownValue: ""
     };
@@ -96,6 +89,13 @@ class EditOption extends React.Component {
     const {_id} = this.props.user;
 
     this.props.trimClip(selectItemOne, _id, videoOneSelection, this.props.newFileName);
+  };
+
+  cut_Submit = selectItemOne => {
+    const {videoOneSelection} = this.props.item;
+    const {_id} = this.props.user;
+
+    this.props.cutClip(selectItemOne, _id, videoOneSelection, this.props.newFileName);
   };
 
   merge_dropdownSubmit = selectItemOne => {
@@ -183,11 +183,11 @@ class EditOption extends React.Component {
   };
 
   saveMP3 = (file) => {
-    console.log("saveMP3 called")
-    console.log("file: ", file)
-    // const { selectItemOne } = this.props.item;
+    const {_id} = this.props.user;
     let bodyFormData = new FormData();
     bodyFormData.append("mp3file", file);
+    bodyFormData.append("uploader_id", _id);
+    bodyFormData.append("filename", this.props.newFileName);
     this.props.saveMP3(bodyFormData);
   }
 
@@ -314,6 +314,23 @@ class EditOption extends React.Component {
               Trim
             </Button>
           </Grid>
+          <Grid>
+            <InputLabel>Cut
+              <Tooltip title="The Cut range is selected by the range selector ">
+                <HelpIcon/>
+              </Tooltip>
+            </InputLabel>        
+            <br/>
+              <Button
+                variant="contained"
+                color="primary"
+                endIcon={< LocalDiningIcon />}
+                onClick={this
+                .cut_Submit
+                .bind(this, selectItemOne)}>
+                Cut
+              </Button>
+          </Grid>
         </Grid>
         <br/>
         <Grid container direction="row" justify="space-around" alignItems="flex-start">
@@ -349,7 +366,7 @@ class EditOption extends React.Component {
           <Grid>
             <InputLabel>Record</InputLabel>
             <SingleRecorder saveMP3={this.saveMP3}/>
-          </Grid>
+            </Grid>
         </Grid>
         <br/>
 
@@ -371,6 +388,7 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps, {
   mergeClip,
   trimClip,
+  cutClip,
   transitionClip,
   set_sync,
   addCaption,

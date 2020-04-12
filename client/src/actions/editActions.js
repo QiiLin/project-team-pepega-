@@ -11,11 +11,7 @@ import {
     ENABLE_USERGUIDE,
     SET_FILENAME,
     SET_LOADING,
-    SET_PROGRESS,
-    MERGE_CLIP,
-    TRIM_CLIP,
-    ADD_CHROMA,
-    SAVE_RECORDING,
+    SET_PROGRESS
 } from "./types";
 import { tokenConfig, tokenConfig2 } from "./authActions";
 import { returnErrors } from "./errorActions";
@@ -86,6 +82,27 @@ export const trimClip = (id, uploader_id, videoSelection, filename) => (dispatch
         });
 };
 
+export const cutClip = (id, uploader_id, videoSelection, filename) => (dispatch, getState) => {
+    let body = {
+        uploader_id: uploader_id,
+        timestampStart: videoSelection[0],
+        timestampEnd: videoSelection[1],
+        filename: filename
+    };
+    dispatch(setProgress());
+    dispatch(setLoading());
+    axios
+    // Attach token to request in the header
+        .post(`/api/edit/cut/${id}`, body, tokenConfig(getState))
+        .then(() => {
+            dispatch(getItems());
+            dispatch(setLoading());
+        })
+        .catch(err => {
+            dispatch(returnErrors(err.response.data, err.response.status));
+        });
+};
+
 export const transitionClip = (id, uploader_id, videoSelection, transitionType, filename) => (dispatch, getState) => {
     let body = {
         uploader_id: uploader_id,
@@ -115,7 +132,7 @@ export const saveMP3 = (data) => (dispatch, getState) => {
         "Content-Type": "multipart/form-data"
       }
     })
-    .then(res => dispatch(getItems()))
+    .then(() => dispatch(getItems()))
     .catch(err => {
       dispatch(returnErrors(err.response.data, err.response.status));
     });

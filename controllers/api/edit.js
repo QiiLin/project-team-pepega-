@@ -355,7 +355,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
 // @access Private
 router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
   res.set("Content-Type", "text/plain");
-  if (!req.body.timestampOldStart || !req.body.timestampDuration)
+  if (!req.body.timestampStart || !req.body.timestampEnd)
     return res.status(400).end("timestamp required");
   gfs_prim.then(gfs => {
     const fname = req.body.filename + ".webm";
@@ -364,17 +364,18 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
       mode: "w",
       content_type: "video/webm",
       metadata: {
-        uploader_id: "test",
+        uploader_id: req.body.uploader_id,
         originalname: fname
       }
     });
+    let duration = req.body.timestampEnd - req.body.timestampStart;
     let itemOne = retrievePromise(req.params.id, gfs);
     itemOne.then(item => {
       ffmpeg(item)
-        .setStartTime(req.body.timestampOldStart) //Can be in "HH:MM:SS" format also
-        .setDuration(req.body.timestampDuration)
+        .setStartTime(req.body.timestampStart) //Can be in "HH:MM:SS" format also
+        .setDuration(duration)
         .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
-        .outputOption(["-metadata", `duration=${req.body.timestampDuration - req.body.timestampOldStart}`])
+        .outputOption(["-metadata", `duration=${duration}`])
         .on("progress", progress => {
           console.log(`[Cut1]: ${JSON.stringify(progress)}`);
         })
@@ -622,9 +623,10 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
 // @route POST /api/edit/saveMP3
 // @desc  Save the user recording into the database once the Stop button is pressed
 router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async (req, res) => {
+  const fname = req.body.filename + ".mp3";
   let metadata = {
-    uploader_id: "test",//req.body.uploader_id,
-    originalname: req.file.originalname
+    uploader_id: req.body.uploader_id,
+    originalname: fname
   };
   gfs_prim.then(function (gfs) {
     gfs.files.update({ _id: mongoose.Types.ObjectId(req.file.id) }, { '$set': { 'metadata': metadata } })
