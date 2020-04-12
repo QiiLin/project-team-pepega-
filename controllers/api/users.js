@@ -17,7 +17,7 @@ router.post("/logout", auth, (req, res) => {
     // TODO use this when it is on server
     httpOnly: true,
     sameSite: true,
-    secure: true,
+    secure: false,
   }));
   res.redirect('/');
 });
@@ -71,7 +71,7 @@ router.post("/", check.checkName, check.checkEmail, check.checkPassword, (req, r
                 maxAge: 3600, // 1 week in number of seconds
                 httpOnly: true,
                 sameSite: true,
-                secure: true,
+                secure: false,
               }));
               res.json({
                 token: token,

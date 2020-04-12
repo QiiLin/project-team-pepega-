@@ -45,6 +45,7 @@ const secret = config.get("sessionSecret");
 const session = require("express-session");
 app.use(cookieParser());
 app.use(session({
+<<<<<<< HEAD
   name: 'app.sid',
   secret: secret,
   resave: false,
@@ -55,6 +56,18 @@ app.use(session({
     secure: true,
     maxAge: 60 * 60 * 1000,
   }
+=======
+    name : 'app.sid',
+    secret: secret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true, 
+      sameSite: true, 
+      secure: false,
+      maxAge: 60 * 60 * 1000, 
+    }
+>>>>>>> master
 }));
 
 // const csrfProtection = csurf({cookie:false});
