@@ -11,7 +11,7 @@ const cookieParser = require('cookie-parser');
 
 const csrfProtection = csurf();
 // enable helmet
-// app.use(helmet());
+app.use(helmet());
 // // enable helmet Content Security Policy
 // This fails on the production
 // app.use(helmet.contentSecurityPolicy({
@@ -21,9 +21,9 @@ const csrfProtection = csurf();
 //   }
 // }))
 // set permittedCrossDomainPolicies for flash and adobe stuff
-// app.use(helmet.permittedCrossDomainPolicies())
-// // set the same-origin pllicy
-// app.use(helmet.referrerPolicy({ policy: 'same-origin' }))
+app.use(helmet.permittedCrossDomainPolicies())
+// set the same-origin pllicy
+app.use(helmet.referrerPolicy({ policy: 'same-origin' }))
 
 // Body parser middleware
 app.use(
@@ -110,16 +110,16 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-  // Set static folder
-  app.use(express.static("client/build"));
-	app.use((req, res, next) => {
-		// res.cookie("XSRF-TOKEN", req.csrfToken())
-		next()
-	})
-  app.get("*", (req, res) => {
-    // Current directory, go into client/build, and load the index.html file
-    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-  });
+  // // Set static folder
+  // app.use(express.static("client/build"));
+	// app.use((req, res, next) => {
+	// 	// res.cookie("XSRF-TOKEN", req.csrfToken())
+	// 	next()
+	// })
+  // app.get("*", (req, res) => {
+  //   // Current directory, go into client/build, and load the index.html file
+  //   res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  // });
 
 const port = process.env.PORT || 5000;
 

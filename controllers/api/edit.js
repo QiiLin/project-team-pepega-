@@ -27,7 +27,7 @@ const validator = require('validator');
  * @param {*} res 
  * @param {*} next 
  */
-function sanitizeFilanme(req, res, next) {
+function sanitizeFilename(req, res, next) {
   if (req.body.filename) {
     req.body.filename = validator.escape(req.body.filename);
   } else {
@@ -100,7 +100,7 @@ function generateThumbnail(id, filename) {
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
 // @access Private
-router.post("/caption/:id", auth, sanitizeFilanme,  (req, res) => {
+router.post("/caption/:id", auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
   // check if request has valid data
   if (!req.body.data) {
@@ -170,7 +170,7 @@ router.post("/caption/:id", auth, sanitizeFilanme,  (req, res) => {
             })
             .on("error", function (err) {
               fs.unlink(srt_path, err => {
-                  if (err) console.log("Could not remove srt file:" + err);
+                if (err) console.log("Could not remove srt file:" + err);
               });
               return res
                 .status(500)
@@ -197,7 +197,7 @@ router.post("/caption/:id", auth, sanitizeFilanme,  (req, res) => {
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
-router.post("/merge", upload.none(), auth, sanitizeFilanme, (req, res) => {
+router.post("/merge", upload.none(), auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
   console.log(req.body.curr_vid_id)
   console.log(req.body.merge_vid_id)
@@ -221,7 +221,7 @@ router.post("/merge", upload.none(), auth, sanitizeFilanme, (req, res) => {
         originalname: fname
       }
     });
-    Promise.all([itemOne, itemOneCopy, itemTwo, itemTwoCopy]).then(function(itm) {
+    Promise.all([itemOne, itemOneCopy, itemTwo, itemTwoCopy]).then(function (itm) {
       let currStream = itm[0];
       let currStreamCopy = itm[1];
       let targetStream = itm[2];
@@ -236,67 +236,67 @@ router.post("/merge", upload.none(), auth, sanitizeFilanme, (req, res) => {
 
       let width, height, fps, duration_one, duration_two;
       ffmpeg.ffprobe(targetStream, function (err, metadata_two) {
-        duration_two = metadata_two ? metadata_two.format.duration : 5;    
-      ffmpeg.ffprobe(currStream, function (err, metadata) {
-        width = metadata ? metadata.streams[0].width : 640;
-        height = metadata ? metadata.streams[0].height : 360;
-        fps = metadata ? metadata.streams[0].r_frame_rate : 30;
-        duration_one = metadata ? metadata.format.duration : 5;
+        duration_two = metadata_two ? metadata_two.format.duration : 5;
+        ffmpeg.ffprobe(currStream, function (err, metadata) {
+          width = metadata ? metadata.streams[0].width : 640;
+          height = metadata ? metadata.streams[0].height : 360;
+          fps = metadata ? metadata.streams[0].r_frame_rate : 30;
+          duration_one = metadata ? metadata.format.duration : 5;
 
-        console.log(metadata);
-        console.log(metadata_two);
+          console.log(metadata);
+          console.log(metadata_two);
 
-        console.log("d1: ", duration_one);
-        console.log("d2: ", duration_two);
-        ffmpeg(currStreamCopy)
-          .format("webm")
-          .withVideoCodec("libvpx")
-          //.addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
-          .addOptions(["-b:v 0", "-crf 30"])
-          .withVideoBitrate(1024)
-          .withAudioCodec("libvorbis")
-          .withFpsInput(fps)
-          .outputOptions([`-vf scale=${width}:${height},setsar=1`]) //Sample Aspect Ratio = 1.0     
-          .on("progress", progress => {
-            console.log(`[Merge1]: ${JSON.stringify(progress)}`);
-          })
-          .on("error", function (err) {
-            res.json("An error occurred [Merge1]: " + err.message);
-          })
-          .on('stderr', function(stderrLine) {
-                        console.log('Stderr output [Merge1]: ' + stderrLine);
-                      })
-          .on("end", function() {
-            ffmpeg(targetStreamCopy)
-              .format("webm")
-              .withVideoCodec("libvpx")
-              .addOptions(["-b:v 0", "-crf 30"]) //sets bitrate to zero and specify Constant Rate Factor to target certain perceptual quality lvl, prevents quality loss
-              .withVideoBitrate(1024)
-              .withAudioCodec("libvorbis")
-              .withFpsInput(fps)
-              .outputOptions([`-vf scale=${width}:${height},setsar=1`])
-              .on("progress", progress => {
-                console.log(`[Merge2]: ${JSON.stringify(progress)}`);
-              })
-              .on("error", function (err) {
-                fs.unlink(path1_tmp, err => {
-                  if (err)
-                    console.log("Could not remove Merge1 tmp file:" + err);
-                });
-                return res.json("An error occurred [Merge2]: " + err.message);
-              })
-              .on('stderr', function(stderrLine) {
-                              console.log('Stderr output [Merge2]:: ' + stderrLine);
-                            })
-              .on("end", function() {
+          console.log("d1: ", duration_one);
+          console.log("d2: ", duration_two);
+          ffmpeg(currStreamCopy)
+            .format("webm")
+            .withVideoCodec("libvpx")
+            //.addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+            .addOptions(["-b:v 0", "-crf 30"])
+            .withVideoBitrate(1024)
+            .withAudioCodec("libvorbis")
+            .withFpsInput(fps)
+            .outputOptions([`-vf scale=${width}:${height},setsar=1`]) //Sample Aspect Ratio = 1.0     
+            .on("progress", progress => {
+              console.log(`[Merge1]: ${JSON.stringify(progress)}`);
+            })
+            .on("error", function (err) {
+              res.json("An error occurred [Merge1]: " + err.message);
+            })
+            .on('stderr', function (stderrLine) {
+              console.log('Stderr output [Merge1]: ' + stderrLine);
+            })
+            .on("end", function () {
+              ffmpeg(targetStreamCopy)
+                .format("webm")
+                .withVideoCodec("libvpx")
+                .addOptions(["-b:v 0", "-crf 30"]) //sets bitrate to zero and specify Constant Rate Factor to target certain perceptual quality lvl, prevents quality loss
+                .withVideoBitrate(1024)
+                .withAudioCodec("libvorbis")
+                .withFpsInput(fps)
+                .outputOptions([`-vf scale=${width}:${height},setsar=1`])
+                .on("progress", progress => {
+                  console.log(`[Merge2]: ${JSON.stringify(progress)}`);
+                })
+                .on("error", function (err) {
+                  fs.unlink(path1_tmp, err => {
+                    if (err)
+                      console.log("Could not remove Merge1 tmp file:" + err);
+                  });
+                  return res.json("An error occurred [Merge2]: " + err.message);
+                })
+                .on('stderr', function (stderrLine) {
+                  console.log('Stderr output [Merge2]:: ' + stderrLine);
+                })
+                .on("end", function () {
                   ffmpeg({ source: path1_tmp })
                     .mergeAdd(path2_tmp)
-                    .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
+                    .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
                     .outputOption(["-metadata", `duration=${duration_one + duration_two}`])
                     .on("progress", progress => {
                       console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
                     })
-                    .on("error", function(err) {
+                    .on("error", function (err) {
                       fs.unlink(path1_tmp, err => {
                         if (err)
                           console.log("Could not remove Merge1 tmp file:" + err);
@@ -308,9 +308,9 @@ router.post("/merge", upload.none(), auth, sanitizeFilanme, (req, res) => {
                       return res.json("An error occurred [MergeCombine]: " + err.message);
                     })
                     .on('stderr', function (stderrLine) {
-                          console.log('Stderr output [MergeCombine]:: ' + stderrLine);
+                      console.log('Stderr output [MergeCombine]:: ' + stderrLine);
                     })
-                    .on("end", function() {
+                    .on("end", function () {
                       fs.unlink(path1_tmp, err => {
                         if (err)
                           console.log("Could not remove Merge1 tmp file:" + err);
@@ -322,12 +322,12 @@ router.post("/merge", upload.none(), auth, sanitizeFilanme, (req, res) => {
                       generateThumbnail(result.id, fname);
                       return res.status(200).json("Merging is completed");
                     })
-                    .mergeToFile(result, pathOut_tmp);                
+                    .mergeToFile(result, pathOut_tmp);
+                })
+                .save(path2_tmp);
             })
-            .save(path2_tmp);
-        })
-        .save(path1_tmp);
-      });
+            .save(path1_tmp);
+        });
       });
     });
   });
@@ -336,7 +336,7 @@ router.post("/merge", upload.none(), auth, sanitizeFilanme, (req, res) => {
 // @route  POST /api/edit/cut/:id/
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
-router.post("/cut/:id", sanitizeFilanme, auth, (req, res) => {
+router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
   res.set("Content-Type", "text/plain");
   if (!req.body.timestampOldStart || !req.body.timestampDuration)
     return res.status(400).end("timestamp required");
@@ -380,7 +380,7 @@ router.post("/cut/:id", sanitizeFilanme, auth, (req, res) => {
 // @route  POST /api/edit/trim/:id/
 // @desc   Remove video section at timestampStart & timestampEnd from body
 // @access Private
-router.post("/trim/:id/", upload.none(), auth, sanitizeFilanme, (req, res) => {
+router.post("/trim/:id/", upload.none(), auth, sanitizeFilename, (req, res) => {
   let timestampStart = req.body.timestampStart;
   let timestampEnd = req.body.timestampEnd;
   console.log("start: ", timestampStart);
@@ -427,7 +427,7 @@ router.post("/trim/:id/", upload.none(), auth, sanitizeFilanme, (req, res) => {
       );
       let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
 
-      ffmpeg.ffprobe(itemOneStream, function(err, metadata) {
+      ffmpeg.ffprobe(itemOneStream, function (err, metadata) {
         let duration = metadata ? metadata.format.duration : 5; //vid duration in timebase unit
         console.log("duration: ", duration);
         ffmpeg(itemCopyStream)
@@ -470,7 +470,7 @@ router.post("/trim/:id/", upload.none(), auth, sanitizeFilanme, (req, res) => {
               })
               .on("end", function () {
                 ffmpeg({ source: path1_tmp })
-                  .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
+                  .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
                   .outputOption(["-metadata", `duration=${duration - (timestampEnd - timestampStart)}`])
                   .mergeAdd(path2_tmp)
                   .on("progress", progress => {
@@ -535,7 +535,7 @@ router.post("/trim/:id/", upload.none(), auth, sanitizeFilanme, (req, res) => {
 // @route  POST /api/edit/transition/:id/
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
-router.post("/transition/:id", upload.none(), auth, sanitizeFilanme,  (req, res) => {
+router.post("/transition/:id", upload.none(), auth, sanitizeFilename, (req, res) => {
   // console.log(req.body.transition_paddingVidWidth);
   // console.log(req.body.transition_paddingVidHeight);
   // console.log(req.body.transition_paddingColor);
@@ -591,7 +591,7 @@ router.post("/transition/:id", upload.none(), auth, sanitizeFilanme,  (req, res)
 
 // @route POST /api/edit/saveMP3
 // @desc  Save the user recording into the database once the Stop button is pressed
-router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilanme, async (req, res) => {
+router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async (req, res) => {
   // console.log("edit.js saveMP3");
   // console.log("file in backend: ", req.file)
   let gfs = await gfs_prim;
