@@ -3,7 +3,6 @@ import {Container, Row, Col} from "reactstrap";
 import VideoList from "./editComponent/VideoList";
 import VideoContainer from "./editComponent/VideoContainer";
 import VideoCaptionInput from "./VideoCaptionInput";
-import TimeLineSector from "./editComponent/TimeLineSector";
 import EditOption from "./editComponent/EditOption";
 import {setVideoOneRange, setVideoTwoRange} from "../actions/itemActions";
 import TopBarProgress from "react-topbar-progress-indicator";
@@ -18,9 +17,6 @@ import {connect} from "react-redux";
  * 
  * */
 class EditView extends React.Component {
-  constructor(props) {
-    super(props);
-  }
   render() {
     return (
       <div>

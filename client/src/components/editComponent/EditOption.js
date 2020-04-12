@@ -30,7 +30,6 @@ import {PropTypes} from "prop-types";
 import CaptionListView from "../CaptionListView";
 import {setVideoOneRange} from "../../actions/itemActions";
 import TimeLineSector from "./TimeLineSector";
-import {makeStyles} from '@material-ui/core/styles';
 import {setLoading, setProgress} from "../../actions/editActions";
 import TextField from '@material-ui/core/TextField';
 import SingleRecorder from "./Recorder";
@@ -39,8 +38,8 @@ import SingleRecorder from "./Recorder";
  * This function will take the number string in term of second
  * and convert to the HHMMSS format.
  */
-String.prototype.toHHMMSS = function () {
-  var sec_num = parseInt(this, 10);
+function toHHMMSS(input) {
+  var sec_num = parseInt(input, 10);
   var hours = Math.floor(sec_num / 3600);
   var minutes = Math.floor((sec_num - hours * 3600) / 60);
   var seconds = sec_num - hours * 3600 - minutes * 60;
@@ -175,8 +174,8 @@ class EditOption extends React.Component {
     let startTime = parseInt(videoOneSelection[0], 10) + "";
     let endTime = parseInt(videoOneSelection[1], 10) + "";
     let curr = {
-      start_time: startTime.toHHMMSS() + ",000",
-      end_time: endTime.toHHMMSS() + ",000",
+      start_time: toHHMMSS(startTime) + ",000",
+      end_time: toHHMMSS(endTime) + ",000",
       text: captionValue,
       index: captions.length + 1
     };
