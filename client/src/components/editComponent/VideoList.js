@@ -86,8 +86,9 @@ class VideoList extends Component {
         >
           <TabPane tabId="1">
             <Row>
-              {items
+              {items              
                 .filter(({contentType}) => (contentType.includes("video") ? true : false))
+                .filter(({metadata}) => (metadata == null ? false : !(metadata.originalname === undefined)))
                 .map(({ _id, filename, metadata }) => (                      
                 <Col sm="6" key={_id}>
                   <Card body>
@@ -136,6 +137,7 @@ class VideoList extends Component {
             <Row>
             {items
                 .filter(({contentType}) => (contentType.includes("audio") ? true : false))
+                .filter(({metadata}) => (metadata == null ? false : !(metadata.originalname === undefined)))
                 .map(({ _id, filename, metadata }) => (                      
                 <Col sm="6" key={_id}>
                   <Card body>
