@@ -26,9 +26,19 @@ app.use(helmet.permittedCrossDomainPolicies())
 app.use(helmet.referrerPolicy({ policy: 'same-origin' }))
 
 // Body parser middleware
+app.use(
+  express.json({
+    limit: "10mb",
+  })
+);
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: false }));
-// support encoded bodies
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+    limit: "10mb",
+  })
+); // support encoded bodies
 app.use(methodOverride("_method"));
 const db = config.get("mongoURI");
 const secret = config.get("sessionSecret");
@@ -43,9 +53,10 @@ app.use(session({
       httpOnly: true, 
       sameSite: true, 
       secure: true,
-      maxAge: 60 * 60, 
+      maxAge: 60 * 60 * 1000, 
     }
 }));
+
 
 const csrfProtection = csurf({cookie:false});
 app.use(csrfProtection);
