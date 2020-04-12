@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import '../style/Main.css';
 // import PlayerComp from "./PlayerComp";
 
-class VideoContainer extends Component {
+class VideoContainer extends Component {  
   constructor(props) {
     super(props);
     // Don't call this.setState() here!
@@ -54,7 +54,7 @@ class VideoContainer extends Component {
     const { selectItemOne, selectItemTwo } = this.props.item;
     const playerOneSource = selectItemOne
       ? "api/items/" + selectItemOne
-      : "http://www.w3schools.com/html/mov_bbb.mp4";
+      : "https://www.w3schools.com/html/mov_bbb.mp4";    
     return (
       <div>
         <Box
