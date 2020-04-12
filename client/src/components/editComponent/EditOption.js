@@ -255,6 +255,7 @@ class EditOption extends React.Component {
               onChange={this.merge_dropdownChanged}>
               {items
                 .filter(({contentType}) => (contentType.includes("video") ? true : false))
+                .filter(({metadata}) => (metadata == null ? false : !(metadata.originalname === undefined)))
                 .map(({_id, metadata}) => (
                 <MenuItem className="edit-dropdown-item" key={_id} value={_id}>
                   {metadata.originalname}

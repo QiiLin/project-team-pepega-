@@ -15,9 +15,9 @@ router.post("/logout", auth, (req,res) => {
     path : '/', 
     maxAge: 30, 
     // TODO use this when it is on server
-    // httpOnly: true, 
-    // sameSite: true, 
-    // secure: false,
+    httpOnly: true, 
+    sameSite: true, 
+    secure: false,
   }));
   res.redirect('/');
 });
