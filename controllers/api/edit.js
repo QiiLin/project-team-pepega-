@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const auth = require("../../middleware/auth");
+const {auth} = require("../../middleware/auth");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
@@ -179,7 +179,7 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
             })
             .on("error", function (err) {
               fs.unlink(srt_path, err => {
-                  if (err) console.log("Could not remove srt file:" + err);
+                if (err) console.log("Could not remove srt file:" + err);
               });
               return res
                 .status(500)
@@ -233,7 +233,7 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
         originalname: fname
       }
     });
-    Promise.all([itemOne, itemOneCopy, itemTwo, itemTwoCopy]).then(function(itm) {
+    Promise.all([itemOne, itemOneCopy, itemTwo, itemTwoCopy]).then(function (itm) {
       let currStream = itm[0];
       let currStreamCopy = itm[1];
       let targetStream = itm[2];
@@ -248,67 +248,67 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
 
       let width, height, fps, duration_one, duration_two;
       ffmpeg.ffprobe(targetStream, function (err, metadata_two) {
-        duration_two = metadata_two ? metadata_two.format.duration : 5;    
-      ffmpeg.ffprobe(currStream, function (err, metadata) {
-        width = metadata ? metadata.streams[0].width : 640;
-        height = metadata ? metadata.streams[0].height : 360;
-        fps = metadata ? metadata.streams[0].r_frame_rate : 30;
-        duration_one = metadata ? metadata.format.duration : 5;
+        duration_two = metadata_two ? metadata_two.format.duration : 5;
+        ffmpeg.ffprobe(currStream, function (err, metadata) {
+          width = metadata ? metadata.streams[0].width : 640;
+          height = metadata ? metadata.streams[0].height : 360;
+          fps = metadata ? metadata.streams[0].r_frame_rate : 30;
+          duration_one = metadata ? metadata.format.duration : 5;
 
-        console.log(metadata);
-        console.log(metadata_two);
+          console.log(metadata);
+          console.log(metadata_two);
 
-        console.log("d1: ", duration_one);
-        console.log("d2: ", duration_two);
-        ffmpeg(currStreamCopy)
-          .format("webm")
-          .withVideoCodec("libvpx")
-          //.addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
-          .addOptions(["-b:v 0", "-crf 30"])
-          .withVideoBitrate(1024)
-          .withAudioCodec("libvorbis")
-          .withFpsInput(fps)
-          .outputOptions([`-vf scale=${width}:${height},setsar=1`]) //Sample Aspect Ratio = 1.0     
-          .on("progress", progress => {
-            console.log(`[Merge1]: ${JSON.stringify(progress)}`);
-          })
-          .on("error", function (err) {
-            res.json("An error occurred [Merge1]: " + err.message);
-          })
-          .on('stderr', function(stderrLine) {
-                        console.log('Stderr output [Merge1]: ' + stderrLine);
-                      })
-          .on("end", function() {
-            ffmpeg(targetStreamCopy)
-              .format("webm")
-              .withVideoCodec("libvpx")
-              .addOptions(["-b:v 0", "-crf 30"]) //sets bitrate to zero and specify Constant Rate Factor to target certain perceptual quality lvl, prevents quality loss
-              .withVideoBitrate(1024)
-              .withAudioCodec("libvorbis")
-              .withFpsInput(fps)
-              .outputOptions([`-vf scale=${width}:${height},setsar=1`])
-              .on("progress", progress => {
-                console.log(`[Merge2]: ${JSON.stringify(progress)}`);
-              })
-              .on("error", function (err) {
-                fs.unlink(path1_tmp, err => {
-                  if (err)
-                    console.log("Could not remove Merge1 tmp file:" + err);
-                });
-                return res.json("An error occurred [Merge2]: " + err.message);
-              })
-              .on('stderr', function(stderrLine) {
-                              console.log('Stderr output [Merge2]:: ' + stderrLine);
-                            })
-              .on("end", function() {
+          console.log("d1: ", duration_one);
+          console.log("d2: ", duration_two);
+          ffmpeg(currStreamCopy)
+            .format("webm")
+            .withVideoCodec("libvpx")
+            //.addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+            .addOptions(["-b:v 0", "-crf 30"])
+            .withVideoBitrate(1024)
+            .withAudioCodec("libvorbis")
+            .withFpsInput(fps)
+            .outputOptions([`-vf scale=${width}:${height},setsar=1`]) //Sample Aspect Ratio = 1.0     
+            .on("progress", progress => {
+              console.log(`[Merge1]: ${JSON.stringify(progress)}`);
+            })
+            .on("error", function (err) {
+              res.json("An error occurred [Merge1]: " + err.message);
+            })
+            .on('stderr', function (stderrLine) {
+              console.log('Stderr output [Merge1]: ' + stderrLine);
+            })
+            .on("end", function () {
+              ffmpeg(targetStreamCopy)
+                .format("webm")
+                .withVideoCodec("libvpx")
+                .addOptions(["-b:v 0", "-crf 30"]) //sets bitrate to zero and specify Constant Rate Factor to target certain perceptual quality lvl, prevents quality loss
+                .withVideoBitrate(1024)
+                .withAudioCodec("libvorbis")
+                .withFpsInput(fps)
+                .outputOptions([`-vf scale=${width}:${height},setsar=1`])
+                .on("progress", progress => {
+                  console.log(`[Merge2]: ${JSON.stringify(progress)}`);
+                })
+                .on("error", function (err) {
+                  fs.unlink(path1_tmp, err => {
+                    if (err)
+                      console.log("Could not remove Merge1 tmp file:" + err);
+                  });
+                  return res.json("An error occurred [Merge2]: " + err.message);
+                })
+                .on('stderr', function (stderrLine) {
+                  console.log('Stderr output [Merge2]:: ' + stderrLine);
+                })
+                .on("end", function () {
                   ffmpeg({ source: path1_tmp })
                     .mergeAdd(path2_tmp)
-                    .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
+                    .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
                     .outputOption(["-metadata", `duration=${duration_one + duration_two}`])
                     .on("progress", progress => {
                       console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
                     })
-                    .on("error", function(err) {
+                    .on("error", function (err) {
                       fs.unlink(path1_tmp, err => {
                         if (err)
                           console.log("Could not remove Merge1 tmp file:" + err);
@@ -320,9 +320,9 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                       return res.json("An error occurred [MergeCombine]: " + err.message);
                     })
                     .on('stderr', function (stderrLine) {
-                          console.log('Stderr output [MergeCombine]:: ' + stderrLine);
+                      console.log('Stderr output [MergeCombine]:: ' + stderrLine);
                     })
-                    .on("end", function() {
+                    .on("end", function () {
                       fs.unlink(path1_tmp, err => {
                         if (err)
                           console.log("Could not remove Merge1 tmp file:" + err);
@@ -339,12 +339,12 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                         return res.status(202).json("Merging is completed: ", err)
                       });
                     })
-                    .mergeToFile(result, pathOut_tmp);                
+                    .mergeToFile(result, pathOut_tmp);
+                })
+                .save(path2_tmp);
             })
-            .save(path2_tmp);
-        })
-        .save(path1_tmp);
-      });
+            .save(path1_tmp);
+        });
       });
     });
   });
@@ -450,7 +450,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
       );
       let pathOut_tmp = path.join(__dirname, "../../video_output/tmp");
 
-      ffmpeg.ffprobe(itemOneStream, function(err, metadata) {
+      ffmpeg.ffprobe(itemOneStream, function (err, metadata) {
         let duration = metadata ? metadata.format.duration : 5; //vid duration in timebase unit
         console.log("duration: ", duration);
         ffmpeg(itemCopyStream)
@@ -493,7 +493,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
               })
               .on("end", function () {
                 ffmpeg({ source: path1_tmp })
-                  .addOutputOption(["-b:v 0",  "-crf 30", "-f webm"])
+                  .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
                   .outputOption(["-metadata", `duration=${duration - (timestampEnd - timestampStart)}`])
                   .mergeAdd(path2_tmp)
                   .on("progress", progress => {
