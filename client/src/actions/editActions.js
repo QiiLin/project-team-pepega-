@@ -44,8 +44,9 @@ export const mergeClip = (ids, filename) => (dispatch, getState) => {
         });
 };
 
-export const captionClip = (id, data, filename) => (dispatch, getState) => {
+export const captionClip = (id, uploader_id, data, filename) => (dispatch, getState) => {
     let body = {
+        uploader_id: uploader_id,
         data: data,
         filename: filename
     };
@@ -217,7 +218,7 @@ export const setFilename = filename => {
     }
 }
 
-export const addCapation = item => {
+export const addCaption = item => {
     return {
         type: ADD_CAPTION,
         payload: item

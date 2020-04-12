@@ -11,7 +11,7 @@ import {
 import MergeTypeIcon from "@material-ui/icons/MergeType";
 import HelpIcon from "@material-ui/icons/Help";
 import {
-  addCapation,
+  addCaption,
   captionClip,
   mergeClip,
   set_sync,
@@ -223,9 +223,7 @@ class EditOption extends React.Component {
     bodyFormData.append("vid_id", selectItemOne);
     bodyFormData.append("audio_id", this.state.audio_dropdownValue);
     // bodyFormData.append("video", this.state.video_dropdownValue);
-    this
-      .props
-      .addAudToVid(selectItemOne, bodyFormData)
+    this.props.addAudToVid(selectItemOne, bodyFormData)
   }
 
   audio_dropdownChanged = event => {
@@ -256,14 +254,15 @@ class EditOption extends React.Component {
       text: captionValue,
       index: captions.length + 1
     };
-    this.props.addCapation(curr);
+    this.props.addCaption(curr);
   };
 
   burnVideo = () => {
     // getting stuff for
     const {selectItemOne} = this.props.item;
     const {captions} = this.props.edit;
-    this.props.captionClip(selectItemOne, captions, this.props.newFileName);
+    const {_id} = this.props.user;
+    this.props.captionClip(selectItemOne, _id, captions, this.props.newFileName);
   };
 
   saveMP3 = (file) => {
@@ -293,7 +292,6 @@ class EditOption extends React.Component {
       "white",
       "cyans"
     ];
-    const chromaChoices = ["Add Cloud", "Add Dancing Banana"]; //"Kaleidoscope", "Circular"
 
     const classes = makeStyles((theme) => ({
       root: {
@@ -533,7 +531,7 @@ export default connect(mapStateToProps, {
   trimClip,
   transitionClip,
   set_sync,
-  addCapation,
+  addCaption,
   captionClip,
   addChroma,
   setVideoOneRange,

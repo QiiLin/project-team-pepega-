@@ -28,7 +28,7 @@ const validator = require('validator');
  * @param {*} res 
  * @param {*} next 
  */
-function sanitizeFilanme(req, res, next) {
+function sanitizeFilename(req, res, next) {
   if (req.body.filename) {
     req.body.filename = validator.escape(req.body.filename);
   } else {
@@ -102,10 +102,14 @@ function generateThumbnail(id, filename) {
 // @route  POST /api/caption
 // @desc   Create caption for the selected video
 // @access Private
-router.post("/caption/:id", auth, sanitizeFilanme,  (req, res) => {
+router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
   res.set("Content-Type", "text/plain");
   // check if request has valid data
   if (!req.body.data) {
+    return res.status(400).end("Bad argument: Missing data");
+  }
+  // check if request has valid uploader id
+  if (!req.body.uploader_id) {
     return res.status(400).end("Bad argument: Missing data");
   }
   // check if the filename already exist
@@ -138,7 +142,7 @@ router.post("/caption/:id", auth, sanitizeFilanme,  (req, res) => {
         mode: "w",
         content_type: "video/webm",
         metadata: {
-          uploader_id: "test",
+          uploader_id: req.body.uploader_id,
           originalname: fname
         }
       });
@@ -207,7 +211,7 @@ router.post("/caption/:id", auth, sanitizeFilanme,  (req, res) => {
 // @route  POST /api/edit/merge/
 // @desc   Append video from idMerge to video from id
 // @access Private
-router.post("/merge", upload.none(), auth, sanitizeFilanme, (req, res) => {
+router.post("/merge", upload.none(), auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "text/plain");
   console.log(req.body.curr_vid_id)
   console.log(req.body.merge_vid_id)
@@ -351,7 +355,7 @@ router.post("/merge", upload.none(), auth, sanitizeFilanme, (req, res) => {
 // @route  POST /api/edit/cut/:id/
 // @desc   Cut video section at timestampOld of video from id and move to timestampNew
 // @access Private
-router.post("/cut/:id", sanitizeFilanme, auth, (req, res) => {
+router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
   res.set("Content-Type", "text/plain");
   if (!req.body.timestampOldStart || !req.body.timestampDuration)
     return res.status(400).end("timestamp required");
@@ -401,7 +405,7 @@ router.post("/cut/:id", sanitizeFilanme, auth, (req, res) => {
 // @route  POST /api/edit/trim/:id/
 // @desc   Remove video section at timestampStart & timestampEnd from body
 // @access Private
-router.post("/trim/:id/", upload.none(), auth, sanitizeFilanme, (req, res) => {
+router.post("/trim/:id/", upload.none(), auth, sanitizeFilename, (req, res) => {
   let timestampStart = req.body.timestampStart;
   let timestampEnd = req.body.timestampEnd;
   console.log("start: ", timestampStart);
@@ -561,7 +565,7 @@ router.post("/trim/:id/", upload.none(), auth, sanitizeFilanme, (req, res) => {
 // @route  POST /api/edit/transition/:id/
 // @desc   Add transition effects in a video at a timestamp
 // @access Private
-router.post("/transition/:id", upload.none(), auth, sanitizeFilanme,  (req, res) => {
+router.post("/transition/:id", upload.none(), auth, sanitizeFilename,  (req, res) => {
   // console.log(req.body.transition_paddingVidWidth);
   // console.log(req.body.transition_paddingVidHeight);
   // console.log(req.body.transition_paddingColor);
@@ -632,7 +636,7 @@ router.post("/transition/:id", upload.none(), auth, sanitizeFilanme,  (req, res)
 
 // @route POST /api/edit/saveMP3
 // @desc  Save the user recording into the database once the Stop button is pressed
-router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilanme, async (req, res) => {
+router.post("/saveMP3", upload.single("mp3file"), auth, sanitizeFilename, async (req, res) => {
   // console.log("edit.js saveMP3");
   // console.log("file in backend: ", req.file)
   /*let gfs = await gfs_prim;
