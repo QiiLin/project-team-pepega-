@@ -4,7 +4,7 @@ const app = require('../../server');
 const longpoll = require("express-longpoll")(app);
 const { gfs_prim, upload } = require("../../middleware/gridSet");
 const mongoose = require("mongoose");
-const {auth} = require("../../middleware/auth");
+const { auth } = require("../../middleware/auth");
 const Item = require("../../models/Item");
 const edit = require("../api/edit");
 //const _ = require("underscore");
@@ -12,10 +12,10 @@ const edit = require("../api/edit");
 // current set the amx listeners to 100
 // longpoll.create("/api/item", { maxListeners: 100 });
 
-// @route POST /upload
+// @route POST /api/items/upload
 // @desc  Uploads file to DB
 router.post("/upload", upload.single("video"), auth, async (req, res) => {
-  console.log("Uploaded file: ", req.file);  
+  console.log("Uploaded file: ", req.file);
 
   let metadata = {
     uploader_id: req.body.uploader_id,
@@ -44,12 +44,12 @@ router.post("/upload", upload.single("video"), auth, async (req, res) => {
   // longpoll.publish("/api/items", items);
   newItem.save();*/
   edit.generateThumbnail(req.file.id, req.file.filename)
-  .then(() => {
-    return res.status(200).json("Upload is completed");
-  })
-  .catch((err) => {
-    return res.status(202).json("Upload is completed: ", err)
-  });
+    .then(() => {
+      return res.status(200).json("Upload is completed");
+    })
+    .catch((err) => {
+      return res.status(202).json("Upload is completed: ", err)
+    });
   /*const { id, uploadDate, filename, md5, contentType } = req.file;  
   res.json({
     "_id": id,
@@ -108,7 +108,7 @@ router.get('/:id', auth, (req, res) => {
 
       console.log("mid getting");
       res.set("Content-Type", file.contentType);
-      const readstream = gfs.createReadStream(file._id);      
+      const readstream = gfs.createReadStream(file._id);
       readstream.pipe(res);
       /*readstream.on('end', function() {
         const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
