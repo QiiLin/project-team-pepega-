@@ -37,10 +37,14 @@
 
 ## Edit API
 
+### Caption
 - description: adds caption for the created video
 - request: `POST /api/edit/caption/:id`
     - content-type: `text/plain`
-    - body: 
+    - body: object
+        - uploader_id: (string) uploader_id,
+        - data: (object) ,
+        - filename: filename
 - response: 400
     - content-type: `text/plain`
     - body: (string) Bad argument: Missing captions

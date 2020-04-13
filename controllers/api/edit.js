@@ -5,8 +5,6 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const ffmpeg = require("../../controllers/ff_path");
-// Item model
-const Item = require("../../models/Item");
 const mongoose = require("mongoose");
 const { gfs_prim, upload } = require("../gridSet");
 const crypto = require("crypto");
