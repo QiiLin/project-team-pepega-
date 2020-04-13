@@ -25,11 +25,8 @@
 ## Description of additional features that will be complete by the Final version
 
 - Preview of the edited video
-- Interactable video timeline (e.g. can drag & drop clips)
-- Able to chroma key in images (e.g. the dog shown in class)
-- Able to chroma key in videos
 - Able to add your voice into the video (via the user’s microphone)
-- Users can get help using from the “Get Help” section (search of words)
+- Users can get help using from the “User Guide” section
 
 ## Description of the technology that we will use
 
@@ -38,11 +35,8 @@
 - ReactJS
 - NodeJS
 - Deploy on Heroku
-- The following are JavaScript libraries that we are considering using:
-  - https://github.com/Kagami/ffmpeg.js
-  - https://github.com/moviemasher/moviemasher.js
-  - https://github.com/gka/chroma.js/
-  - https://github.com/ThreadsStyling/video-renderer
+- This is the JavaScript library that we mainly used for video editing:
+  - https://github.com/fluent-ffmpeg/node-fluent-ffmpeg
 
 ## Description of the top 5 technical challenges
 
