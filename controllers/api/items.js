@@ -9,7 +9,6 @@ const edit = require("../api/edit");
 // @route POST /upload
 // @desc  Uploads file to DB
 router.post("/upload", upload.single("video"), auth, async (req, res) => {
-  console.log("Uploaded file: ", req.file);  
   let metadata = {
     uploader_id: req.body.uploader_id,
     originalname: req.file.originalname
@@ -58,12 +57,9 @@ router.get('/:id', auth, (req, res) => {
       if (!file || file.length === 0) {
         return res.status(404).json({err: 'No file exists'});
       }
-
-      console.log("mid getting");
       res.set("Content-Type", file.contentType);
       const readstream = gfs.createReadStream(file._id);      
       readstream.pipe(res);
-      console.log("done getting");
       return;
     });
   });
@@ -82,7 +78,7 @@ router.get('/thumbnail/:id', auth, (req, res) => {
       if (!file || file.length === 0) {
         return;
       }
-      console.log("mid getting thumbnail", file.filename);
+
       const readstream = gfs.createReadStream(file._id);
       readstream.pipe(res);
       readstream.on('error', function (err) {
