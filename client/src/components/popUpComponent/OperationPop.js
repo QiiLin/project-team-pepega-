@@ -19,7 +19,8 @@ class OperationPop extends React.Component {
     super(props);
     this.state = {
       open: true,
-      maxWidth: 'sm'
+      maxWidth: 'sm',
+      msg: ""
     };
     this.handleClose = this.handleClose.bind(this);
     this.renderResultContent = this.renderResultContent.bind(this);
@@ -28,15 +29,17 @@ class OperationPop extends React.Component {
 
   handleClose = () => {
     this.props.setProgress();
-    this.props.clearErrors();
+    setTimeout(function() {
+      //your code to be executed after 1 second
+      this.props.clearErrors();
+    }, 1000);
   };
 
   renderResultContent() {
     if (this.props.status) {
-      return <span>Operation Failed: {this.props.error}</span>;
+      return <span>Operation Failed.</span>;
     }
-    return <span>Operation Sucessed, new video file {this.props.newFileName}
-      is created, you can now view it from the list</span>;
+    return <span>Operation Sucessed, new video file is created, you can now view it from the list</span>;
   }
   renderProgressContent() {
     if (this.props.loading) {
@@ -47,6 +50,7 @@ class OperationPop extends React.Component {
   }
 
   render() {
+
     return (
       <React.Fragment>
         <Dialog
@@ -56,7 +60,9 @@ class OperationPop extends React.Component {
           aria-labelledby="max-width-dialog-title">
           <DialogTitle id="max-width-dialog-title">Operation Dialog</DialogTitle>
           <DialogContent>
-              {this.renderProgressContent()}
+            {this.props.loading? (<span className="alignCenter"><CircularProgress/> </span>):
+               this.renderResultContent()
+            }
           </DialogContent>
           <DialogActions>
             <Button onClick={this.handleClose} color="primary">

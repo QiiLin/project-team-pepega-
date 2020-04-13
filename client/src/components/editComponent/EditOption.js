@@ -134,7 +134,6 @@ class EditOption extends React.Component {
   // bind the state change with the chroma drop down menu
   chroma_dropdownChanged = event => {
     event.persist();
-    console.log(event.target.value);
     this.setState(() => {
       return {chroma_dropdownValue: event.target.value};
     });
@@ -142,7 +141,6 @@ class EditOption extends React.Component {
 
   // perform add Audio to Video operation by invoking addAudtoVid function
   addAudToVid_dropdownSubmit = selectItemOne => {
-    console.log("id: ", selectItemOne)
     let bodyFormData = new FormData();
     bodyFormData.append("vid_id", selectItemOne);
     bodyFormData.append("audio_id", this.state.audio_dropdownValue);
@@ -152,17 +150,14 @@ class EditOption extends React.Component {
   // bind the audio select dropdown selection with current state
   audio_dropdownChanged = event => {
     event.persist();
-    console.log(event.target.value);
     this.setState(() => {
       return {audio_dropdownValue: event.target.value};
     });
-    console.log(this.state.audio_dropdownValue)
   };
 
   // bind the video select dropdown selection with current state
   video_dropdownChanged = event => {
     event.persist();
-    console.log(event.target.value);
     this.setState(() => {
       return {video_dropdownValue: event.target.value};
     });

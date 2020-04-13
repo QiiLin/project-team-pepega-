@@ -17,14 +17,12 @@ import { returnErrors } from "./errorActions";
  * the backend and display it
  */
 export const getItems = () => (dispatch, getState) => {
-  console.log("invoke");
   dispatch(setItemsLoading());
   axios
     .get("/api/items", tokenConfig2(getState))
     .then(res => {
       console.log(res.data);
       dispatch({ type: GET_ITEMS, payload: res.data });
-      console.log("did");
     })
     .catch(err =>
       dispatch(returnErrors(err.response.data, err.response.status))
@@ -36,9 +34,6 @@ export const getItems = () => (dispatch, getState) => {
  * the backend and display it
  */
 export const addItem = item => (dispatch, getState) => {
-  console.log("addItem called");
-  console.log("addItem item: ", item);
-
   // Only add the video if the user input is a video path
   axios
     // Attach token to request in the header
@@ -80,7 +75,6 @@ export const setSelectItemOne = id => {
   };
 };
 export const setSelectItemTwo = id => {
-  //   console.log("selectItemTwo filename: ", id);
   return {
     type: SET_SELECTED_ITEM_TWO,
     payload: id
@@ -94,7 +88,6 @@ export const setVideoOneRange = range => {
   };
 };
 export const setVideoTwoRange = range => {
-  console.log(range);
   return {
     type: SET_ITEM_TWO_RANGE,
     payload: range

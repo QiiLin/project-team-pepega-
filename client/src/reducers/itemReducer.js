@@ -21,7 +21,6 @@ const initialState = {
 export default function(state = initialState, action) {
   switch (action.type) {
     case GET_ITEMS:
-      console.log(action.payload.data, "wee");
       return {
         ...state,
         items: action.payload,
@@ -49,7 +48,6 @@ export default function(state = initialState, action) {
       };
 
     case SET_SELECTED_ITEM_TWO:
-      console.log(action.payload);
       return {
         ...state,
         selectItemTwo: action.payload

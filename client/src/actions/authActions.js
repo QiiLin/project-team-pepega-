@@ -51,7 +51,6 @@ export const register = ({name, email, password}) => (dispatch, getState) => {
   axios
     .post("/api/users", body, tokenConfig(getState))
     .then(res =>{
-      console.log(res);
       dispatch({type: REGISTER_SUCCESS, payload: res.data})
     })
     .catch(err => {
@@ -72,7 +71,7 @@ export const login = ({email, password}) => (dispatch, getState) => {
 
   axios
     .post("/api/auth", body, tokenConfig(getState))
-    .then(res => {      console.log(res); 
+    .then(res => {   
       dispatch({type: LOGIN_SUCCESS, payload: res.data});
     })
     .catch(err => {

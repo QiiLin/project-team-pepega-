@@ -47,7 +47,6 @@ class ItemModal extends Component {
 
   // bind the state with the uploaded file
   fileSelectedHandler = e => {
-    console.log("fileSelectedHandler: ", e.target.files[0]);
     this.setState({
       video: e.target.files[0]
     });
@@ -60,7 +59,6 @@ class ItemModal extends Component {
     // bodyFormData.set("video", this.state.video);
     bodyFormData.append("video", this.state.video);
     bodyFormData.append("uploader_id", this.props.user._id);
-    console.log(this.state.video.type);
     // Add video through add item action
     this.props.addItem(bodyFormData);
     // Close modal
