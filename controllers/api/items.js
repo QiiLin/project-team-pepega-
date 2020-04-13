@@ -5,7 +5,6 @@ const longpoll = require("express-longpoll")(app);
 const { gfs_prim, upload } = require("../gridSet");
 const mongoose = require("mongoose");
 const {auth} = require("../../middleware/auth");
-const Item = require("../../models/Item");
 const edit = require("../api/edit");
 //const _ = require("underscore");
 
