@@ -188,7 +188,7 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
                 return res.status(200).json({response: "Caption is added"});
               })
               .catch((err) => {
-                return res.status(202).json({response: "Caption is added: " + err});
+                return res.status(202).json({response: "Caption is added with error: " + err});
               });
             })
             .writeToStream(resultFile);
@@ -543,26 +543,6 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
       });
     });
   });
-
-  /*ffmpeg({ source: path1 })
-      .complexFilter([
-        `[0:v]trim=start=00:00:00.000:end=00:00:02.000[av]`,
-        `[0:a]atrim=start=00:00:00.000:end=00:00:02.000[aa]`,
-        `[0:v]trim=start=00:00:05.000:end=00:00:21.000,setpts=PTS-STARTPTS[bv]`, //,setpts=PTS-STARTPTS[bv]
-        `[0:a]atrim=start=00:00:05.000:end=00:00:21.000,asetpts=PTS-STARTPTS[ba]`, //,asetpts=PTS-STARTPTS[ba]
-        `[av][aa][bv][ba]concat=:v=0:a=0[outv][outa]`
-      ])
-      .outputOptions([
-        `-map [outv]`,
-        `-map [outa]`
-      ])
-      .on('stderr', function(stderrLine) {
-        console.log('Stderr output [MergeTrim]: ' + stderrLine);
-      })
-      .on('end', function() {
-        res.json('Trim finished !');
-      })
-      .save(pathOut_path);*/
 });
 
 // @route  POST /api/edit/transition/:id/

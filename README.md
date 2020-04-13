@@ -61,3 +61,14 @@
 To run, Type the following in the terminal:
 
 - npm run dev
+
+
+Note: this may have issue with cookie secure flag
+
+Instead you can run production:
+
+- npm run postbuild
+
+and then run  
+
+- npm run product_run

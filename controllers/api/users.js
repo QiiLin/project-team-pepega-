@@ -13,8 +13,7 @@ router.post("/logout", auth, (req,res) => {
   // set the age to 30s
   res.setHeader('Set-Cookie', cookie.serialize('token', '', {
     path : '/', 
-    maxAge: 30, 
-    // TODO use this when it is on server
+    maxAge: 30,
     httpOnly: true, 
     sameSite: true, 
     secure: false,
