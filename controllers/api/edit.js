@@ -70,12 +70,12 @@ function generateThumbnail(id, filename) {
               "-vframes 1", //output 1 frame
               "-f image2pipe" //force image to writestream
             ])
-            .on("progress", progress => {
+            /*.on("progress", progress => {
               console.log(`[Thumbnail]: ${JSON.stringify(progress)}`);
-            })
-            .on("stderr", function (stderrLine) {
+            })*/
+            /*.on("stderr", function (stderrLine) {
               console.log("Stderr output [Thumbnail]: " + stderrLine);
-            })
+            })*/
             .on("error", function (err) {
               return reject("An error occurred [Thumbnail]: ", err.message);
             })
@@ -93,7 +93,7 @@ function generateThumbnail(id, filename) {
 // @desc   Create caption for the selected video
 // @access Private
 router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
-  res.set("Content-Type", "application/json");
+  //res.set("Content-Type", "application/json");
   // check if request has valid data
   if (!req.body.data) {
     return res.status(400).json({error: "Bad argument: Missing captions"});
@@ -106,10 +106,10 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
 
   // start write the content of subtitle caption 
   let result = "";
+  /*if(isNaN(curr.start_time) || isNaN(curr.end_time)){
+    return res.status(400).json({error: "Bad argument: Missing timestamps"});
+  }*/
   req.body.data.forEach(function (curr, index) {
-    if(isNaN(curr.start_time) || isNaN(curr.end_time)){
-      return res.status(400).json({error: "Bad argument: Missing timestamps"});
-    }
     let temp = "" + (index + 1) + "\n";
     temp += curr.start_time + " --> " + curr.end_time + "\n";
     temp += curr.text + "\n";
@@ -122,12 +122,12 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
     .replace(/\\/g, "\\\\\\\\")
     .replace(":", "\\\\:");
   // Note: we need to change this, it doesn't allow 
-  let srt_path = __dirname + "/../../temp/subtitle/" + req.body.filename + "t_sub.srt";
-  console.log(srt_path);
-  console.log(sub_path);
+  let srt_path = path.join(__dirname, "/../../temp/subtitle/", req.body.filename + "t_sub.srt");
+  // console.log(srt_path);
+  // console.log(sub_path);
   fs.writeFile(srt_path, result, function (err) {
     if (err) throw err;
-    console.log("Saved!");
+    // console.log("Saved!");
     gfs_prim.then(function (gfs) {
       // get read stream from DB
       let resultFile = gfs.createWriteStream({
@@ -149,10 +149,10 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
           let height = metadata ? metadata.streams[0].height : 360;
           let fps = metadata ? metadata.streams[0].r_frame_rate : 30;
           let duration = metadata ? metadata.format.duration : 5;
-          console.log(width);
-          console.log(height);
-          console.log(fps);
-          console.log(duration);
+          // console.log(width);
+          // console.log(height);
+          // console.log(fps);
+          // console.log(duration);
           // adding caption
           ffmpeg()
             .input(readItem)
@@ -167,18 +167,18 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
               `-vf subtitles=${sub_path}`
             ])
             .outputOption(["-metadata", `duration=${duration}`])
-            .on("progress", progress => {
+            /*.on("progress", progress => {
               console.log(`[Caption]: ${JSON.stringify(progress)}`);
-            })
+            })*/
             .on("error", function (err) {
               fs.unlink(srt_path, err => {
                 if (err) console.log("Could not remove srt file:" + err);
               });
               return res.status(500).json({error: "An error occurred [Caption]: " + err.message});
             })
-            .on("stderr", function (stderrLine) {
+            /*.on("stderr", function (stderrLine) {
               console.log("Stderr output [Subtitle]:: " + stderrLine);
-            })
+            })*/
             .on("end", function () {
               fs.unlink(srt_path, err => {
                 if (err) console.log("Could not remove srt file:" + err);
@@ -203,8 +203,8 @@ router.post("/caption/:id", auth, sanitizeFilename,  (req, res) => {
 // @access Private
 router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
   res.set("Content-Type", "application/json");
-  console.log(req.params.id)
-  console.log(req.body.merge_vid_id)
+  // console.log(req.params.id)
+  // console.log(req.body.merge_vid_id)
   if (!req.params.id || !req.body.merge_vid_id){
     return res.status(400).json({error: "Bad argument: Missing video id"});
   }
@@ -249,11 +249,11 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
           fps = metadata ? metadata.streams[0].r_frame_rate : 30;
           duration_one = metadata ? metadata.format.duration : 5;
 
-          console.log(metadata);
-          console.log(metadata_two);
+          // console.log(metadata);
+          // console.log(metadata_two);
 
-          console.log("d1: ", duration_one);
-          console.log("d2: ", duration_two);
+          // console.log("d1: ", duration_one);
+          // console.log("d2: ", duration_two);
           ffmpeg(currStreamCopy)
             .format("webm")
             .withVideoCodec("libvpx")
@@ -263,15 +263,15 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
             .withAudioCodec("libvorbis")
             .withFpsInput(fps)
             .outputOptions([`-vf scale=${width}:${height},setsar=1`]) //Sample Aspect Ratio = 1.0     
-            .on("progress", progress => {
+            /*.on("progress", progress => {
               console.log(`[Merge1]: ${JSON.stringify(progress)}`);
-            })
+            })*/
             .on("error", function (err) {
               return res.status(500).json({error: "An error occurred [Merge1]: " + err.message});
             })
-            .on('stderr', function (stderrLine) {
+            /*.on('stderr', function (stderrLine) {
               console.log('Stderr output [Merge1]: ' + stderrLine);
-            })
+            })*/
             .on("end", function () {
               ffmpeg(targetStreamCopy)
                 .format("webm")
@@ -281,9 +281,9 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                 .withAudioCodec("libvorbis")
                 .withFpsInput(fps)
                 .outputOptions([`-vf scale=${width}:${height},setsar=1`])
-                .on("progress", progress => {
+                /*.on("progress", progress => {
                   console.log(`[Merge2]: ${JSON.stringify(progress)}`);
-                })
+                })*/
                 .on("error", function (err) {
                   fs.unlink(path1_tmp, err => {
                     if (err)
@@ -291,17 +291,17 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                   });
                   return res.status(500).json({error: "An error occurred [Merge2]: " + err.message});
                 })
-                .on('stderr', function (stderrLine) {
+                /*.on('stderr', function (stderrLine) {
                   console.log('Stderr output [Merge2]:: ' + stderrLine);
-                })
+                })*/
                 .on("end", function () {
                   ffmpeg({ source: path1_tmp })
                     .mergeAdd(path2_tmp)
                     .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
                     .outputOption(["-metadata", `duration=${duration_one + duration_two}`])
-                    .on("progress", progress => {
+                    /*.on("progress", progress => {
                       console.log(`[MergeCombine]: ${JSON.stringify(progress)}`);
-                    })
+                    })*/
                     .on("error", function (err) {
                       fs.unlink(path1_tmp, err => {
                         if (err)
@@ -313,9 +313,9 @@ router.post("/merge/:id", auth, sanitizeFilename, (req, res) => {
                       });
                       return res.status(500).json({error: "An error occurred [MergeCombine]: " + err.message});
                     })
-                    .on('stderr', function (stderrLine) {
+                    /*.on('stderr', function (stderrLine) {
                       console.log('Stderr output [MergeCombine]:: ' + stderrLine);
-                    })
+                    })*/
                     .on("end", function () {
                       fs.unlink(path1_tmp, err => {
                         if (err)
@@ -378,12 +378,12 @@ router.post("/cut/:id", sanitizeFilename, auth, (req, res) => {
         .outputOption([`-ss ${req.body.timestampStart}`, `-t ${duration}`]) //set starting seconds
         .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
         .outputOption(["-metadata", `duration=${duration}`])
-        .on("progress", progress => {
+        /*.on("progress", progress => {
           console.log(`[Cut]: ${JSON.stringify(progress)}`);
-        })
-        .on("stderr", function (stderrLine) {
+        })*/
+        /*.on("stderr", function (stderrLine) {
           console.log("Stderr output [Cut]: " + stderrLine);
-        })
+        })*/
         .on("error", function (err) {
           return res.status(500).json({error: "An error occurred [Cut]: " + err.message});
         })
@@ -410,8 +410,8 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
   let timestampStart = req.body.timestampStart == "0" ? "0.001" : req.body.timestampStart;
   let timestampEnd = req.body.timestampEnd;
 
-  console.log("start: ", timestampStart);
-  console.log("end: ", timestampEnd);
+  // console.log("start: ", timestampStart);
+  // console.log("end: ", timestampEnd);
   if (isNaN(req.body.timestampStart) || isNaN(req.body.timestampEnd)){
     return res.status(400).json({error: "timestamp required"});
   }
@@ -458,7 +458,7 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
 
       ffmpeg.ffprobe(itemOneStream, function (err, metadata) {
         let duration = metadata ? metadata.format.duration : 5; //vid duration in timebase unit
-        console.log("duration: ", duration);
+        // console.log("duration: ", duration);
         ffmpeg(itemCopyStream)
           .format("webm")
           .withVideoCodec("libvpx")
@@ -466,12 +466,12 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
           .withVideoBitrate(1024)
           .withAudioCodec("libvorbis")
           .outputOption([`-t ${timestampStart}`]) //set starting seconds
-          .on("progress", progress => {
+          /*.on("progress", progress => {
             console.log(`[Trim1]: ${JSON.stringify(progress)}`);
-          })
-          .on("stderr", function (stderrLine) {
+          })*/
+          /*.on("stderr", function (stderrLine) {
             console.log("Stderr output [Trim1]: " + stderrLine);
-          })
+          })*/
           .on("error", function (err) {
             return res.status(500).json({error: "An error occurred [Trim1]:" + err.message});
           })
@@ -483,12 +483,12 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
               .withVideoBitrate(1024)
               .withAudioCodec("libvorbis")
               .outputOption([`-ss ${timestampEnd}`, `-t ${duration}`]) //set starting seconds
-              .on("progress", progress => {
+              /*.on("progress", progress => {
                 console.log(`[Trim2]: ${JSON.stringify(progress)}`);
-              })
-              .on("stderr", function (stderrLine) {
+              })*/
+              /*.on("stderr", function (stderrLine) {
                 console.log("Stderr output [Trim2]: " + stderrLine);
-              })
+              })*/
               .on("error", function (err) {
                 fs.unlink(path1_tmp, err => {
                   if (err)
@@ -501,9 +501,9 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
                   .addOutputOption(["-b:v 0", "-crf 30", "-f webm"])
                   .outputOption(["-metadata", `duration=${duration - (timestampEnd - timestampStart)}`])
                   .mergeAdd(path2_tmp)
-                  .on("progress", progress => {
+                  /*.on("progress", progress => {
                     console.log(`[TrimCombine]: ${JSON.stringify(progress)}`);
-                  })
+                  })*/
                   .on("error", function (err) {
                     fs.unlink(path1_tmp, err => {
                       if (err)
@@ -515,9 +515,9 @@ router.post("/trim/:id/", auth, sanitizeFilename, (req, res) => {
                     });
                     return res.status(500).json({error: "An error occurred [TrimCombine]:" + err.message});
                   })
-                  .on("stderr", function (stderrLine) {
+                  /*.on("stderr", function (stderrLine) {
                     console.log("Stderr output [TrimCombine]:: " + stderrLine);
-                  })
+                  })*/
                   .on("end", function () {
                     fs.unlink(path1_tmp, err => {
                       if (err)
@@ -606,12 +606,12 @@ router.post("/transition/:id", auth, sanitizeFilename,  (req, res) => {
           .withVideoBitrate(1024)
           .withAudioCodec("libvorbis")
           .videoFilters(`${req.body.transitionType}:st=${req.body.transitionStartFrame}:d=${req.body.transitionEndFrame}`)
-          .on("progress", progress => {
+          /*.on("progress", progress => {
             console.log(`[Transition]: ${JSON.stringify(progress)}`);
-          })
-          .on("stderr", function (stderrLine) {
+          })*/
+          /*.on("stderr", function (stderrLine) {
             console.log("Stderr output [Transition]: " + stderrLine);
-          })
+          })*/
           .on("error", function (err) {
             return res.status(500).json({error: "An error occurred [Transition]: " + err.message});
           })

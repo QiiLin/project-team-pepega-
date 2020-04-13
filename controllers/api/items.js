@@ -14,7 +14,7 @@ const edit = require("../api/edit");
 // @route POST /upload
 // @desc  Uploads file to DB
 router.post("/upload", upload.single("video"), auth, async (req, res) => {
-  console.log("Uploaded file: ", req.file);  
+  //console.log("Uploaded file: ", req.file);  
 
   let metadata = {
     uploader_id: req.body.uploader_id,
@@ -69,7 +69,7 @@ router.get("/", auth, (req, res) => {
       if (!files || files.length === 0) {
         return res.status(404).json({err: "No files exist"});
       }
-      console.log("get item is called");
+      //console.log("get item is called");
       // Files 
 
       /*Item.find({}, function(err, filesMetadata){
@@ -101,7 +101,7 @@ router.get('/:id', auth, (req, res) => {
         return res.status(404).json({err: 'No file exists'});
       }
 
-      console.log("mid getting");
+      //console.log("mid getting");
       res.set("Content-Type", file.contentType);
       const readstream = gfs.createReadStream(file._id);      
       readstream.pipe(res);
@@ -109,7 +109,7 @@ router.get('/:id', auth, (req, res) => {
         const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
         readstreamMetadata.pipe(res);
       });*/
-      console.log("done getting");
+      //console.log("done getting");
       return;
     });
   });
@@ -129,19 +129,19 @@ router.get('/thumbnail/:id', auth, (req, res) => {
         return;
       }
 
-      console.log("mid getting thumbnail", file.filename);
+      //console.log("mid getting thumbnail", file.filename);
 
       const readstream = gfs.createReadStream(file._id);
       readstream.pipe(res);
       readstream.on('error', function (err) {
-        console.log('An error occurred!', err);
+        //console.log('An error occurred!', err);
         throw err;
       });
       /*readstream.on('end', function() {
         const readstreamMetadata = Item.find({gfs_id: mongoose.Types.ObjectId(req.params.id)}).stream();
         readstreamMetadata.pipe(res);
       });*/
-      console.log("done getting thumbnail");
+      //console.log("done getting thumbnail");
       return;
     });
   });
