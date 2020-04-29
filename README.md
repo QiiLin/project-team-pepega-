@@ -6,9 +6,9 @@ https://www.youtube.com/watch?v=ED-lg1Ho9gU&feature=youtu.be
 
 ## Team Members
 
-- Botao Martin Liang
-- Harrison Fok
-- Qi Lin
+- Botao Martin
+- Harrison
+- Qi
 
 ## Description of the web application
 
