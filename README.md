@@ -13,6 +13,7 @@ https://www.youtube.com/watch?v=ED-lg1Ho9gU&feature=youtu.be
 ## Description of the web application
 
 - This web application is used for in-browser video editing, and allows users to upload and download the edited video. Note: We are thinking about adding the idea of user account to this platform and allowing users to share their video with others.
+- Note: The node_modules is included here to overwrite a source file from the node-fluent-ffmpeg. This is needed to avoid error from node-fluent-ffmpeg. This bug is already being reported on the issue section of node-fluent-ffmpeg, but still haven't been merge into master.
 
 ## Description of the key features that will be completed by the Beta version
 
